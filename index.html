@@ -3,15 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem - Recherche Produits Amazon</title>
+  <title>Sawem Shop - Produits Tech</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Recherche Amazon</h1>
-  <input type="text" id="searchBox" placeholder="Chercher un produit tech...">
-  <button onclick="searchProducts()">Rechercher</button>
+  <header>
+    <h1>🛒 Sawem Shop</h1>
+    <input type="text" id="search" placeholder="Rechercher un produit...">
+  </header>
 
-  <div id="results"></div>
+  <main>
+    <div id="products" class="grid"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Sawem Shop</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
