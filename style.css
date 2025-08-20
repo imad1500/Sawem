@@ -1,3 +1,4 @@
+/* Corps de page */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -6,6 +7,7 @@ body {
   padding: 20px;
 }
 
+/* Barre de recherche */
 #searchBox {
   padding: 10px;
   width: 250px;
@@ -27,21 +29,26 @@ button:hover {
   background: #0056b3;
 }
 
+/* Conteneur produits */
 #results {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 15px; /* espace uniforme entre cartes */
   margin-top: 20px;
 }
 
+/* Carte produit */
 .card {
-  background: #f0f8ff; /* bleu très clair */
+  background: #f0f8ff; /* bleu clair uniforme */
   border: 1px solid #ddd;
   border-radius: 10px;
-  width: 200px;
-  margin: 10px;
+  width: 220px;
   padding: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   transition: transform 0.2s ease;
 }
 
@@ -49,15 +56,37 @@ button:hover {
   transform: translateY(-5px);
 }
 
+/* Image produit */
 .card img {
   max-width: 100%;
   border-radius: 5px;
+}
+
+/* Titre produit */
+.card h3 {
+  font-size: 16px;
+  color: #222;
+  margin: 10px 0 5px 0;
 }
 
 /* Prix en orange */
 .card .price {
   color: orange;
   font-weight: bold;
-  margin-top: 10px;
-  display: block;
+  margin: 5px 0;
+}
+
+/* Bouton lien */
+.card a {
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  margin-top: 8px;
+}
+
+.card a:hover {
+  background-color: #0056b3;
 }
