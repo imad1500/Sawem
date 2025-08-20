@@ -1,92 +1,85 @@
-/* Corps de page */
+/* --- Corps de page --- */
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
-  background: #fff;
+  background-color: #f8f9fa;
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  text-align: center;
+  color: #333;
 }
 
-/* Barre de recherche */
+/* --- Header --- */
+header {
+  background-color: #007bff;
+  color: white;
+  padding: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+#cart {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* --- Barre de recherche --- */
+#search-container {
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 #searchBox {
   padding: 10px;
   width: 250px;
-  margin-right: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  font-size: 1rem;
 }
 
-button {
+#searchBtn {
   padding: 10px 15px;
-  background: #007BFF;
+  background-color: #007bff;
   color: white;
   border: none;
-  cursor: pointer;
   border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
 }
 
-button:hover {
-  background: #0056b3;
+#searchBtn:hover {
+  background-color: #0056b3;
 }
 
-/* Conteneur produits */
+/* --- Conteneur résultats --- */
 #results {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px; /* espace uniforme entre cartes */
   margin-top: 20px;
-}
-
-/* Carte produit */
-.card {
-  background: #f0f8ff; /* bleu clair uniforme */
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  width: 220px;
-  padding: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease;
+  gap: 10px;
+  width: 90%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-}
-
-/* Image produit */
-.card img {
-  max-width: 100%;
-  border-radius: 5px;
-}
-
-/* Titre produit */
-.card h3 {
-  font-size: 16px;
-  color: #222;
-  margin: 10px 0 5px 0;
-}
-
-/* Prix en orange */
-.card .price {
-  color: orange;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-/* Bouton lien */
-.card a {
-  display: inline-block;
-  padding: 8px 12px;
-  background-color: #007BFF;
+/* --- Footer --- */
+footer {
+  background-color: #007bff;
   color: white;
-  text-decoration: none;
-  border-radius: 5px;
-  margin-top: 8px;
-}
-
-.card a:hover {
-  background-color: #0056b3;
+  padding: 15px 0;
+  margin-top: 30px;
+  font-size: 0.9rem;
 }
