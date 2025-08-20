@@ -35,16 +35,29 @@ button:hover {
 }
 
 .card {
-  background: white;
+  background: #f0f8ff; /* bleu très clair */
   border: 1px solid #ddd;
   border-radius: 10px;
   width: 200px;
   margin: 10px;
   padding: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
 }
 
 .card img {
   max-width: 100%;
   border-radius: 5px;
+}
+
+/* Prix en orange */
+.card .price {
+  color: orange;
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
 }
