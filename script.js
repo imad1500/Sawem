@@ -1,33 +1,48 @@
-let products = [];
-
+// Charger les produits depuis products.json
 async function loadProducts() {
-  const res = await fetch("products.json");
-  products = await res.json();
+  try {
+    const response = await fetch("products.json"); // Assure-toi que products.json est au même niveau
+    const products = await response.json();
+    displayProducts(products);
+
+    // Gestion recherche
+    const searchInput = document.getElementById("search");
+    searchInput.addEventListener("input", () => {
+      const keyword = searchInput.value.toLowerCase();
+      const filtered = products.filter(p =>
+        p.title.toLowerCase().includes(keyword)
+      );
+      displayProducts(filtered);
+    });
+  } catch (error) {
+    console.error("Erreur lors du chargement des produits :", error);
+  }
 }
 
-function searchProducts() {
-  const query = document.getElementById("searchBox").value.toLowerCase();
-  const results = products.filter(p => p.title.toLowerCase().includes(query));
+// Afficher produits
+function displayProducts(products) {
+  const container = document.getElementById("products");
+  container.innerHTML = "";
 
-  let html = "";
-  if (results.length > 0) {
-    results.forEach(p => {
-      html += `
-        <div class="card">
-          <img src="${p.image}" alt="${p.title}">
-          <h3>${p.title}</h3>
-          <p>${p.price}</p>
-          <a href="${p.link}" target="_blank">Voir sur Amazon</a>
-        </div>
-      `;
-    });
-  } else {
-    html = "<p>Aucun produit trouvé.</p>";
+  if (products.length === 0) {
+    container.innerHTML = "<p>Aucun produit trouvé.</p>";
+    return;
   }
 
-  document.getElementById("results").innerHTML = html;
+  products.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "product";
+
+    card.innerHTML = `
+      <img src="${p.image}.jpg" alt="${p.title}">
+      <h3>${p.title}</h3>
+      <p class="price">${p.price}</p>
+      <a href="${p.link}" target="_blank" class="btn">Voir le produit</a>
+    `;
+
+    container.appendChild(card);
+  });
 }
 
-// Load products when page loads
-window.onload = loadProducts;
-
+// Lancer au chargement
+window.addEventListener("DOMContentLoaded", loadProducts);
