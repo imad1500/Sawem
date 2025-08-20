@@ -1,25 +1,23 @@
-async function searchProducts() {
-  const query = document.getElementById("searchBox").value;
-  if (!query) return;
+let products = [];
 
-  // 👉 mets ton URL Render ici
-  const res = await fetch(`https://www.sawem.shop/search?keyword=${encodeURIComponent(query)}`);
-  const data = await res.json();
+async function loadProducts() {
+  const res = await fetch("products.json");
+  products = await res.json();
+}
+
+function searchProducts() {
+  const query = document.getElementById("searchBox").value.toLowerCase();
+  const results = products.filter(p => p.title.toLowerCase().includes(query));
 
   let html = "";
-  if (data.SearchResult && data.SearchResult.Items) {
-    data.SearchResult.Items.forEach(item => {
-      const title = item.ItemInfo.Title.DisplayValue;
-      const image = item.Images.Primary.Medium.URL;
-      const price = item.Offers?.Listings?.[0]?.Price?.DisplayAmount || "Prix indisponible";
-      const link = item.DetailPageURL;
-
+  if (results.length > 0) {
+    results.forEach(p => {
       html += `
         <div class="card">
-          <img src="${image}" alt="${title}">
-          <h3>${title}</h3>
-          <p>${price}</p>
-          <a href="${link}" target="_blank">Voir sur Amazon</a>
+          <img src="${p.image}" alt="${p.title}">
+          <h3>${p.title}</h3>
+          <p>${p.price}</p>
+          <a href="${p.link}" target="_blank">Voir sur Amazon</a>
         </div>
       `;
     });
@@ -29,3 +27,7 @@ async function searchProducts() {
 
   document.getElementById("results").innerHTML = html;
 }
+
+// Load products when page loads
+window.onload = loadProducts;
+
