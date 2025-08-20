@@ -1,94 +1,58 @@
-/* Style global */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  text-align: center;
+  background: #fff;
   margin: 0;
   padding: 20px;
-  text-align: center;
 }
 
-/* Titre */
-h1 {
-  color: #333;
-  margin-bottom: 20px;
-}
-
-/* Barre de recherche */
-#search {
+#searchBox {
   padding: 10px;
-  width: 300px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  width: 250px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
-#searchBtn {
-  padding: 10px 20px;
-  margin-left: 10px;
-  font-size: 16px;
-  background-color: #0073e6;
+button {
+  padding: 10px 15px;
+  background: #007BFF;
   color: white;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
+  border-radius: 5px;
 }
 
-#searchBtn:hover {
-  background-color: #005bb5;
+button:hover {
+  background: #0056b3;
 }
 
-/* Conteneur des produits */
-#products {
+#results {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
-/* Carte produit */
-.product {
+.card {
   background: white;
   border: 1px solid #ddd;
-  border-radius: 12px;
-  margin: 15px;
-  padding: 15px;
-  width: 220px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Image produit */
-.product img {
-  width: 100%;
-  height: auto;
   border-radius: 10px;
+  width: 200px;
+  margin: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Titre produit */
-.product h3 {
-  font-size: 16px;
-  margin: 12px 0;
-  color: #222;
+.card img {
+  max-width: 100%;
+  border-radius: 5px;
 }
 
-/* Prix en orange uniquement */
-.product p {
-  font-size: 18px;
-  font-weight: bold;
+/* Prix en orange */
+.card .price {
   color: orange;
-  margin: 10px 0;
-}
-
-/* Bouton lien */
-.product a {
-  display: inline-block;
-  padding: 8px 14px;
-  background-color: #0073e6;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-}
-
-.product a:hover {
-  background-color: #005bb5;
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
 }
