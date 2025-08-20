@@ -55,11 +55,6 @@ h1 {
   width: 220px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
-}
-
-.product:hover {
-  transform: scale(1.05);
 }
 
 /* Image produit */
@@ -76,7 +71,7 @@ h1 {
   color: #222;
 }
 
-/* Prix en orange */
+/* Prix en orange uniquement */
 .product p {
   font-size: 18px;
   font-weight: bold;
@@ -88,13 +83,12 @@ h1 {
 .product a {
   display: inline-block;
   padding: 8px 14px;
-  background-color: #ff6600;
+  background-color: #0073e6;
   color: white;
   text-decoration: none;
   border-radius: 8px;
-  transition: background 0.3s;
 }
 
 .product a:hover {
-  background-color: #cc5200;
+  background-color: #005bb5;
 }
