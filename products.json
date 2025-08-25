@@ -74,7 +74,7 @@
   {
     "title": "Apple Watch Series 10",
     "image": "Images/Products/Amazon/Apple-Watch-Series-106.jpg",
-    "price": "354,90 $"
+    "price": "354,90 $",
     "link": "https://amzn.to/45S8wIi"
   },
   {
@@ -115,10 +115,11 @@
   },
   {
     "title": "Razer Deathadder Elite Gaming Mouse",
-    "image": "Images/Products/Amazon/1Razer-Deathadder-Elite-Gaming-Mouse.jpg",6
+    "image": "Images/Products/Amazon/1Razer-Deathadder-Elite-Gaming-Mouse.jpg",
     "price": "59,18 $",
     "link": "https://amzn.to/3JS2HDe"
   }
 ]
+
 
 
