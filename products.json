@@ -62,62 +62,63 @@
   {
     "title": "Philips Hue White and Color Ambiance Kit",
     "image": "Images/Products/Amazon/Philips-Hue-White-and-Color-Ambiance-Kit.jpg",
-    "price": "199,99 €",
+    "price": "199,99 $",
     "link": "https://amzn.to/45S4pfy"
   },
   {
     "title": "Bose SoundLink Revolve+ Haut-parleur Bluetooth",
     "image": "Images/Products/Amazon/Bose-SoundLink-Revolve+-Haut-parleurBluetooth.jpg",
-    "price": "199,97 €",
+    "price": "199,97 $",
     "link": "https://amzn.to/47ek6Ql"
   },
   {
     "title": "Apple Watch Series 10",
     "image": "Images/Products/Amazon/Apple-Watch-Series-106.jpg",
-    "price": "354,90 €"
+    "price": "354,90 $"
     "link": "https://amzn.to/45S8wIi"
   },
   {
     "title": "Samsung Galaxy Watch 7",
     "image": "Images/Products/Amazon/Samsung-Galaxy-Watch-7.jpg",
-    "price": "185,90 €",
+    "price": "185,90 $",
     "link": "https://amzn.to/4oJA2Am"
   },
   {
     "title": "Sony PlayStation 5 Console",
     "image": "Images/Products/Amazon/Sony-PlayStation-5-Console.jpg",
-    "price": "400,00 €",
+    "price": "400,00 $",
     "link": "https://amzn.to/3HTEBHE"
   },
   {
     "title": "Microsoft Xbox Series X Console",
     "image": "Images/Products/Amazon/Microsoft-Xbox-Series-X-Console.jpg",
-    "price": "598,00 €",
+    "price": "598,00 $",
     "link": "https://amzn.to/3HQH59S"
   },
   {
     "title": "Apple 2025 MacBook Air",
     "image": "Images/Products/Amazon/Apple-2025-MacBook-Air.jpg",
-    "price": "1 154,00 €",
+    "price": "1 154,00 $",
     "link": "https://amzn.to/47dyqJ1"
   },
   {
     "title": "Google Pixel 7 Pro",
     "image": "Images/Products/Amazon/Google-Pixel-7-Pro.jpg",
-    "price": "375,00 €",
+    "price": "375,00 $",
     "link": "https://amzn.to/4mr0rRY"
   },
   {
     "title": "Amazon Fire TV Stick 4K",
     "image": "Images/Products/Amazon/Amazon-Fire-TV-Stick-4K.jpg",
-    "price": "55,98 €",
+    "price": "55,98 $",
     "link": "https://amzn.to/4oU75ls"
   },
   {
     "title": "Razer Deathadder Elite Gaming Mouse",
     "image": "Images/Products/Amazon/1Razer-Deathadder-Elite-Gaming-Mouse.jpg",6
-    "price": "59,18 €",
+    "price": "59,18 $",
     "link": "https://amzn.to/3JS2HDe"
   }
 ]
+
 
