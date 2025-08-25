@@ -23,6 +23,15 @@ searchBtn.addEventListener('click', () => {
   displayProducts(filtered);
 });
 
+// Événement recherche en temps réel quand on tape dans la barre
+searchBox.addEventListener('input', () => {
+  const query = searchBox.value.trim().toLowerCase();
+  const filtered = products.filter(product =>
+    product.title.toLowerCase().includes(query)
+  );
+  displayProducts(filtered);
+});
+
 // Fonction pour afficher les produits
 function displayProducts(list) {
   results.innerHTML = '';
