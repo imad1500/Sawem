@@ -3,24 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.shop</title>
+  <title>Sawem.shop - Produits</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <!-- Header -->
   <header>
     <h1>Sawem.shop 🛒</h1>
+    <p>Découvrez les meilleurs produits sur <strong>AliExpress</strong> et <strong>Amazon</strong></p>
   </header>
-
-  <!-- Hero / Bannière moderne -->
-  <section class="hero">
-    <div class="hero-content">
-      <h2>Bienvenue sur Sawem.shop !</h2>
-      <p>Découvrez les meilleurs produits Tech sur AliExpress et Amazon.</p>
-      <a href="#results" class="hero-btn">Voir les produits</a>
-    </div>
-  </section>
 
   <!-- Barre de recherche -->
   <div id="search-container">
@@ -28,23 +19,52 @@
     <button id="searchBtn">Rechercher</button>
   </div>
 
-  <!-- Résultats / Grille produits -->
-  <div id="results">
-    <!-- Les produits seront injectés ici via script.js -->
-  </div>
+  <!-- Section AliExpress -->
+  <section class="products-section">
+    <h2>🌏 Produits AliExpress</h2>
+    <div class="products-grid" id="aliexpress-products"></div>
+  </section>
 
-  <!-- Footer amélioré -->
-  <footer id="footer">
-    <div class="footer-content">
-      <p>&copy; 2025 Sawem.shop. Tous droits réservés.</p>
-      <p class="contact-info">
-        <span>📞 <a href="tel:+33745438728">+33 7 45 43 87 28</a></span> |
-        <span>✉️ <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></span>
-      </p>
-      <p><a href="#">Mentions légales</a></p>
-    </div>
+  <!-- Section Amazon -->
+  <section class="products-section">
+    <h2>🛒 Produits Amazon</h2>
+    <div class="products-grid" id="amazon-products"></div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Sawem.shop | Contact : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></p>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- Script -->
+  <script>
+    async function loadProducts() {
+      const response = await fetch("products.json");
+      const products = await response.json();
+
+      const amazonContainer = document.getElementById("amazon-products");
+      const aliContainer = document.getElementById("aliexpress-products");
+
+      products.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.title}">
+          <h3>${product.title}</h3>
+          <p class="price">${product.price}</p>
+          <a href="${product.link}" target="_blank" class="btn">Voir le produit</a>
+        `;
+
+        if (product.source === "Amazon") {
+          amazonContainer.appendChild(card);
+        } else if (product.source === "AliExpress") {
+          aliContainer.appendChild(card);
+        }
+      });
+    }
+
+    loadProducts();
+  </script>
 </body>
 </html>
