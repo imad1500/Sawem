@@ -60,22 +60,87 @@ header nav a:hover {
   transform: scale(1.1);
 }
 
-/* --- Hero / Bannière --- */
+/* --- Hero / Bannière premium avec animations et parallax --- */
 .hero {
-  background: #e6f0ff;
-  padding: 3rem 1rem;
-  margin-bottom: 2rem;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  padding: 4rem 1rem;
+  margin-bottom: 3rem;
+  border-radius: 16px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.15);
+  pointer-events: none;
+}
+
+.hero h2, .hero p, .hero-btn {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUp 1s forwards;
+}
+
+.hero p.delay-1 {
+  animation-delay: 0.3s;
+}
+
+.hero-btn.delay-2 {
+  animation-delay: 0.6s;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .hero p {
   font-size: 1.2rem;
-  color: #555;
+  color: #f0f0f0;
+  max-width: 700px;
+  margin: 0 auto 1.5rem auto;
+  line-height: 1.6;
+}
+
+.hero-btn {
+  display: inline-block;
+  padding: 12px 25px;
+  font-size: 1rem;
+  color: white;
+  background-color: #ff6b6b;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.hero-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  background-color: #ff4757;
+  animation: pulse 0.6s infinite alternate;
+}
+
+@keyframes pulse {
+  to { transform: translateY(-3px) scale(1.08); }
 }
 
 /* --- Barre de recherche --- */
@@ -128,7 +193,7 @@ header nav a:hover {
   margin: 0 auto;
 }
 
-/* --- Carte produit --- */
+/* --- Carte produit avec animation --- */
 .card {
   background-color: #ffffff;
   border-radius: 12px;
@@ -138,12 +203,27 @@ header nav a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: floatUp 0.8s forwards;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes floatUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transform: translateY(-8px) rotate(-1deg) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
 }
 
 .card img {
@@ -180,23 +260,35 @@ header nav a:hover {
   transform: translateY(-2px);
 }
 
-/* --- Footer --- */
+/* --- Footer premium --- */
 footer {
   text-align: center;
-  padding: 1.5rem 0;
-  background-color: #007bff;
-  color: white;
+  padding: 2rem 1rem;
+  background-color: #111827;
+  color: #e5e7eb;
   margin-top: 2rem;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+  border-top: 4px solid #007bff;
+}
+
+footer p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 footer a {
-  color: white;
-  text-decoration: underline;
-  margin: 0 0.5rem;
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 500;
   transition: color 0.2s ease;
 }
 
 footer a:hover {
   color: #ffd700;
+}
+
+footer .contact-info {
+  margin: 0.5rem 0;
+  font-size: 1rem;
 }
