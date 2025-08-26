@@ -30,4 +30,39 @@
 
   <!-- Barre de recherche -->
   <div id="search-container">
-    <label for="searchBox" cla
+    <label for="searchBox" class="sr-only">Rechercher un produit</label>
+    <input type="text" id="searchBox" placeholder="Rechercher un produit...">
+    <button id="searchBtn">Rechercher</button>
+  </div>
+
+  <!-- Résultats / Grille produits -->
+  <div id="results">
+    <!-- Les produits seront injectés ici via script.js -->
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>&copy; 2025 Sawem.shop. Tous droits réservés.</p>
+    <p class="contact-info">
+      Téléphone : <a href="tel:+33745438728">+33 7 45 43 87 28</a> |
+      Email : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a>
+    </p>
+    <p><a href="#">Mentions légales</a></p>
+  </footer>
+
+  <script>
+    // Parallax Hero
+    const hero = document.querySelector('.hero');
+    window.addEventListener('scroll', () => {
+      const scrollPos = window.scrollY;
+      hero.style.backgroundPositionY = `${scrollPos * 0.5}px`;
+      const texts = hero.querySelectorAll('h2, p, .hero-btn');
+      texts.forEach(el => {
+        el.style.transform = `translateY(${30 - scrollPos * 0.2}px)`;
+      });
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
