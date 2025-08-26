@@ -3,63 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.shop - Produits</title>
+  <title>Sawem.shop</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <!-- Header -->
   <header>
-    <h1>Sawem.shop</h1>
-    <p>Découvrez les meilleurs produits Tech sur <strong>AliExpress</strong> et <strong>Amazon</strong></p>
+    <div class="header-container">
+      <h1 class="logo">Sawem.shop</h1>
+      <p class="slogan">Découvrez les meilleurs produits Tech sur AliExpress et Amazon</p>
+      <div class="search-cart">
+        <input type="text" placeholder="Rechercher un produit...">
+        <div class="cart">🛒</div>
+      </div>
+    </div>
   </header>
 
   <!-- Section AliExpress -->
-  <section class="products-section">
-    <h2>🌏 Produits AliExpress</h2>
-    <div class="products-grid" id="aliexpress-products"></div>
+  <section class="products">
+    <h2>Produits AliExpress</h2>
+    <div class="product-list" id="aliexpress-products">
+      <!-- Produits AliExpress chargés ici -->
+    </div>
   </section>
 
-    <!-- Section Amazon -->
-  <section class="products-section">
-    <h2>🛒 Produits Amazon</h2>
-    <div class="products-grid" id="amazon-products"></div>
+  <!-- Section Amazon -->
+  <section class="products">
+    <h2>Produits Amazon</h2>
+    <div class="product-list" id="amazon-products">
+      <!-- Produits Amazon chargés ici -->
+    </div>
   </section>
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Sawem.shop | Contact : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></p>
+    <p>&copy; 2025 Sawem.shop - Tous droits réservés</p>
+    <p>Contact : contact@sawem.shop | Tél : +33 7 45 43 87 28</p>
   </footer>
 
-  <!-- Script -->
-  <script>
-    async function loadProducts() {
-      const response = await fetch("products.json");
-      const products = await response.json();
-
-      const amazonContainer = document.getElementById("amazon-products");
-      const aliContainer = document.getElementById("aliexpress-products");
-
-      products.forEach(product => {
-        const card = document.createElement("div");
-        card.className = "product-card";
-
-        card.innerHTML = `
-          <img src="${product.image}" alt="${product.title}">
-          <h3>${product.title}</h3>
-          <p class="price">${product.price}</p>
-          <a href="${product.link}" target="_blank" class="btn">Voir le produit</a>
-        `;
-
-        if (product.source === "Amazon") {
-          amazonContainer.appendChild(card);
-        } else if (product.source === "AliExpress") {
-          aliContainer.appendChild(card);
-        }
-      });
-    }
-
-    loadProducts();
-  </script>
 </body>
 </html>
-
