@@ -231,20 +231,27 @@ header nav a:hover {
   transform: translateY(-2px);
 }
 
-/* --- Footer assorti au header --- */
+/* --- Footer amélioré --- */
 footer {
-  text-align: center;
-  padding: 1.5rem 0;
-  background-color: #007bff;
+  background-color: #007bff; /* même couleur que header */
   color: white;
-  margin-top: 2rem;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+footer .footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 footer a {
   color: white;
   text-decoration: underline;
-  margin: 0 0.5rem;
   transition: color 0.2s ease;
 }
 
@@ -252,7 +259,40 @@ footer a:hover {
   color: #ffd700;
 }
 
-footer .contact-info {
-  margin: 0.5rem 0;
-  font-size: 1rem;
+footer .contact-info span {
+  margin: 0 0.5rem;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  #search-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  #searchBox {
+    width: 90%;
+  }
+
+  #results {
+    padding: 0 1rem 2rem 1rem;
+  }
+
+  .hero h2 {
+    font-size: 1.6rem;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .hero-btn {
+    padding: 8px 18px;
+    font-size: 0.9rem;
+  }
 }
