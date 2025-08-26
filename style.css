@@ -60,20 +60,21 @@ header nav a:hover {
   transform: scale(1.1);
 }
 
-/* --- Hero / Bannière premium avec animations et parallax --- */
+/* --- Hero / Bannière premium --- */
 .hero {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
-  padding: 4rem 1rem;
-  margin-bottom: 3rem;
+  padding: 2.5rem 1rem; /* réduit par rapport à avant */
+  margin-bottom: 2rem;
   border-radius: 16px;
   color: white;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   position: relative;
   overflow: hidden;
+  min-height: 250px; /* hauteur plus raisonnable */
 }
 
 .hero::before {
@@ -106,16 +107,16 @@ header nav a:hover {
 }
 
 .hero h2 {
-  font-size: 2.5rem;
+  font-size: 2rem; /* réduit de 2.5rem */
   margin-bottom: 1rem;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
 .hero p {
-  font-size: 1.2rem;
+  font-size: 1rem; /* réduit de 1.2rem */
   color: #f0f0f0;
-  max-width: 700px;
+  max-width: 650px;
   margin: 0 auto 1.5rem auto;
   line-height: 1.6;
 }
@@ -131,16 +132,13 @@ header nav a:hover {
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-btn:hover {
   transform: translateY(-3px) scale(1.05);
   background-color: #ff4757;
-  animation: pulse 0.6s infinite alternate;
-}
-
-@keyframes pulse {
-  to { transform: translateY(-3px) scale(1.08); }
 }
 
 /* --- Barre de recherche --- */
