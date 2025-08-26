@@ -1,74 +1,60 @@
-// Charger les produits depuis products.json
 let products = [];
 
+// Charger les produits depuis products.json
 fetch('products.json')
   .then(response => response.json())
   .then(data => {
     products = data;
-    displayProducts(products); // Afficher tous les produits au départ
+    displayProducts(products);
   })
   .catch(error => console.error('Erreur chargement products.json :', error));
 
-// Référence aux éléments
+// Références aux éléments
 const searchBox = document.getElementById('searchBox');
 const searchBtn = document.getElementById('searchBtn');
-const results = document.getElementById('results');
-
-// Événement clic sur le bouton Rechercher
-searchBtn.addEventListener('click', () => {
-  const query = searchBox.value.trim().toLowerCase();
-  const filtered = products.filter(product =>
-    product.title.toLowerCase().includes(query)
-  );
-  displayProducts(filtered);
-});
-
-// Événement recherche en temps réel quand on tape dans la barre
-searchBox.addEventListener('input', () => {
-  const query = searchBox.value.trim().toLowerCase();
-  const filtered = products.filter(product =>
-    product.title.toLowerCase().includes(query)
-  );
-  displayProducts(filtered);
-});
+const amazonContainer = document.getElementById('amazon-products');
+const aliContainer = document.getElementById('aliexpress-products');
 
 // Fonction pour afficher les produits
 function displayProducts(list) {
-  results.innerHTML = '';
+  amazonContainer.innerHTML = '';
+  aliContainer.innerHTML = '';
 
-  if (list.length === 0) {
-    results.innerHTML = '<p>Aucun produit trouvé.</p>';
+  const filteredAli = list.filter(p => p.source === "AliExpress");
+  const filteredAmazon = list.filter(p => p.source === "Amazon");
+
+  if (filteredAli.length === 0 && filteredAmazon.length === 0) {
+    aliContainer.innerHTML = '<p>Aucun produit trouvé.</p>';
     return;
   }
 
-  list.forEach(product => {
-    const card = document.createElement('div');
-    card.classList.add('card');
-
-    // Image
-    const img = document.createElement('img');
-    img.src = product.image;
-    img.alt = product.title;
-    card.appendChild(img);
-
-    // Titre
-    const title = document.createElement('h3');
-    title.textContent = product.title;
-    card.appendChild(title);
-
-    // Prix en orange
-    const price = document.createElement('span');
-    price.classList.add('price');
-    price.textContent = product.price;
-    card.appendChild(price);
-
-    // Lien
-    const link = document.createElement('a');
-    link.href = product.link;
-    link.target = '_blank';
-    link.textContent = 'Voir sur Amazon';
-    card.appendChild(link);
-
-    results.appendChild(card);
-  });
+  filteredAli.forEach(product => createCard(product, aliContainer));
+  filteredAmazon.forEach(product => createCard(product, amazonContainer));
 }
+
+// Fonction pour créer une carte produit
+function createCard(product, container) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+  card.innerHTML = `
+    <img src="${product.image}" alt="${product.title}">
+    <h3>${product.title}</h3>
+    <p class="price">${product.price}</p>
+    <a href="${product.link}" target="_blank" class="btn">Voir le produit</a>
+  `;
+  container.appendChild(card);
+}
+
+// Recherche en temps réel
+searchBox.addEventListener('input', () => {
+  const query = searchBox.value.trim().toLowerCase();
+  const filtered = products.filter(p => p.title.toLowerCase().includes(query));
+  displayProducts(filtered);
+});
+
+// Recherche au clic sur le bouton
+searchBtn.addEventListener('click', () => {
+  const query = searchBox.value.trim().toLowerCase();
+  const filtered = products.filter(p => p.title.toLowerCase().includes(query));
+  displayProducts(filtered);
+});
