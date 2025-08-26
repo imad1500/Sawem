@@ -10,37 +10,41 @@
 
   <!-- Header -->
   <header>
-    <div class="header-container">
-      <h1 class="logo">Sawem.shop</h1>
-      <p class="slogan">Découvrez les meilleurs produits Tech sur AliExpress et Amazon</p>
-      <div class="search-cart">
-        <input type="text" placeholder="Rechercher un produit...">
-        <div class="cart">🛒</div>
-      </div>
-    </div>
+    <h1>Sawem.shop 🛒</h1>
   </header>
 
-  <!-- Section AliExpress -->
-  <section class="products">
-    <h2>Produits AliExpress</h2>
-    <div class="product-list" id="aliexpress-products">
-      <!-- Produits AliExpress chargés ici -->
+  <!-- Hero / Bannière moderne -->
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Bienvenue sur Sawem.shop !</h2>
+      <p>Découvrez les meilleurs produits Tech sur AliExpress et Amazon.</p>
+      <a href="#results" class="hero-btn">Voir les produits</a>
     </div>
   </section>
 
-  <!-- Section Amazon -->
-  <section class="products">
-    <h2>Produits Amazon</h2>
-    <div class="product-list" id="amazon-products">
-      <!-- Produits Amazon chargés ici -->
-    </div>
-  </section>
+  <!-- Barre de recherche -->
+  <div id="search-container">
+    <input type="text" id="searchBox" placeholder="Rechercher un produit...">
+    <button id="searchBtn">Rechercher</button>
+  </div>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 Sawem.shop - Tous droits réservés</p>
-    <p>Contact : contact@sawem.shop | Tél : +33 7 45 43 87 28</p>
+  <!-- Résultats / Grille produits -->
+  <div id="results">
+    <!-- Les produits seront injectés ici via script.js -->
+  </div>
+
+  <!-- Footer amélioré -->
+  <footer id="footer">
+    <div class="footer-content">
+      <p>&copy; 2025 Sawem.shop. Tous droits réservés.</p>
+      <p class="contact-info">
+        <span>📞 <a href="tel:+33745438728">+33 7 45 43 87 28</a></span> |
+        <span>✉️ <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></span>
+      </p>
+      <p><a href="#">Mentions légales</a></p>
+    </div>
   </footer>
 
+  <script src="script.js"></script>
 </body>
 </html>
