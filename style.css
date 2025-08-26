@@ -17,6 +17,8 @@ header {
   background-color: #007bff;
   color: white;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 header h1 {
@@ -40,7 +42,7 @@ header nav a {
 }
 
 header nav a:hover {
-  color: #ffd700; /* accent doré au hover */
+  color: #ffd700;
 }
 
 #cart {
@@ -56,6 +58,24 @@ header nav a:hover {
 
 #cart:hover {
   transform: scale(1.1);
+}
+
+/* --- Hero / Bannière --- */
+.hero {
+  background: #e6f0ff;
+  padding: 3rem 1rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+}
+
+.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: #555;
 }
 
 /* --- Barre de recherche --- */
@@ -98,7 +118,7 @@ header nav a:hover {
   transform: translateY(-2px);
 }
 
-/* --- Conteneur résultats / Grille produits --- */
+/* --- Résultats / Grille produits --- */
 #results {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
