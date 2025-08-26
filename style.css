@@ -66,17 +66,17 @@ header nav a:hover {
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
-  padding: 1.5rem 1rem; /* plus compact */
+  padding: 1.5rem 1rem;
   margin-bottom: 2rem;
   border-radius: 16px;
   color: white;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   position: relative;
-  min-height: 180px; /* hauteur réduite */
+  min-height: 180px;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* centre verticalement le contenu */
+  justify-content: center;
   overflow: hidden;
 }
 
@@ -88,7 +88,6 @@ header nav a:hover {
   pointer-events: none;
 }
 
-/* Texte Hero fade-up */
 .hero h2, .hero p {
   opacity: 0;
   transform: translateY(20px);
@@ -106,7 +105,6 @@ header nav a:hover {
   }
 }
 
-/* Texte Hero taille adaptée */
 .hero h2 {
   font-size: 2rem;
   margin-bottom: 0.8rem;
@@ -122,31 +120,31 @@ header nav a:hover {
   line-height: 1.5;
 }
 
-/* Bouton Hero avec léger mouvement */
+/* Bouton Hero plus petit avec léger mouvement */
 .hero-btn {
   display: inline-block;
-  padding: 12px 25px;
-  font-size: 1rem;
+  padding: 10px 20px; /* taille réduite */
+  font-size: 0.95rem;
   color: white;
   background-color: #ff6b6b;
   border-radius: 50px;
   text-decoration: none;
   font-weight: 600;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
   transition: transform 0.3s ease, background-color 0.3s ease;
   position: relative;
   z-index: 2;
-  animation: buttonBounce 1.5s ease-in-out infinite alternate; /* mouvement léger */
+  animation: buttonBounce 1.5s ease-in-out infinite alternate;
 }
 
 .hero-btn:hover {
   background-color: #ff4757;
-  transform: translateY(-6px) scale(1.05);
+  transform: translateY(-5px) scale(1.05);
 }
 
 @keyframes buttonBounce {
   0% { transform: translateY(0); }
-  100% { transform: translateY(-6px); }
+  100% { transform: translateY(-5px); }
 }
 
 /* --- Barre de recherche --- */
