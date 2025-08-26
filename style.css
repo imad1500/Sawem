@@ -60,21 +60,24 @@ header nav a:hover {
   transform: scale(1.1);
 }
 
-/* --- Hero / Bannière premium --- */
+/* --- Hero / Bannière compacte avec animations --- */
 .hero {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
-  padding: 2.5rem 1rem; /* réduit par rapport à avant */
+  padding: 1.5rem 1rem; /* plus compact */
   margin-bottom: 2rem;
   border-radius: 16px;
   color: white;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   position: relative;
+  min-height: 180px; /* hauteur réduite */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* centre verticalement le contenu */
   overflow: hidden;
-  min-height: 250px; /* hauteur plus raisonnable */
 }
 
 .hero::before {
@@ -85,18 +88,15 @@ header nav a:hover {
   pointer-events: none;
 }
 
-.hero h2, .hero p, .hero-btn {
+/* Texte Hero fade-up */
+.hero h2, .hero p {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
   animation: fadeUp 1s forwards;
 }
 
 .hero p.delay-1 {
   animation-delay: 0.3s;
-}
-
-.hero-btn.delay-2 {
-  animation-delay: 0.6s;
 }
 
 @keyframes fadeUp {
@@ -106,21 +106,23 @@ header nav a:hover {
   }
 }
 
+/* Texte Hero taille adaptée */
 .hero h2 {
-  font-size: 2rem; /* réduit de 2.5rem */
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
 .hero p {
-  font-size: 1rem; /* réduit de 1.2rem */
+  font-size: 1rem;
   color: #f0f0f0;
   max-width: 650px;
-  margin: 0 auto 1.5rem auto;
-  line-height: 1.6;
+  margin: 0 auto 1.2rem auto;
+  line-height: 1.5;
 }
 
+/* Bouton Hero avec léger mouvement */
 .hero-btn {
   display: inline-block;
   padding: 12px 25px;
@@ -130,15 +132,21 @@ header nav a:hover {
   border-radius: 50px;
   text-decoration: none;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
   position: relative;
   z-index: 2;
+  animation: buttonBounce 1.5s ease-in-out infinite alternate; /* mouvement léger */
 }
 
 .hero-btn:hover {
-  transform: translateY(-3px) scale(1.05);
   background-color: #ff4757;
+  transform: translateY(-6px) scale(1.05);
+}
+
+@keyframes buttonBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
 }
 
 /* --- Barre de recherche --- */
@@ -258,7 +266,7 @@ header nav a:hover {
   transform: translateY(-2px);
 }
 
-/* --- Footer premium --- */
+/* --- Footer --- */
 footer {
   text-align: center;
   padding: 2rem 1rem;
