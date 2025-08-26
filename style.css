@@ -60,86 +60,68 @@ header nav a:hover {
   transform: scale(1.1);
 }
 
-/* --- Hero / Bannière compacte avec animations --- */
+/* --- Hero moderne et compact --- */
 .hero {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
-  padding: 1.5rem 1rem;
-  margin-bottom: 2rem;
+  padding: 2rem 1rem;
   border-radius: 16px;
   color: white;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
   position: relative;
-  min-height: 180px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.hero-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.15);
-  pointer-events: none;
-}
-
-.hero h2, .hero p {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 1s forwards;
-}
-
-.hero p.delay-1 {
-  animation-delay: 0.3s;
-}
-
-@keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  align-items: center;
+  gap: 0.8rem;
 }
 
 .hero h2 {
   font-size: 2rem;
-  margin-bottom: 0.8rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  margin: 0;
+  opacity: 0;
+  animation: fadeUp 1s forwards;
 }
 
 .hero p {
   font-size: 1rem;
-  color: #f0f0f0;
-  max-width: 650px;
-  margin: 0 auto 1.2rem auto;
-  line-height: 1.5;
+  max-width: 600px;
+  opacity: 0;
+  animation: fadeUp 1s forwards 0.3s;
 }
 
-/* Bouton Hero plus petit avec léger mouvement */
 .hero-btn {
   display: inline-block;
-  padding: 10px 20px; /* taille réduite */
+  padding: 10px 20px;
   font-size: 0.95rem;
-  color: white;
   background-color: #ff6b6b;
+  color: white;
   border-radius: 50px;
-  text-decoration: none;
   font-weight: 600;
+  text-decoration: none;
+  margin-top: 0.5rem;
   box-shadow: 0 3px 8px rgba(0,0,0,0.2);
   transition: transform 0.3s ease, background-color 0.3s ease;
-  position: relative;
-  z-index: 2;
   animation: buttonBounce 1.5s ease-in-out infinite alternate;
 }
 
 .hero-btn:hover {
   background-color: #ff4757;
   transform: translateY(-5px) scale(1.05);
+}
+
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes buttonBounce {
@@ -197,9 +179,9 @@ header nav a:hover {
   margin: 0 auto;
 }
 
-/* --- Carte produit avec animation --- */
+/* --- Carte produit --- */
 .card {
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12px;
   border: 1px solid #ddd;
   padding: 15px;
@@ -208,21 +190,6 @@ header nav a:hover {
   flex-direction: column;
   align-items: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: floatUp 0.8s forwards;
-}
-
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }
-.card:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes floatUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .card:hover {
@@ -264,27 +231,20 @@ header nav a:hover {
   transform: translateY(-2px);
 }
 
-/* --- Footer --- */
+/* --- Footer assorti au header --- */
 footer {
   text-align: center;
-  padding: 2rem 1rem;
-  background-color: #111827;
-  color: #e5e7eb;
+  padding: 1.5rem 0;
+  background-color: #007bff;
+  color: white;
   margin-top: 2rem;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
-  border-top: 4px solid #007bff;
-}
-
-footer p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
 }
 
 footer a {
-  color: #60a5fa;
-  text-decoration: none;
-  font-weight: 500;
+  color: white;
+  text-decoration: underline;
+  margin: 0 0.5rem;
   transition: color 0.2s ease;
 }
 
