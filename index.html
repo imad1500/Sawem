@@ -30,7 +30,6 @@
 
   <!-- Barre de recherche -->
   <div id="search-container">
-    <label for="searchBox" class="sr-only">Rechercher un produit</label>
     <input type="text" id="searchBox" placeholder="Rechercher un produit...">
     <button id="searchBtn">Rechercher</button>
   </div>
@@ -49,19 +48,6 @@
     </p>
     <p><a href="#">Mentions légales</a></p>
   </footer>
-
-  <script>
-    // Parallax Hero
-    const hero = document.querySelector('.hero');
-    window.addEventListener('scroll', () => {
-      const scrollPos = window.scrollY;
-      hero.style.backgroundPositionY = `${scrollPos * 0.5}px`;
-      const texts = hero.querySelectorAll('h2, p, .hero-btn');
-      texts.forEach(el => {
-        el.style.transform = `translateY(${30 - scrollPos * 0.2}px)`;
-      });
-    });
-  </script>
 
   <script src="script.js"></script>
 </body>
