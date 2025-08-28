@@ -52,29 +52,56 @@ function createProductCard(product) {
       product.user_rating = data.score;
       scoreElem.textContent = `⭐ Note moyenne : ${data.score}`;
       voteInput.value = "";
+      displayProducts(products); // réaffichage pour trier après vote
     }
   });
 
   return card;
 }
 
-// Affichage des produits
-function displayProducts(productsList) {
+// Calculer pertinence produit pour la recherche
+function relevanceScore(product, term) {
+  const title = product.title.toLowerCase();
+  term = term.toLowerCase();
+  const poidsTitre = 0.7;
+  const poidsScore = 0.3;
+
+  // Score de correspondance simple : +1 par mot exact présent
+  const mots = term.split(" ").filter(m => m);
+  let matchScore = 0;
+  mots.forEach(m => {
+    if (title.includes(m)) matchScore += 1;
+  });
+
+  const score = (matchScore * poidsTitre) + ((product.user_rating || 0) * poidsScore);
+  return score;
+}
+
+// Affichage des produits triés
+function displayProducts(productsList, searchTerm = "") {
   amazonContainer.innerHTML = "";
   aliContainer.innerHTML = "";
 
-  productsList.forEach(product => {
+  let listToDisplay = productsList;
+
+  if (searchTerm) {
+    // Trier par pertinence
+    listToDisplay = [...productsList].sort((a, b) => {
+      return relevanceScore(b, searchTerm) - relevanceScore(a, searchTerm);
+    });
+  }
+
+  listToDisplay.forEach(product => {
     const card = createProductCard(product);
     if (product.source.toLowerCase() === "amazon") amazonContainer.appendChild(card);
     else if (product.source.toLowerCase() === "aliexpress") aliContainer.appendChild(card);
   });
 }
 
-// Recherche en temps réel
+// Recherche intelligente en temps réel
 searchInput.addEventListener("input", () => {
   const term = searchInput.value.toLowerCase();
-  const filtered = products.filter(p => p.title.toLowerCase().includes(term));
-  displayProducts(filtered);
+  displayProducts(products, term);
 });
 
 fetchProducts();
