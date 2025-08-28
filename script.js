@@ -1,17 +1,25 @@
 const amazonContainer = document.getElementById("amazon-products");
 const aliContainer = document.getElementById("aliexpress-products");
-const searchBox = document.getElementById("searchBox");
+const searchInput = document.getElementById("searchBox");
 
+let products = [];
+
+// Récupérer les produits depuis le backend
 async function fetchProducts() {
-  const res = await fetch("/products"); // Node.js backend
-  const products = await res.json();
-  displayProducts(products);
+  try {
+    const res = await fetch("https://sawem-backend.onrender.com/products");
+    products = await res.json();
+    displayProducts(products);
+  } catch (err) {
+    console.error("Erreur lors du fetch des produits :", err);
+  }
 }
 
-function displayProducts(products) {
+function displayProducts(productsArray) {
   amazonContainer.innerHTML = "";
   aliContainer.innerHTML = "";
-  products.forEach(product => {
+
+  productsArray.forEach(product => {
     const card = document.createElement("div");
     card.className = "product-card";
     card.innerHTML = `
@@ -20,20 +28,17 @@ function displayProducts(products) {
       <p class="price">${product.price}</p>
       <a href="${product.link}" target="_blank" class="btn">Voir le produit</a>
     `;
-    if (product.source === "Amazon") amazonContainer.appendChild(card);
-    else if (product.source === "AliExpress") aliContainer.appendChild(card);
+    if (product.source.toLowerCase() === "amazon") amazonContainer.appendChild(card);
+    if (product.source.toLowerCase() === "aliexpress") aliContainer.appendChild(card);
   });
 }
 
 // Recherche en temps réel
-searchBox.addEventListener("input", () => {
-  const term = searchBox.value.toLowerCase();
-  fetch("/products")
-    .then(res => res.json())
-    .then(products => {
-      const filtered = products.filter(p => p.title.toLowerCase().includes(term));
-      displayProducts(filtered);
-    });
+searchInput.addEventListener("input", () => {
+  const term = searchInput.value.toLowerCase();
+  const filtered = products.filter(p => p.title.toLowerCase().includes(term));
+  displayProducts(filtered);
 });
 
+// Initialiser
 fetchProducts();
