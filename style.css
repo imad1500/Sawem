@@ -113,6 +113,35 @@ header p {
   margin-bottom: 10px;
 }
 
+/* Score et vote */
+.product-card p.score {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #1d3557;
+}
+
+.product-card .vote-input {
+  width: 50px;
+  padding: 5px;
+  margin-right: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.product-card .vote-btn {
+  padding: 5px 10px;
+  background: #28a745; /* vert pour vote */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.product-card .vote-btn:hover {
+  background: #218838;
+}
+
 /* Boutons des cartes produit */
 .product-card .btn {
   display: inline-block;
@@ -145,4 +174,3 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
-
