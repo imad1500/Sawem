@@ -11,11 +11,51 @@ async function fetchProducts() {
   displayProducts(products);
 }
 
-// Formater le prix et corriger le charset
+// Formater le prix
 function formatPrice(price, source) {
-  if (source.toLowerCase() === "amazon") return price; // en $
+  if (source.toLowerCase() === "amazon") return price + " $";
   if (source.toLowerCase() === "aliexpress") return price.replace("?", "€");
   return price;
+}
+
+// Créer une carte produit avec vote
+function createProductCard(product) {
+  const card = document.createElement("div");
+  card.className = "product-card";
+
+  card.innerHTML = `
+    <img src="${product.image}" alt="${product.title}">
+    <h3>${product.title}</h3>
+    <p class="price">${formatPrice(product.price, product.source)}</p>
+    <p class="score">⭐ Note moyenne : ${product.user_rating || 0}</p>
+    <input type="number" min="1" max="5" class="vote-input" placeholder="Vote (1-5)">
+    <button class="vote-btn">Voter</button>
+    <a href="${product.link}" target="_blank" class="btn">Voir le produit</a>
+  `;
+
+  const voteBtn = card.querySelector(".vote-btn");
+  const voteInput = card.querySelector(".vote-input");
+  const scoreElem = card.querySelector(".score");
+
+  voteBtn.addEventListener("click", async () => {
+    const stars = parseInt(voteInput.value);
+    if (!stars || stars < 1 || stars > 5) return alert("Entrez une note valide (1-5)");
+
+    const res = await fetch("https://sawem-backend.onrender.com/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: product.id, stars })
+    });
+
+    const data = await res.json();
+    if (data.score) {
+      product.user_rating = data.score;
+      scoreElem.textContent = `⭐ Note moyenne : ${data.score}`;
+      voteInput.value = "";
+    }
+  });
+
+  return card;
 }
 
 // Affichage des produits
@@ -24,39 +64,13 @@ function displayProducts(productsList) {
   aliContainer.innerHTML = "";
 
   productsList.forEach(product => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-    card.innerHTML = `
-      <img src="${product.image}" alt="${product.title}">
-      <h3>${product.title}</h3>
-      <p class="price">${formatPrice(product.price, product.source)}</p>
-      <p>⭐ Score: ${product.sawem_score || 0}</p>
-      <input type="number" min="1" max="5" placeholder="Vote (1-5)" class="vote-input">
-      <button class="vote-btn">Voter</button>
-      <a href="${product.link}" target="_blank" class="btn">Voir le produit</a>
-    `;
-    const voteBtn = card.querySelector(".vote-btn");
-    const voteInput = card.querySelector(".vote-input");
-
-    voteBtn.addEventListener("click", async () => {
-      const stars = parseInt(voteInput.value);
-      if (!stars || stars < 1 || stars > 5) return alert("Vote invalide (1-5)");
-      const res = await fetch("https://sawem-backend.onrender.com/vote", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({product_id: product.id, stars})
-      });
-      const data = await res.json();
-      product.sawem_score = data.score;
-      displayProducts(products);
-    });
-
-    if (product.source === "Amazon") amazonContainer.appendChild(card);
-    else if (product.source === "AliExpress") aliContainer.appendChild(card);
+    const card = createProductCard(product);
+    if (product.source.toLowerCase() === "amazon") amazonContainer.appendChild(card);
+    else if (product.source.toLowerCase() === "aliexpress") aliContainer.appendChild(card);
   });
 }
 
-// Recherche simple (temps réel)
+// Recherche en temps réel
 searchInput.addEventListener("input", () => {
   const term = searchInput.value.toLowerCase();
   const filtered = products.filter(p => p.title.toLowerCase().includes(term));
