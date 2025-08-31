@@ -3,34 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.shop - Produits Tech & Électronique</title>
+  <title>Sawem.tech - Produits Tech & Électronique</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>Sawem.shop</h1>
-  <p>Recherchez des produits tech et électroniques et obtenez des recommandations IA !</p>
-</header>
+  <!-- Header -->
+  <header>
+    <h1>Sawem.tech</h1>
+    <p>Découvrez et comparez les meilleurs produits tech et électroniques</p>
+    <input type="text" id="searchBox" placeholder="Rechercher un produit..." />
+  </header>
 
-<section class="search-section">
-  <div style="text-align:center; margin: 20px;">
-    <input type="text" id="search-input" placeholder="Tapez un mot-clé, ex: ordinateur..." style="padding:10px; width:60%; border-radius:5px; border:1px solid #ccc;">
-    <button id="search-btn" style="padding:10px 20px; border:none; background:#ff6f61; color:#fff; border-radius:5px; cursor:pointer;">Obtenir Recommandations</button>
-  </div>
-</section>
+  <!-- Section Amazon -->
+  <section class="products-section">
+    <h2>Produits Amazon</h2>
+    <div id="amazon-products" class="products-grid">
+      <!-- Cartes produits Amazon générées ici -->
+    </div>
+  </section>
 
-<section class="products-section">
-  <h2>Résultats :</h2>
-  <div id="products-grid" class="products-grid">
-    <!-- Les produits recommandés apparaîtront ici -->
-  </div>
-</section>
+  <!-- Section Aliexpress -->
+  <section class="products-section">
+    <h2>Produits Aliexpress</h2>
+    <div id="aliexpress-products" class="products-grid">
+      <!-- Cartes produits Aliexpress générées ici -->
+    </div>
+  </section>
 
-<footer>
-  &copy; 2025 Sawem.shop | <a href="#">Contact</a>
-</footer>
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Sawem.tech. Tous droits réservés.</p>
+    <p>Contact : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></p>
+  </footer>
 
-<script src="script.js"></script>
+  <!-- Script JS -->
+  <script src="script.js"></script>
 </body>
 </html>
