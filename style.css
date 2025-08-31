@@ -14,29 +14,60 @@ body {
 
 /* Header */
 header {
-  background: #007bff; /* bleu foncé */
+  background: #007bff; /* bleu */
   color: #fff;
   padding: 20px;
   text-align: center;
+  position: relative;
 }
 
 header h1 {
   font-size: 2rem;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 header p {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-/* Barre de recherche */
+/* Icône chariot */
+#cart {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Barre de recherche (hors header) */
+#search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  gap: 0.5rem;
+}
+
 #searchBox {
   padding: 0.6rem 1rem;
-  border-radius: 5px;
+  border-radius: 5px 0 0 5px;
   border: 1px solid #ccc;
   width: 300px;
   font-size: 1rem;
-  margin-top: 10px;
+}
+
+#searchBtn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 5px 5px 0;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#searchBtn:hover {
+  background-color: #0056b3;
 }
 
 /* Sections */
@@ -49,7 +80,7 @@ header p {
 .products-section h2 {
   margin-bottom: 20px;
   font-size: 1.5rem;
-  color: #007bff; /* bleu foncé */
+  color: #007bff;
 }
 
 /* Grid */
@@ -109,7 +140,7 @@ header p {
 
 .product-card .vote-btn {
   padding: 5px 10px;
-  background: #28a745; /* vert pour vote */
+  background: #28a745;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -121,10 +152,10 @@ header p {
   background: #218838;
 }
 
-/* Boutons des cartes produit */
+/* Bouton lien produit */
 .product-card .btn {
   display: inline-block;
-  background: #007bff; /* Bleu foncé */
+  background: #007bff;
   color: #fff;
   padding: 10px 15px;
   text-decoration: none;
@@ -133,20 +164,21 @@ header p {
 }
 
 .product-card .btn:hover {
-  background: #0056b3; /* Bleu plus foncé au survol */
+  background: #0056b3;
 }
 
-/* Footer */
+/* Footer élégant sur une ligne */
 footer {
-  background: #007bff; /* bleu foncé */
+  background: #007bff;
   color: #fff;
   text-align: center;
-  padding: 15px;
+  padding: 12px;
   margin-top: 40px;
+  font-size: 0.9rem;
 }
 
 footer a {
-  color: #ff6f61;
+  color: #ffdd57;
   text-decoration: none;
 }
 
