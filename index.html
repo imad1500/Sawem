@@ -3,35 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.shop - Produits</title>
+  <title>Sawem.shop - Produits Tech & Électronique</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Header -->
   <header>
-    <h1>Sawem.shop 🛒</h1>
-    <p>Découvrez les meilleurs produits sur <strong>AliExpress</strong> et <strong>Amazon</strong></p>
+    <div class="header-container">
+      <h1>Sawem.shop</h1>
+      <nav>
+        <ul>
+          <li><a href="#">Accueil</a></li>
+          <li><a href="#">Produits</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
-  <!-- Recherche -->
-  <div id="search-container">
-    <input type="text" id="searchBox" placeholder="Rechercher un produit...">
-  </div>
-
-  <!-- Produits -->
-  <section class="products-section">
-    <h2>🌏 Produits AliExpress</h2>
-    <div class="products-grid" id="aliexpress-products"></div>
+  <!-- Section promotionnelle -->
+  <section class="hero">
+    <h2>Les meilleurs produits tech & électronique</h2>
+    <p>Découvrez nos produits et bénéficiez de recommandations intelligentes grâce à notre IA.</p>
   </section>
 
-  <section class="products-section">
-    <h2>🛒 Produits Amazon</h2>
-    <div class="products-grid" id="amazon-products"></div>
+  <!-- Section recherche IA -->
+  <section class="ia-section">
+    <h2>Rechercher par description</h2>
+    <textarea id="inputText" placeholder="Décrivez ce que vous cherchez..."></textarea>
+    <button id="embedBtn">Obtenir Recommandations</button>
+    <h3>Résultat :</h3>
+    <pre id="result"></pre>
   </section>
 
+  <!-- Section produits (exemple statique, à adapter à ta DB) -->
+  <section class="products">
+    <h2>Produits en vedette</h2>
+    <div class="product-list">
+      <div class="product-item">
+        <img src="img/laptop.jpg" alt="Laptop">
+        <h3>Laptop Ultra</h3>
+        <p>Puissant et léger pour tous vos besoins.</p>
+      </div>
+      <div class="product-item">
+        <img src="img/smartphone.jpg" alt="Smartphone">
+        <h3>Smartphone X</h3>
+        <p>Écran AMOLED et batterie longue durée.</p>
+      </div>
+      <!-- Ajouter plus de produits -->
+    </div>
+  </section>
+
+  <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Sawem.shop | Contact : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></p>
+    <p>&copy; 2025 Sawem.shop. Tous droits réservés.</p>
   </footer>
 
+  <!-- Script JS -->
   <script src="script.js"></script>
 </body>
 </html>
