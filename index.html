@@ -7,59 +7,30 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Header -->
-  <header>
-    <div class="header-container">
-      <h1>Sawem.shop</h1>
-      <nav>
-        <ul>
-          <li><a href="#">Accueil</a></li>
-          <li><a href="#">Produits</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
 
-  <!-- Section promotionnelle -->
-  <section class="hero">
-    <h2>Les meilleurs produits tech & électronique</h2>
-    <p>Découvrez nos produits et bénéficiez de recommandations intelligentes grâce à notre IA.</p>
-  </section>
+<header>
+  <h1>Sawem.shop</h1>
+  <p>Recherchez des produits tech et électroniques et obtenez des recommandations IA !</p>
+</header>
 
-  <!-- Section recherche IA -->
-  <section class="ia-section">
-    <h2>Rechercher par description</h2>
-    <textarea id="inputText" placeholder="Décrivez ce que vous cherchez..."></textarea>
-    <button id="embedBtn">Obtenir Recommandations</button>
-    <h3>Résultat :</h3>
-    <pre id="result"></pre>
-  </section>
+<section class="search-section">
+  <div style="text-align:center; margin: 20px;">
+    <input type="text" id="search-input" placeholder="Tapez un mot-clé, ex: ordinateur..." style="padding:10px; width:60%; border-radius:5px; border:1px solid #ccc;">
+    <button id="search-btn" style="padding:10px 20px; border:none; background:#ff6f61; color:#fff; border-radius:5px; cursor:pointer;">Obtenir Recommandations</button>
+  </div>
+</section>
 
-  <!-- Section produits (exemple statique, à adapter à ta DB) -->
-  <section class="products">
-    <h2>Produits en vedette</h2>
-    <div class="product-list">
-      <div class="product-item">
-        <img src="img/laptop.jpg" alt="Laptop">
-        <h3>Laptop Ultra</h3>
-        <p>Puissant et léger pour tous vos besoins.</p>
-      </div>
-      <div class="product-item">
-        <img src="img/smartphone.jpg" alt="Smartphone">
-        <h3>Smartphone X</h3>
-        <p>Écran AMOLED et batterie longue durée.</p>
-      </div>
-      <!-- Ajouter plus de produits -->
-    </div>
-  </section>
+<section class="products-section">
+  <h2>Résultats :</h2>
+  <div id="products-grid" class="products-grid">
+    <!-- Les produits recommandés apparaîtront ici -->
+  </div>
+</section>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 Sawem.shop. Tous droits réservés.</p>
-  </footer>
+<footer>
+  &copy; 2025 Sawem.shop | <a href="#">Contact</a>
+</footer>
 
-  <!-- Script JS -->
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
