@@ -4,40 +4,25 @@ const searchInput = document.getElementById("searchBox");
 
 let products = [];
 
-// ⚡ Fonction utilitaire : calculer similarité cosinus
+// Récupérer les produits depuis le backend
+async function fetchProducts() {
+  const res = await fetch("https://sawem-backend.onrender.com/products");
+  products = await res.json();
+  displayProducts(products);
+}
+
+// Calculer la similarité cosinus
 function cosineSimilarity(a, b) {
-  if (!a || !b || a.length !== b.length) return 0;
   let dot = 0, normA = 0, normB = 0;
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];
     normA += a[i] * a[i];
     normB += b[i] * b[i];
   }
-  if (normA === 0 || normB === 0) return 0;
   return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-// 🔹 Récupérer tous les produits depuis le backend
-async function fetchProducts() {
-  try {
-    const res = await fetch("https://sawem-backend.onrender.com/products");
-    products = await res.json();
-    displayProducts(products);
-  } catch (err) {
-    console.error("Erreur fetch produits :", err);
-    amazonContainer.innerHTML = "<p>Impossible de charger les produits</p>";
-    aliContainer.innerHTML = "<p>Impossible de charger les produits</p>";
-  }
-}
-
-// 🔹 Formater le prix selon la source
-function formatPrice(price, source) {
-  if (source.toLowerCase() === "amazon") return price + " $";
-  if (source.toLowerCase() === "aliexpress") return price.replace("?", "€");
-  return price;
-}
-
-// 🔹 Créer une carte produit
+// Créer carte produit
 function createProductCard(product) {
   const card = document.createElement("div");
   card.className = "product-card";
@@ -45,7 +30,7 @@ function createProductCard(product) {
   card.innerHTML = `
     <img src="${product.image}" alt="${product.title}">
     <h3>${product.title}</h3>
-    <p class="price">${formatPrice(product.price, product.source)}</p>
+    <p class="price">${product.price}</p>
     <p class="score">⭐ Note moyenne : ${product.user_rating || 0}</p>
     <input type="number" min="1" max="5" class="vote-input" placeholder="Vote (1-5)">
     <button class="vote-btn">Voter</button>
@@ -60,64 +45,53 @@ function createProductCard(product) {
     const stars = parseInt(voteInput.value);
     if (!stars || stars < 1 || stars > 5) return alert("Entrez une note valide (1-5)");
 
-    try {
-      const res = await fetch("https://sawem-backend.onrender.com/vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: product.id, stars })
-      });
-      const data = await res.json();
-      if (data.score) {
-        product.user_rating = data.score;
-        scoreElem.textContent = `⭐ Note moyenne : ${data.score}`;
-        voteInput.value = "";
-        displayProducts(products, searchInput.value); // réaffichage avec tri
-      }
-    } catch (err) {
-      console.error("Erreur vote :", err);
-      alert("Impossible d'envoyer votre vote");
+    const res = await fetch("https://sawem-backend.onrender.com/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: product.id, stars })
+    });
+
+    const data = await res.json();
+    if (data.score) {
+      product.user_rating = data.score;
+      scoreElem.textContent = `⭐ Note moyenne : ${data.score}`;
+      voteInput.value = "";
+      displayProducts(products);
     }
   });
 
   return card;
 }
 
-// 🔹 Recherche par embeddings
-async function semanticSearch(term) {
+// Recherche par embedding
+async function searchByEmbedding(term) {
   if (!term) return products;
 
-  try {
-    // Appel au service embeddings
-    const resp = await fetch("https://sawem-embedding8.onrender.com/embed", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: term })
-    });
-    const data = await resp.json();
-    const queryEmbedding = data.embedding;
+  const res = await fetch("https://sawem-backend.onrender.com/products");
+  const allProducts = await res.json();
 
-    // Calculer similarité cosinus
-    return products
-      .map(p => {
-        return { ...p, relevance: cosineSimilarity(p.embedding, queryEmbedding) };
-      })
-      .sort((a, b) => b.relevance - a.relevance);
-  } catch (err) {
-    console.error("Erreur embeddings :", err);
-    return products; // fallback si problème embeddings
-  }
+  // Obtenir embedding du terme
+  const embeddingRes = await fetch("https://sawem-embedding8.onrender.com/embed", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: term })
+  });
+  const { embedding: termEmbedding } = await embeddingRes.json();
+
+  // Calculer similarité cosinus
+  allProducts.forEach(p => {
+    p.similarity = cosineSimilarity(p.embedding, termEmbedding);
+  });
+
+  return allProducts.sort((a, b) => b.similarity - a.similarity);
 }
 
-// 🔹 Afficher les produits
-async function displayProducts(productsList, searchTerm = "") {
+// Affichage des produits
+async function displayProducts(list, term = "") {
   amazonContainer.innerHTML = "";
   aliContainer.innerHTML = "";
 
-  let listToDisplay = productsList;
-
-  if (searchTerm) {
-    listToDisplay = await semanticSearch(searchTerm);
-  }
+  let listToDisplay = term ? await searchByEmbedding(term) : list;
 
   listToDisplay.forEach(product => {
     const card = createProductCard(product);
@@ -126,11 +100,10 @@ async function displayProducts(productsList, searchTerm = "") {
   });
 }
 
-// 🔹 Recherche en temps réel
+// Recherche en temps réel
 searchInput.addEventListener("input", async () => {
   const term = searchInput.value.trim();
-  await displayProducts(products, term);
+  displayProducts(products, term);
 });
 
-// ⚡ Initialisation
 fetchProducts();
