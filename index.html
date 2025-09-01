@@ -3,41 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.tech - Produits Tech & Électronique</title>
+  <title>Sawem.shop</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- Header -->
   <header>
-    <h1>Sawem.tech</h1>
-    <p>Découvrez et comparez les meilleurs produits tech et électroniques</p>
-    <input type="text" id="searchBox" placeholder="Rechercher un produit..." />
+    <div class="header-left">
+      <h1>Sawem.shop</h1>
+    </div>
+    <div class="header-right">
+      <a href="#" class="cart">🛒 Panier</a>
+    </div>
   </header>
+
+  <!-- Barre de recherche -->
+  <div id="search-container">
+    <input type="text" id="searchBox" placeholder="Rechercher un produit...">
+  </div>
 
   <!-- Section Amazon -->
   <section class="products-section">
     <h2>Produits Amazon</h2>
-    <div id="amazon-products" class="products-grid">
-      <!-- Cartes produits Amazon générées ici -->
-    </div>
+    <div id="amazon-products" class="products-grid"></div>
   </section>
 
-  <!-- Section Aliexpress -->
+  <!-- Section AliExpress -->
   <section class="products-section">
-    <h2>Produits Aliexpress</h2>
-    <div id="aliexpress-products" class="products-grid">
-      <!-- Cartes produits Aliexpress générées ici -->
-    </div>
+    <h2>Produits AliExpress</h2>
+    <div id="aliexpress-products" class="products-grid"></div>
   </section>
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Sawem.tech. Tous droits réservés.</p>
-    <p>Contact : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a></p>
+    <p>&copy; 2025 Sawem.shop | Contact: contact@sawem.shop | Tel: +33 7 45 43 87 28</p>
   </footer>
 
-  <!-- Script JS -->
   <script src="script.js"></script>
 </body>
 </html>
