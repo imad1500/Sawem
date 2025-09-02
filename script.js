@@ -1,58 +1,60 @@
-const backendURL = "https://sawem-backend.onrender.com";
+// script.js
 
-const searchInput = document.getElementById("search");
-const productsDiv = document.getElementById("products");
-const errorMsg = document.getElementById("error");
+const searchForm = document.getElementById("search-form");
+const searchInput = document.getElementById("search-input");
+const productsContainer = document.getElementById("products");
 
-// Fonction pour charger les produits
-async function loadProducts(query = "tech") {
+async function fetchProducts(query) {
+  productsContainer.innerHTML = "🔄 Chargement des produits...";
+
   try {
-    errorMsg.classList.add("hidden");
-    productsDiv.innerHTML = "⏳ Chargement...";
-
-    const response = await fetch(`${backendURL}/search`, {
+    const res = await fetch("https://sawem-backend.onrender.com/search", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ query }),
     });
 
-    if (!response.ok) {
-      throw new Error("Erreur API");
+    if (!res.ok) {
+      throw new Error(`Erreur serveur: ${res.status}`);
     }
 
-    const products = await response.json();
+    const products = await res.json();
 
-    if (!products.length) {
-      productsDiv.innerHTML = "<p>Aucun produit trouvé.</p>";
+    if (!products || products.length === 0) {
+      productsContainer.innerHTML = "❌ Aucun produit trouvé.";
       return;
     }
 
-    productsDiv.innerHTML = "";
-    products.forEach((p) => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${p.image}" alt="${p.title}" />
-        <h3>${p.title}</h3>
-        <a href="${p.url}" target="_blank">Voir sur ${
-          p.url.includes("aliexpress") ? "Aliexpress" : "Amazon"
-        }</a>
+    // Affichage des produits
+    productsContainer.innerHTML = "";
+    products.forEach((product) => {
+      const productCard = document.createElement("div");
+      productCard.className = "product-card";
+      productCard.innerHTML = `
+        <a href="${product.link}" target="_blank">
+          <img src="${product.image}" alt="${product.title}" />
+          <h3>${product.title}</h3>
+          ${product.price ? `<p>Prix: ${product.price}</p>` : ""}
+        </a>
       `;
-      productsDiv.appendChild(card);
+      productsContainer.appendChild(productCard);
     });
   } catch (err) {
-    console.error(err);
-    productsDiv.innerHTML = "";
-    errorMsg.classList.remove("hidden");
+    console.error("Erreur fetchProducts:", err);
+    productsContainer.innerHTML = "❌ Erreur lors du chargement des produits.";
   }
 }
 
-// Recherche dynamique
-searchInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    loadProducts(searchInput.value);
+// Événement de recherche
+searchForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const query = searchInput.value.trim();
+  if (query) {
+    fetchProducts(query);
   }
 });
 
-// Charger par défaut
-loadProducts();
+// Chargement initial (par ex. tous les produits Tech & Electronique)
+fetchProducts("Tech & Electronique");
