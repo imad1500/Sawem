@@ -1,49 +1,58 @@
-// script.js
-const productsContainer = document.getElementById("products");
-const searchInput = document.getElementById("searchInput");
+const backendURL = "https://sawem-backend.onrender.com";
 
-// 🔹 Charger les produits depuis ton backend
-async function loadProducts(query = "") {
+const searchInput = document.getElementById("search");
+const productsDiv = document.getElementById("products");
+const errorMsg = document.getElementById("error");
+
+// Fonction pour charger les produits
+async function loadProducts(query = "tech") {
   try {
-    const res = await fetch(`https://sawem-backend.onrender.com/products?search=${encodeURIComponent(query)}`);
-    
-    if (!res.ok) {
-      throw new Error(`Erreur serveur: ${res.status}`);
+    errorMsg.classList.add("hidden");
+    productsDiv.innerHTML = "⏳ Chargement...";
+
+    const response = await fetch(`${backendURL}/search`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur API");
     }
 
-    const products = await res.json();
+    const products = await response.json();
 
-    // Nettoyer l'affichage
-    productsContainer.innerHTML = "";
-
-    if (products.length === 0) {
-      productsContainer.innerHTML = "<p>Aucun produit trouvé.</p>";
+    if (!products.length) {
+      productsDiv.innerHTML = "<p>Aucun produit trouvé.</p>";
       return;
     }
 
-    // Générer les cartes produits
+    productsDiv.innerHTML = "";
     products.forEach((p) => {
       const card = document.createElement("div");
-      card.className = "product-card";
+      card.className = "card";
       card.innerHTML = `
-        <img src="${p.image}" alt="${p.name}" />
-        <h3>${p.name}</h3>
-        <p>${p.price} €</p>
-        <a href="${p.url}" target="_blank">Voir sur ${p.source}</a>
+        <img src="${p.image}" alt="${p.title}" />
+        <h3>${p.title}</h3>
+        <a href="${p.url}" target="_blank">Voir sur ${
+          p.url.includes("aliexpress") ? "Aliexpress" : "Amazon"
+        }</a>
       `;
-      productsContainer.appendChild(card);
+      productsDiv.appendChild(card);
     });
   } catch (err) {
-    console.error("Erreur:", err);
-    productsContainer.innerHTML = `<p>❌ Erreur lors du chargement des produits.</p>`;
+    console.error(err);
+    productsDiv.innerHTML = "";
+    errorMsg.classList.remove("hidden");
   }
 }
 
-// 🔹 Recherche en direct
-searchInput.addEventListener("input", (e) => {
-  const query = e.target.value;
-  loadProducts(query);
+// Recherche dynamique
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    loadProducts(searchInput.value);
+  }
 });
 
-// Charger les produits au démarrage
+// Charger par défaut
 loadProducts();
