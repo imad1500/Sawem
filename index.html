@@ -1,37 +1,37 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sawem.shop</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <!-- Header -->
   <header>
-    <h1>🛒 Sawem.shop</h1>
+    <h1>Sawem.shop 🛒</h1>
+    <p>Découvrez les meilleurs produits Tech & Électronique</p>
   </header>
 
-  <!-- Section bienvenue -->
-  <section class="hero">
-    <h2>Bienvenue sur <span class="highlight">Sawem.shop</span></h2>
-    <p>Découvrez les meilleurs produits Tech & Électronique sur Aliexpress et Amazon.</p>
-    <input type="text" id="search" placeholder="🔍 Rechercher un produit..." />
-  </section>
-
-  <!-- Résultats produits -->
+  <!-- Zone de recherche -->
   <main>
-    <div id="products" class="grid"></div>
-    <p id="error" class="error hidden">❌ Erreur lors du chargement des produits.</p>
+    <div class="search-container">
+      <input id="searchInput" type="text" placeholder="🔍 Rechercher un produit...">
+      <button id="searchBtn">Rechercher</button>
+    </div>
+
+    <!-- Zone produits -->
+    <div id="products" class="products"></div>
+
+    <!-- Zone message -->
+    <div id="message" class="message"></div>
   </main>
 
   <!-- Footer -->
   <footer>
-    <p>
-      © 2025 Sawem.shop - Contact :
-      <a href="mailto:contact@sawem.shop">contact@sawem.shop</a> |
-      Tel: +33 745438728
-    </p>
+    © 2025 Sawem.shop - Contact : <a href="mailto:contact@sawem.shop">contact@sawem.shop</a> | 
+    Tel: +33 745438728
   </footer>
 
   <script src="script.js"></script>
