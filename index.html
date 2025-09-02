@@ -1,37 +1,39 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sawem.shop</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <!-- Header -->
   <header>
-    <div class="header-container">
-      <h1>Sawem.shop</h1>
-      <div class="cart-icon">🛒</div>
+    <div class="container">
+      <h1>🛒 Sawem.shop</h1>
+      <nav>
+        <a href="#">Accueil</a>
+        <a href="#">Produits</a>
+        <a href="#">À propos</a>
+        <a href="mailto:contact@sawem.shop">Contact</a>
+      </nav>
     </div>
   </header>
 
   <!-- Section bienvenue -->
-  <section class="welcome">
-    <h2>Bienvenue sur Sawem.shop</h2>
-    <p>Découvrez les meilleurs produits <strong>Tech & Électronique</strong></p>
-    <input 
-      type="text" 
-      id="searchInput" 
-      placeholder="🔍 Rechercher un produit..." 
-    />
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Bienvenue sur <span class="highlight">Sawem.shop</span></h2>
+      <p>Découvrez les meilleurs produits Tech & Électronique, sélectionnés sur Aliexpress et Amazon.</p>
+      <input type="text" id="search" placeholder="🔍 Rechercher un produit..." />
+    </div>
   </section>
 
-  <!-- Zone produits -->
-  <main>
-    <div id="products" class="products-grid">
-      <!-- Les produits seront chargés ici -->
-    </div>
+  <!-- Résultats produits -->
+  <main class="container">
+    <h3>Produits disponibles</h3>
+    <div id="products" class="grid"></div>
+    <p id="error" class="error hidden">❌ Erreur lors du chargement des produits.</p>
   </main>
 
   <!-- Footer -->
@@ -39,8 +41,10 @@
     <p>
       © 2025 Sawem.shop - Contact : 
       <a href="mailto:contact@sawem.shop">contact@sawem.shop</a> | 
-      Tel: <a href="tel:+33745438728">+33 7 45 43 87 28</a>
+      Tel: +33 745438728
     </p>
   </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
