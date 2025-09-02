@@ -1,67 +1,58 @@
 const API_URL = "https://sawem-backend.onrender.com/search";
 
-const searchBtn = document.getElementById("searchBtn");
-const searchInput = document.getElementById("searchInput");
-const productsDiv = document.getElementById("products");
-const messageDiv = document.getElementById("message");
-
-// Fonction d'affichage produits
-function renderProducts(products) {
-  productsDiv.innerHTML = "";
-  messageDiv.textContent = "";
-
-  if (!products || products.length === 0) {
-    messageDiv.textContent = "❌ Aucun produit trouvé.";
-    return;
-  }
-
-  products.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "product";
-    div.innerHTML = `
-      <img src="${p.image}" alt="${p.title}">
-      <h3>${p.title}</h3>
-      <p>${p.price}</p>
-      <a href="${p.link}" target="_blank">Voir le produit</a>
-    `;
-    productsDiv.appendChild(div);
-  });
-}
-
-// Recherche API
 async function searchProducts() {
-  const query = searchInput.value.trim();
-  if (!query) {
-    messageDiv.textContent = "⚠️ Entrez un mot-clé pour rechercher.";
-    return;
-  }
+  const query = document.getElementById("search-input").value.trim();
+  const resultsDiv = document.getElementById("results");
 
-  messageDiv.textContent = "⏳ Chargement des produits...";
-  productsDiv.innerHTML = "";
+  resultsDiv.innerHTML = "⏳ Chargement des produits...";
 
   try {
-    const res = await fetch(API_URL, {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
     });
 
-    const data = await res.json();
-
-    if (!res.ok || data.error) {
-      throw new Error(data.error || "Erreur inconnue");
+    if (!response.ok) {
+      throw new Error("Erreur API backend");
     }
 
-    renderProducts(data);
+    const products = await response.json();
+
+    if (!products || products.length === 0) {
+      resultsDiv.innerHTML = "❌ Aucun produit trouvé.";
+      return;
+    }
+
+    resultsDiv.innerHTML = products
+      .map(
+        (p) => `
+        <div class="product-card">
+          <img src="${p.image}" alt="${p.title}">
+          <h3>${p.title}</h3>
+          <p>💰 ${p.price}</p>
+          <p>⭐ ${p.user_rating || "N/A"} | 🔥 Score: ${p.sawem_score || "N/A"}</p>
+          <a href="${p.link}" target="_blank">Voir le produit</a>
+        </div>
+      `
+      )
+      .join("");
   } catch (err) {
-    console.error("Erreur:", err);
-    messageDiv.textContent = "❌ Erreur lors du chargement des produits.";
+    console.error("Erreur fetch:", err);
+    resultsDiv.innerHTML = "❌ Erreur lors du chargement des produits.";
   }
 }
 
-// Événements
-searchBtn.addEventListener("click", searchProducts);
-searchInput.addEventListener("keypress", e => {
-  if (e.key === "Enter") searchProducts();
-});
+// Recherche automatique au clic
+document
+  .getElementById("search-btn")
+  .addEventListener("click", searchProducts);
 
+// Recherche avec touche "Entrée"
+document
+  .getElementById("search-input")
+  .addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      searchProducts();
+    }
+  });
