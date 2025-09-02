@@ -1,46 +1,41 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.shop</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sawem.shop - Tech & Électronique</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <!-- Header -->
   <header>
-    <div class="header-left">
+    <div class="header-container">
       <h1>Sawem.shop</h1>
-    </div>
-    <div class="header-right">
-      <a href="#" class="cart">🛒</a>
+      <div class="cart-icon">🛒</div>
     </div>
   </header>
 
-  <!-- Barre de recherche -->
-  <div id="search-container">
-    <input type="text" id="searchBox" placeholder="Rechercher un produit...">
-  </div>
-
-  <!-- Section Amazon -->
-  <section class="products-section">
-    <h2>Produits Amazon</h2>
-    <div id="amazon-products" class="products-grid"></div>
+  <!-- Section bienvenue -->
+  <section class="welcome">
+    <h2>Bienvenue sur Sawem.shop</h2>
+    <p>Découvrez les meilleurs produits Tech & Électronique</p>
+    <input
+      type="text"
+      id="search-input"
+      placeholder="🔍 Rechercher un produit..."
+    />
   </section>
 
-  <!-- Section AliExpress -->
-  <section class="products-section">
-    <h2>Produits AliExpress</h2>
-    <div id="aliexpress-products" class="products-grid"></div>
+  <!-- Produits -->
+  <section id="products" class="products-container">
+    <!-- Produits affichés par script.js -->
   </section>
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Sawem.shop | Contact: contact@sawem.shop | Tel: +33 7 45 43 87 28</p>
+    <p>© 2025 Sawem.shop - Contact : contact@sawem.shop | Tel: +33 745438728</p>
   </footer>
 
   <script src="script.js"></script>
 </body>
 </html>
-
