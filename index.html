@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sawem.shop - Tech & Électronique</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sawem.shop</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
 </head>
 <body>
   <!-- Header -->
@@ -18,24 +19,28 @@
   <!-- Section bienvenue -->
   <section class="welcome">
     <h2>Bienvenue sur Sawem.shop</h2>
-    <p>Découvrez les meilleurs produits Tech & Électronique</p>
-    <input
-      type="text"
-      id="search-input"
-      placeholder="🔍 Rechercher un produit..."
+    <p>Découvrez les meilleurs produits <strong>Tech & Électronique</strong></p>
+    <input 
+      type="text" 
+      id="searchInput" 
+      placeholder="🔍 Rechercher un produit..." 
     />
   </section>
 
-  <!-- Produits -->
-  <section id="products" class="products-container">
-    <!-- Produits affichés par script.js -->
-  </section>
+  <!-- Zone produits -->
+  <main>
+    <div id="products" class="products-grid">
+      <!-- Les produits seront chargés ici -->
+    </div>
+  </main>
 
   <!-- Footer -->
   <footer>
-    <p>© 2025 Sawem.shop - Contact : contact@sawem.shop | Tel: +33 745438728</p>
+    <p>
+      © 2025 Sawem.shop - Contact : 
+      <a href="mailto:contact@sawem.shop">contact@sawem.shop</a> | 
+      Tel: <a href="tel:+33745438728">+33 7 45 43 87 28</a>
+    </p>
   </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>
