@@ -1,3 +1,4 @@
+
 /* Reset */
 * {
   margin: 0;
@@ -14,7 +15,7 @@ body {
 
 /* Header */
 header {
-  background: #222;
+  background: #007bff; /* bleu foncé */
   color: #fff;
   padding: 20px;
   text-align: center;
@@ -29,6 +30,37 @@ header p {
   font-size: 1.1rem;
 }
 
+/* Barre de recherche */
+#search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  gap: 0.5rem;
+}
+
+#searchBox {
+  padding: 0.6rem 1rem;
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #ccc;
+  width: 300px;
+  font-size: 1rem;
+}
+
+#searchBtn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 5px 5px 0;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#searchBtn:hover {
+  background-color: #0056b3;
+}
+
 /* Sections */
 .products-section {
   padding: 40px 20px;
@@ -39,7 +71,7 @@ header p {
 .products-section h2 {
   margin-bottom: 20px;
   font-size: 1.5rem;
-  color: #222;
+  color: #007bff; /* bleu foncé */
 }
 
 /* Grid */
@@ -82,9 +114,10 @@ header p {
   margin-bottom: 10px;
 }
 
+/* Boutons des cartes produit */
 .product-card .btn {
   display: inline-block;
-  background: #ff6f61;
+  background: #007bff; /* Bleu foncé */
   color: #fff;
   padding: 10px 15px;
   text-decoration: none;
@@ -93,12 +126,12 @@ header p {
 }
 
 .product-card .btn:hover {
-  background: #e63946;
+  background: #0056b3; /* Bleu plus foncé au survol */
 }
 
 /* Footer */
 footer {
-  background: #222;
+  background: #007bff; /* bleu foncé */
   color: #fff;
   text-align: center;
   padding: 15px;
@@ -113,3 +146,4 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
