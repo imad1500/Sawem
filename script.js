@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:10000/search"; // change si ton backend est déployé
+const API_URL = "https://sawem-backend.onrender.com/search";
 
 const searchBtn = document.getElementById("searchBtn");
 const searchInput = document.getElementById("searchInput");
@@ -64,3 +64,4 @@ searchBtn.addEventListener("click", searchProducts);
 searchInput.addEventListener("keypress", e => {
   if (e.key === "Enter") searchProducts();
 });
+
