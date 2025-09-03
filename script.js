@@ -25,6 +25,13 @@ async function loadProducts(query="") {
               ${[1,2,3,4,5].map(i=>`<span onclick="vote(${i},${p.id})">⭐</span>`).join("")}
             </div>
           </div>
+          <div class="reviews">
+            ${p.reviews.map(r=>`
+              <div class="review">
+                <strong>${r.name}:</strong> ${'⭐'.repeat(r.stars)}<br>${r.comment}
+              </div>
+            `).join('')}
+          </div>
           <textarea id="reviewComment-${p.id}" placeholder="Votre avis..."></textarea>
           <button onclick="submitReview(${p.id})">Envoyer</button>
         </div>
