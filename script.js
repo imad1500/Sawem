@@ -1,7 +1,12 @@
-async function searchProducts() {
-  const query = document.getElementById("searchInput").value.trim();
-  const productsContainer = document.getElementById("products");
-  productsContainer.innerHTML = "⏳ Chargement des produits...";
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const productsContainer = document.getElementById("productsContainer");
+
+searchBtn.addEventListener("click", async () => {
+  const query = searchInput.value.trim();
+  if (!query) return;
+
+  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
 
   try {
     const response = await fetch("https://sawem-backend.onrender.com/search", {
@@ -11,38 +16,36 @@ async function searchProducts() {
     });
 
     if (!response.ok) {
-      productsContainer.innerHTML = "❌ Erreur serveur.";
+      throw new Error("Erreur serveur lors de la recherche");
+    }
+
+    const products = await response.json();
+
+    if (!products || products.length === 0) {
+      productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
       return;
     }
 
-    const data = await response.json();
-
-    if (!Array.isArray(data) || data.length === 0) {
-      productsContainer.innerHTML = "🙁 Aucun produit trouvé.";
-      return;
-    }
-
-    productsContainer.innerHTML = "";
-    data.forEach((product) => {
-      const card = `
-        <div class="product-card">
-          <img src="${product.image}" alt="${product.title}">
-          <h3>${product.title}</h3>
-          <p class="price">${product.price}</p>
-          <a href="${product.link}" target="_blank">Voir le produit</a>
-          <p class="source">📦 ${product.source}</p>
-        </div>
-      `;
-      productsContainer.innerHTML += card;
-    });
+    productsContainer.innerHTML = products
+      .map(
+        (p) => `
+      <div class="product-card">
+        <img src="${p.image}" alt="${p.title}">
+        <h3>${p.title}</h3>
+        <p class="price">${p.price}</p>
+        <a href="${p.link}" target="_blank" class="btn view-btn">Voir</a>
+        <button class="btn vote-btn">Voter</button>
+      </div>
+    `
+      )
+      .join("");
   } catch (err) {
-    console.error("Erreur côté client:", err);
-    productsContainer.innerHTML = "❌ Impossible de charger les produits.";
+    console.error(err);
+    productsContainer.innerHTML = "<p>❌ Erreur serveur.</p>";
   }
-}
+});
 
-// recherche auto au clic bouton ou Enter
-document.getElementById("searchBtn").addEventListener("click", searchProducts);
-document.getElementById("searchInput").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") searchProducts();
+// Optionnel: activer la recherche avec Enter
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") searchBtn.click();
 });
