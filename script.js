@@ -2,9 +2,9 @@ const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 
-// === Afficher les produits ===
+// === Afficher une section de produits ===
 function displayProductsSection(title, products) {
-  if (!products.length) return "";
+  if (!products || !products.length) return "";
   return `
     <h2 style="margin:20px 0;">${title}</h2>
     <div class="products-container">
@@ -31,7 +31,7 @@ function displayProductsSection(title, products) {
   `;
 }
 
-// === Charger tous les produits au départ ===
+// === Charger tous les produits ===
 async function loadProducts() {
   productsContainer.innerHTML = "<p>⏳ Chargement...</p>";
   try {
@@ -50,7 +50,7 @@ async function loadProducts() {
 
 loadProducts();
 
-// === Recherche sémantique ===
+// === Recherche ===
 searchBtn.addEventListener("click", async () => {
   const query = searchInput.value.trim();
   if (!query) return;
@@ -65,8 +65,15 @@ searchBtn.addEventListener("click", async () => {
     });
     const data = await res.json();
 
-    productsContainer.innerHTML = displayProductsSection("AliExpress", data.aliexpress) +
-                                  displayProductsSection("Amazon", data.amazon);
+    const aliexpress = data.aliexpress || [];
+    const amazon = data.amazon || [];
+
+    productsContainer.innerHTML = displayProductsSection("AliExpress", aliexpress) +
+                                  displayProductsSection("Amazon", amazon);
+
+    if (!aliexpress.length && !amazon.length) {
+      productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
+    }
   } catch (err) {
     productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
   }
