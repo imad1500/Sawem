@@ -3,26 +3,32 @@ const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 
 // === Afficher les produits ===
-function displayProducts(products) {
-  productsContainer.innerHTML = products.map(p => `
-    <div class="product-card">
-      <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
-      <div class="product-info">
-        <h3>${p.title}</h3>
-        <p>${p.price}</p>
-        <div class="product-actions">
-          <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
-          <div>
-            <button class="vote-btn" onclick="vote(${p.id})">Vote (${p.user_rating || 0})</button>
+function displayProductsSection(title, products) {
+  if (!products.length) return "";
+  return `
+    <h2 style="margin:20px 0;">${title}</h2>
+    <div class="products-container">
+      ${products.map(p => `
+        <div class="product-card">
+          <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
+          <div class="product-info">
+            <h3>${p.title}</h3>
+            <p>${p.price}</p>
+            <div class="product-actions">
+              <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
+              <button class="vote-btn" onclick="vote(${p.id})">
+                Vote (${p.user_rating ? p.user_rating.toFixed(1) : 0})
+              </button>
+            </div>
+            <div class="review-section">
+              <textarea id="review-${p.id}" placeholder="Votre avis..."></textarea>
+              <button class="review-btn" onclick="sendReview(${p.id})">Envoyer</button>
+            </div>
           </div>
         </div>
-        <div class="review-section">
-          <textarea id="review-${p.id}" placeholder="Votre avis..."></textarea>
-          <button onclick="sendReview(${p.id})">Envoyer</button>
-        </div>
-      </div>
+      `).join("")}
     </div>
-  `).join("");
+  `;
 }
 
 // === Charger tous les produits au départ ===
@@ -31,7 +37,12 @@ async function loadProducts() {
   try {
     const res = await fetch("https://sawem-backend.onrender.com/products");
     const products = await res.json();
-    displayProducts(products);
+
+    const aliexpress = products.filter(p => p.source.toLowerCase().includes("aliexpress"));
+    const amazon = products.filter(p => p.source.toLowerCase().includes("amazon"));
+
+    productsContainer.innerHTML = displayProductsSection("AliExpress", aliexpress) +
+                                  displayProductsSection("Amazon", amazon);
   } catch (err) {
     productsContainer.innerHTML = `<p>❌ ${err.message}</p>`;
   }
@@ -39,9 +50,11 @@ async function loadProducts() {
 
 loadProducts();
 
-// === Rechercher ===
+// === Recherche sémantique ===
 searchBtn.addEventListener("click", async () => {
   const query = searchInput.value.trim();
+  if (!query) return;
+
   productsContainer.innerHTML = "<p>⏳ Chargement...</p>";
 
   try {
@@ -50,20 +63,18 @@ searchBtn.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
     });
-    const products = await res.json();
-    if (!Array.isArray(products) || !products.length) {
-      productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
-      return;
-    }
-    displayProducts(products);
+    const data = await res.json();
+
+    productsContainer.innerHTML = displayProductsSection("AliExpress", data.aliexpress) +
+                                  displayProductsSection("Amazon", data.amazon);
   } catch (err) {
-    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${JSON.stringify(err)}</p>`;
+    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
   }
 });
 
 // === Voter ===
 async function vote(productId) {
-  const userId = 1; // pour test, remplacer par ID connecté
+  const userId = 1; // temporaire
   const stars = parseInt(prompt("Notez de 1 à 5 étoiles :"));
   if (!stars || stars < 1 || stars > 5) return alert("Note invalide");
 
@@ -74,15 +85,18 @@ async function vote(productId) {
       body: JSON.stringify({ product_id: productId, user_id: userId, stars }),
     });
     const data = await res.json();
-    if (data.success) alert(`Merci pour votre vote ! Note actuelle: ${data.user_rating}`);
-  } catch (err) {
+    if (data.success) {
+      alert(`Merci pour votre vote ! Note actuelle: ${data.user_rating.toFixed(1)}`);
+      loadProducts();
+    }
+  } catch {
     alert("Erreur vote");
   }
 }
 
 // === Envoyer un avis ===
 async function sendReview(productId) {
-  const userId = 1; // pour test, remplacer par ID connecté
+  const userId = 1; // temporaire
   const comment = document.getElementById(`review-${productId}`).value;
   if (!comment) return alert("Avis vide");
 
@@ -96,8 +110,9 @@ async function sendReview(productId) {
     if (data.success) {
       alert("Merci pour votre avis !");
       document.getElementById(`review-${productId}`).value = "";
+      loadProducts();
     }
-  } catch (err) {
+  } catch {
     alert("Erreur review");
   }
 }
