@@ -1,100 +1,163 @@
-const searchInput = document.getElementById("searchInput");
-const searchBtn = document.getElementById("searchBtn");
-const productsContainer = document.getElementById("productsContainer");
+// === Dépendances ===
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import pkg from "pg";
+import fetch from "node-fetch";
 
-const BACKEND_URL = "https://sawem-backend.onrender.com";
+const { Pool } = pkg;
+const app = express();
+const port = process.env.PORT || 10000;
 
-async function loadProducts(query = "") {
-  productsContainer.innerHTML = "<p>⏳ Chargement...</p>";
-  try {
-    const res = await fetch(`${BACKEND_URL}/search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query })
-    });
+app.use(cors());
+app.use(bodyParser.json());
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Erreur serveur: ${text}`);
-    }
+// === Connexion BDD ===
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
-    const products = await res.json();
-    if (!products.length) {
-      productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
-      return;
-    }
+// === JINA AI ===
+const JINA_API_KEY = process.env.JINA_API_KEY;
 
-    productsContainer.innerHTML = products.map(p => `
-      <div class="product-card">
-        <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
-        <div class="product-info">
-          <h3>${p.title}</h3>
-          <p>${p.price}</p>
-          <div class="product-actions">
-            <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
-            <div class="vote-stars">
-              ${[1,2,3,4,5].map(i => `<span onclick="vote(${i},${p.id})">⭐</span>`).join("")}
-            </div>
-          </div>
-          <div class="reviews">
-            ${p.reviews.map(r => `
-              <div class="review">
-                <strong>${r.user_name}:</strong> ${r.stars ? '⭐'.repeat(r.stars) : ''}<br>${r.comment}
-              </div>
-            `).join('')}
-          </div>
-          <textarea id="reviewComment-${p.id}" placeholder="Votre avis..."></textarea>
-          <button onclick="submitReview(${p.id})">Envoyer</button>
-        </div>
-      </div>
-    `).join("");
+async function getEmbedding(text) {
+  const response = await fetch("https://api.jina.ai/v1/embeddings", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${JINA_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "jina-embeddings-v2-base-en",
+      input: [text],
+    }),
+  });
 
-  } catch (err) {
-    productsContainer.innerHTML = `<p>❌ ${err.message}</p>`;
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Jina AI error: ${response.status} - ${error}`);
   }
+
+  const data = await response.json();
+  const fullEmbedding = data.data[0].embedding;
+  return fullEmbedding.slice(0, 384);
 }
 
-searchBtn.addEventListener("click", () => loadProducts(searchInput.value.trim()));
-window.onload = () => loadProducts();
-
-// Fonction vote
-async function vote(stars, productId) {
+// === Charger produits (AliExpress -> Amazon) ===
+app.get("/products", async (req, res) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/vote`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, stars })
-    });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Erreur serveur: ${text}`);
-    }
-    const data = await res.json();
-    if (data.success) alert(`Merci ! Nouveau score : ${data.new_rating.toFixed(1)}`);
-    loadProducts(searchInput.value.trim());
+    const result = await pool.query(
+      `SELECT * FROM products ORDER BY 
+        CASE WHEN source ILIKE '%aliexpress%' THEN 1 ELSE 2 END, id ASC`
+    );
+    res.json(result.rows);
   } catch (err) {
-    alert(`Erreur vote: ${err.message}`);
+    res.status(500).json({ error: err.message });
   }
-}
+});
 
-// Fonction envoyer un avis
-async function submitReview(productId) {
+// === Recherche via embeddings ===
+app.post("/search", async (req, res) => {
   try {
-    const comment = document.getElementById(`reviewComment-${productId}`).value;
-    if (!comment) return alert("Le commentaire est vide !");
-    const res = await fetch(`${BACKEND_URL}/review`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, comment })
-    });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Erreur serveur: ${text}`);
-    }
-    const data = await res.json();
-    if (data.success) alert("Merci pour votre avis !");
-    loadProducts(searchInput.value.trim());
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ error: "Query manquante" });
+
+    const embedding = await getEmbedding(query);
+
+    const sql = `
+      SELECT *, embedding <=> $1::vector AS distance
+      FROM products
+      WHERE embedding IS NOT NULL
+      ORDER BY distance ASC
+      LIMIT 50
+    `;
+    const result = await pool.query(sql, [JSON.stringify(embedding)]);
+    const THRESHOLD = 0.95;
+    const filtered = result.rows.filter((r) => r.distance < THRESHOLD);
+
+    // Réorganiser AliExpress puis Amazon
+    const aliexpress = filtered.filter(p => p.source.toLowerCase().includes("aliexpress"));
+    const amazon = filtered.filter(p => p.source.toLowerCase().includes("amazon"));
+
+    res.json([...aliexpress, ...amazon]);
   } catch (err) {
-    alert(`Erreur avis: ${err.message}`);
+    res.status(500).json({ error: err.message });
   }
-}
+});
+
+// === Ajouter un vote ===
+app.post("/vote", async (req, res) => {
+  try {
+    const { product_id, user_id, stars } = req.body;
+    if (!product_id || !user_id || !stars) return res.status(400).json({ error: "Données manquantes" });
+
+    await pool.query(
+      `INSERT INTO ratings(product_id, user_name, stars, created_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (product_id, user_name) DO UPDATE SET stars = $3`,
+      [product_id, user_id, stars]
+    );
+
+    // Recalculer note moyenne
+    const result = await pool.query(
+      `SELECT AVG(stars) AS avg_rating FROM ratings WHERE product_id = $1`,
+      [product_id]
+    );
+
+    await pool.query(
+      `UPDATE products SET user_rating = $1 WHERE id = $2`,
+      [result.rows[0].avg_rating || 0, product_id]
+    );
+
+    res.json({ success: true, avg_rating: result.rows[0].avg_rating || 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// === Ajouter un review ===
+app.post("/review", async (req, res) => {
+  try {
+    const { product_id, user_id, comment } = req.body;
+    if (!product_id || !user_id || !comment) return res.status(400).json({ error: "Données manquantes" });
+
+    await pool.query(
+      `INSERT INTO reviews(product_id, user_id, comment, created_at)
+       VALUES ($1, $2, $3, NOW())`,
+      [product_id, user_id, comment]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// === Récupérer les reviews d'un produit ===
+app.get("/reviews/:product_id", async (req, res) => {
+  try {
+    const { product_id } = req.params;
+    const result = await pool.query(
+      `SELECT r.comment, u.name, r.created_at
+       FROM reviews r
+       LEFT JOIN users u ON r.user_id = u.id
+       WHERE r.product_id = $1
+       ORDER BY r.created_at DESC`,
+      [product_id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// === Root ===
+app.get("/", (req, res) => {
+  res.send("🚀 Sawem-backend opérationnel avec recherche embeddings, votes et reviews");
+});
+
+// === Lancer serveur ===
+app.listen(port, () => {
+  console.log(`✨ Serveur lancé sur http://localhost:${port}`);
+});
