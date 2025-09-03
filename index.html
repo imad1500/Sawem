@@ -1,19 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sawem.shop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
+
+  <!-- Header -->
   <header>
-    <h1>Sawem.shop 🛒</h1>
-    <p>Bienvenue sur Sawem.shop<br>Découvrez les meilleurs produits Tech & Électronique</p>
+    <div class="header-container">
+      <h1>Sawem.shop</h1>
+      <div class="cart">🛒</div>
+    </div>
   </header>
 
-  <main>
+  <!-- Section bienvenue -->
+  <section class="welcome">
+    <h2>Bienvenue sur Sawem.shop</h2>
+    <p>Découvrez les meilleurs produits Tech & Électronique</p>
+  </section>
+
+  <!-- Barre de recherche -->
+  <section class="search-section">
     <input type="text" id="searchInput" placeholder="🔍 Rechercher un produit...">
     <button id="searchBtn">Rechercher</button>
+  </section>
 
-    <div id="results">⏳ Chargement des produits...</div>
-  </main>
+  <!-- Zone des produits -->
+  <section id="products" class="products-container">
+    <!-- Les produits s’afficheront ici -->
+  </section>
 
+  <!-- Footer -->
   <footer>
-    © 2025 Sawem.shop - Contact : contact@sawem.shop | Tel: +33 745438728
+    <p>© 2025 Sawem.shop - Contact : contact@sawem.shop | Tel: +33 745438728</p>
   </footer>
 
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
+</html>
