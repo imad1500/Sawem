@@ -2,128 +2,136 @@ const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 
-// Fonction pour afficher les produits
+// Fonction pour afficher les étoiles
+function renderStars(rating) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  let stars = "";
+  for (let i = 0; i < full; i++) stars += "★";
+  if (half) stars += "☆";
+  for (let i = stars.length; i < 5; i++) stars += "☆";
+  return stars;
+}
+
+// Fonction pour afficher produits
 function displayProducts(products) {
-  if (!products || !products.length) {
+  if (!products || products.length === 0) {
     productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
     return;
   }
 
   // Séparer AliExpress et Amazon
-  const aliProducts = products.filter(p => p.source.toLowerCase().includes("aliexpress"));
-  const amazonProducts = products.filter(p => p.source.toLowerCase().includes("amazon"));
+  const ali = products.filter(p => p.source.toLowerCase().includes("aliexpress"));
+  const amazon = products.filter(p => p.source.toLowerCase().includes("amazon"));
 
   const sections = [
-    { title: "AliExpress", items: aliProducts },
-    { title: "Amazon", items: amazonProducts },
+    { title: "AliExpress", items: ali },
+    { title: "Amazon", items: amazon },
   ];
 
   productsContainer.innerHTML = sections
     .map(section => {
       if (!section.items.length) return "";
       return `
-        <h3>${section.title}</h3>
+        <h2>${section.title}</h2>
         <div class="products-container">
-          ${section.items.map(p => `
-            <div class="product-card">
-              <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
-              <div class="product-info">
-                <h3>${p.title}</h3>
-                <p>${p.price}</p>
-                <div class="product-actions">
-                  <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
-                  <button class="vote-btn" onclick="vote(${p.id})">
-                    Vote (${Number(p.user_rating || 0).toFixed(1)})
-                  </button>
-                </div>
-                <div class="reviews-section">
-                  <textarea placeholder="Votre avis..." id="review-${p.id}"></textarea>
-                  <button class="vote-btn" onclick="submitReview(${p.id})">Envoyer</button>
+          ${section.items
+            .map(p => `
+              <div class="product-card">
+                <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
+                <div class="product-info">
+                  <h3>${p.title}</h3>
+                  <p>${p.price}</p>
+                  <p>Vote: ${renderStars(Number(p.user_rating || 0))} (${Number(p.user_rating||0).toFixed(1)})</p>
+                  <div class="product-actions">
+                    <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
+                    <button class="vote-btn" onclick="vote(${p.id})">Vote</button>
+                  </div>
+                  <div class="review-section">
+                    <textarea id="review-${p.id}" placeholder="Votre avis..."></textarea>
+                    <button class="vote-btn" onclick="submitReview(${p.id})">Envoyer</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          `).join("")}
+            `).join("")}
         </div>
       `;
     }).join("");
 }
 
-// Fonction de vote
-function vote(id) {
-  const rating = prompt("Donnez une note entre 1 et 5 :");
-  const stars = Number(rating);
-  if (!stars || stars < 1 || stars > 5) return alert("Note invalide");
-
-  fetch(`https://sawem-backend.onrender.com/vote`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ product_id: id, stars }),
-  })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.message || "Vote enregistré !");
-      loadInitialProducts();
-    })
-    .catch(err => alert("Erreur vote: " + err.message));
+// Charger produits initiaux
+async function loadProducts() {
+  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
+  try {
+    const res = await fetch("https://sawem-backend.onrender.com/products");
+    const data = await res.json();
+    displayProducts(data);
+  } catch (err) {
+    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
+  }
 }
 
-// Fonction pour envoyer un commentaire
-function submitReview(id) {
-  const textarea = document.getElementById(`review-${id}`);
-  const comment = textarea.value.trim();
-  if (!comment) return alert("Veuillez écrire un commentaire.");
-
-  fetch(`https://sawem-backend.onrender.com/review`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ product_id: id, comment }),
-  })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.message || "Commentaire envoyé !");
-      textarea.value = "";
-      loadInitialProducts();
-    })
-    .catch(err => alert("Erreur commentaire: " + err.message));
-}
-
-// Recherche par Jina embeddings
+// Recherche
 searchBtn.addEventListener("click", async () => {
   const query = searchInput.value.trim();
-  if (!query) return;
-
-  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
+  if (!query) {
+    loadProducts();
+    return;
+  }
+  productsContainer.innerHTML = "<p>⏳ Recherche en cours...</p>";
 
   try {
-    const response = await fetch("https://sawem-backend.onrender.com/search", {
+    const res = await fetch("https://sawem-backend.onrender.com/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
     });
-
-    if (!response.ok) throw new Error("Erreur serveur");
-
-    const products = await response.json();
-    displayProducts(products);
-
+    const data = await res.json();
+    displayProducts(data);
   } catch (err) {
     productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
   }
 });
 
-// Chargement initial de tous les produits
-async function loadInitialProducts() {
-  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
-  try {
-    const response = await fetch("https://sawem-backend.onrender.com/products");
-    if (!response.ok) throw new Error("Erreur serveur");
+// Fonction vote
+async function vote(id) {
+  const stars = prompt("Entrez votre note (1 à 5) :");
+  const numStars = Number(stars);
+  if (!numStars || numStars < 1 || numStars > 5) return alert("Note invalide");
 
-    const products = await response.json();
-    displayProducts(products);
+  try {
+    const res = await fetch("https://sawem-backend.onrender.com/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: id, stars: numStars }),
+    });
+    const data = await res.json();
+    alert(data.message);
+    loadProducts();
   } catch (err) {
-    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
+    alert("❌ Erreur vote: " + err.message);
   }
 }
 
-// Initial load
-loadInitialProducts();
+// Fonction submit review
+async function submitReview(id) {
+  const textarea = document.getElementById(`review-${id}`);
+  const comment = textarea.value.trim();
+  if (!comment) return alert("Veuillez écrire un commentaire");
+
+  try {
+    const res = await fetch("https://sawem-backend.onrender.com/review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: id, comment }),
+    });
+    const data = await res.json();
+    alert(data.message);
+    textarea.value = "";
+  } catch (err) {
+    alert("❌ Erreur review: " + err.message);
+  }
+}
+
+// Initial
+loadProducts();
