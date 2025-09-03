@@ -99,7 +99,7 @@ async function loadAllProducts(){
 }
 
 // ====== Recherche ======
-searchBtn.addEventListener("click",async()=>{
+searchBtn.addEventListener("click", async ()=>{
   const query = searchInput.value.trim();
   if(!query){loadAllProducts(); return;}
   productsContainer.innerHTML="<p>⏳ Recherche...</p>";
@@ -115,5 +115,5 @@ searchBtn.addEventListener("click",async()=>{
   }catch(err){productsContainer.innerHTML=`<p>❌ ${err.message}</p>`;}
 });
 
-// Lancement
+// Lancement initial
 loadAllProducts();
