@@ -11,29 +11,38 @@ async function searchProducts() {
     });
 
     if (!response.ok) {
-      throw new Error("Erreur réseau lors de la recherche");
-    }
-
-    const products = await response.json();
-
-    if (!products || products.length === 0) {
-      productsContainer.innerHTML = "⚠️ Aucun produit trouvé.";
+      productsContainer.innerHTML = "❌ Erreur serveur.";
       return;
     }
 
-    // Afficher les produits
-    productsContainer.innerHTML = products.map(p => `
-      <div class="product">
-        <img src="${p.image}" alt="${p.title}" />
-        <h3>${p.title}</h3>
-        <p>${p.price}</p>
-        <a href="${p.link}" target="_blank">Voir le produit</a>
-        <small>Source: ${p.source}</small>
-      </div>
-    `).join("");
+    const data = await response.json();
 
+    if (!Array.isArray(data) || data.length === 0) {
+      productsContainer.innerHTML = "🙁 Aucun produit trouvé.";
+      return;
+    }
+
+    productsContainer.innerHTML = "";
+    data.forEach((product) => {
+      const card = `
+        <div class="product-card">
+          <img src="${product.image}" alt="${product.title}">
+          <h3>${product.title}</h3>
+          <p class="price">${product.price}</p>
+          <a href="${product.link}" target="_blank">Voir le produit</a>
+          <p class="source">📦 ${product.source}</p>
+        </div>
+      `;
+      productsContainer.innerHTML += card;
+    });
   } catch (err) {
-    console.error("Erreur lors du chargement:", err);
-    productsContainer.innerHTML = "❌ Erreur lors du chargement des produits.";
+    console.error("Erreur côté client:", err);
+    productsContainer.innerHTML = "❌ Impossible de charger les produits.";
   }
 }
+
+// recherche auto au clic bouton ou Enter
+document.getElementById("searchBtn").addEventListener("click", searchProducts);
+document.getElementById("searchInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") searchProducts();
+});
