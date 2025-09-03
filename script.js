@@ -2,7 +2,6 @@ const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 
-// URL de ton backend Render
 const BACKEND_URL = "https://sawem-backend.onrender.com";
 
 async function loadProducts(query = "") {
@@ -40,7 +39,7 @@ async function loadProducts(query = "") {
           <div class="reviews">
             ${p.reviews.map(r => `
               <div class="review">
-                <strong>${r.name}:</strong> ${'⭐'.repeat(r.stars)}<br>${r.comment}
+                <strong>${r.user_name}:</strong> ${r.stars ? '⭐'.repeat(r.stars) : ''}<br>${r.comment}
               </div>
             `).join('')}
           </div>
@@ -71,7 +70,8 @@ async function vote(stars, productId) {
       throw new Error(`Erreur serveur: ${text}`);
     }
     const data = await res.json();
-    if (data.success) alert(`Merci ! Nouveau score : ${data.new_rating}`);
+    if (data.success) alert(`Merci ! Nouveau score : ${data.new_rating.toFixed(1)}`);
+    loadProducts(searchInput.value.trim());
   } catch (err) {
     alert(`Erreur vote: ${err.message}`);
   }
@@ -81,6 +81,7 @@ async function vote(stars, productId) {
 async function submitReview(productId) {
   try {
     const comment = document.getElementById(`reviewComment-${productId}`).value;
+    if (!comment) return alert("Le commentaire est vide !");
     const res = await fetch(`${BACKEND_URL}/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -92,7 +93,6 @@ async function submitReview(productId) {
     }
     const data = await res.json();
     if (data.success) alert("Merci pour votre avis !");
-    // Recharge les produits pour afficher le nouvel avis
     loadProducts(searchInput.value.trim());
   } catch (err) {
     alert(`Erreur avis: ${err.message}`);
