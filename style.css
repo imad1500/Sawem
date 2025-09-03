@@ -1,229 +1,43 @@
-/* ====== RESET ====== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Reset */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial,sans-serif;background:#f5f7fa;color:#333;line-height:1.6;}
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
-  line-height: 1.6;
-}
+/* Header */
+header{background:#007bff;color:white;padding:15px 30px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.header-container{display:flex;justify-content:space-between;align-items:center;}
+header h1{font-size:24px;}
+header .cart{font-size:28px;}
 
-/* ====== HEADER ====== */
-header {
-  background-color: #007bff;
-  color: white;
-  padding: 15px 30px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+/* Welcome */
+.welcome{text-align:center;padding:30px 20px;}
+.welcome h2{font-size:28px;margin-bottom:10px;}
+.welcome p{font-size:18px;color:#555;}
+.google-login-btn{display:inline-block;padding:6px 12px;background:#4285F4;color:white;border-radius:6px;text-decoration:none;margin-top:10px;}
 
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* Search */
+.search-section{display:flex;justify-content:center;align-items:center;margin:20px 0;gap:10px;}
+#searchInput{padding:10px;width:280px;border:1px solid #ccc;border-radius:6px;font-size:16px;}
+#searchBtn{padding:10px 18px;background:#007bff;color:white;border:none;border-radius:6px;cursor:pointer;font-size:16px;}
+#searchBtn:hover{background:#0056b3;}
 
-header h1 {
-  font-size: 24px;
-}
+/* Products */
+.products-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;padding:20px;}
+.product-card{background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s;}
+.product-card:hover{transform:translateY(-5px);}
+.product-card img{width:100%;height:200px;object-fit:cover;}
+.product-info{padding:15px;flex:1;display:flex;flex-direction:column;}
+.product-info h3{font-size:18px;margin-bottom:10px;}
+.product-info p{font-size:16px;margin-bottom:10px;font-weight:bold;}
+.product-actions{display:flex;justify-content:space-between;align-items:center;}
+.view-btn{padding:8px 14px;background:#007bff;color:white;border:none;border-radius:6px;text-decoration:none;font-size:14px;cursor:pointer;}
+.view-btn:hover{background:#0056b3;}
+.vote-stars span{cursor:pointer;font-size:20px;margin-right:4px;}
+textarea{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-top:5px;}
+button{background:#28a745;color:white;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;margin-top:5px;}
+button:hover{background:#1e7e34;}
 
-header .cart {
-  font-size: 28px;
-}
+/* Footer */
+footer{background:#007bff;color:white;text-align:center;padding:15px;margin-top:30px;font-size:14px;}
 
-/* ====== SECTION BIENVENUE ====== */
-.welcome {
-  text-align: center;
-  padding: 30px 20px;
-}
-
-.welcome h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.welcome p {
-  font-size: 18px;
-  color: #555;
-}
-
-/* ====== RECHERCHE ====== */
-.search-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
-  gap: 10px;
-}
-
-#searchInput {
-  padding: 10px;
-  width: 280px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-}
-
-#searchBtn {
-  padding: 10px 18px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-#searchBtn:hover {
-  background-color: #0056b3;
-}
-
-/* ====== PRODUITS ====== */
-.products-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
-
-.product-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease-in-out;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-}
-
-.product-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.product-info {
-  padding: 15px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.product-info h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.product-info p {
-  font-size: 16px;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.product-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-/* Bouton Voir */
-.view-btn {
-  padding: 8px 14px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.view-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Bouton Vote */
-.vote-btn {
-  padding: 8px 14px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.vote-btn:hover {
-  background-color: #1e7e34;
-}
-
-.votes-badge {
-  margin-left: 6px;
-  font-size: 13px;
-  color: #555;
-}
-
-/* ====== REVIEWS ====== */
-.reviews-container {
-  margin-top: 10px;
-  font-size: 14px;
-  max-height: 200px;
-  overflow-y: auto;
-  border-top: 1px solid #eee;
-  padding-top: 6px;
-}
-
-.reviews-container .review {
-  padding: 6px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.reviews-container .review strong {
-  color: #007bff;
-}
-
-.reviews-container .review-time {
-  color: #888;
-  font-size: 12px;
-  margin-left: 4px;
-}
-
-/* ====== FOOTER ====== */
-footer {
-  background-color: #007bff;
-  color: white;
-  text-align: center;
-  padding: 15px;
-  margin-top: 30px;
-  font-size: 14px;
-}
-
-/* ====== RESPONSIVE ====== */
-@media (max-width: 600px) {
-  .search-section {
-    flex-direction: column;
-  }
-
-  #searchInput {
-    width: 90%;
-  }
-
-  .product-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .product-info input[type="text"] {
-    width: 100%;
-  }
-}
+/* Responsive */
+@media(max-width:600px){.search-section{flex-direction:column;}#searchInput{width:90%;}}
