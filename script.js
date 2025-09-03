@@ -2,124 +2,128 @@ const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 
-// === Afficher une section de produits ===
-function displayProductsSection(title, products) {
-  if (!products || !products.length) return "";
-  return `
-    <h2 style="margin:20px 0;">${title}</h2>
-    <div class="products-container">
-      ${products.map(p => `
-        <div class="product-card">
-          <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
-          <div class="product-info">
-            <h3>${p.title}</h3>
-            <p>${p.price}</p>
-            <div class="product-actions">
-              <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
-              <button class="vote-btn" onclick="vote(${p.id})">
-                Vote (${p.user_rating ? p.user_rating.toFixed(1) : 0})
-              </button>
-            </div>
-            <div class="review-section">
-              <textarea id="review-${p.id}" placeholder="Votre avis..."></textarea>
-              <button class="review-btn" onclick="sendReview(${p.id})">Envoyer</button>
-            </div>
-          </div>
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
-// === Charger tous les produits ===
-async function loadProducts() {
-  productsContainer.innerHTML = "<p>⏳ Chargement...</p>";
-  try {
-    const res = await fetch("https://sawem-backend.onrender.com/products");
-    const products = await res.json();
-
-    const aliexpress = products.filter(p => p.source.toLowerCase().includes("aliexpress"));
-    const amazon = products.filter(p => p.source.toLowerCase().includes("amazon"));
-
-    productsContainer.innerHTML = displayProductsSection("AliExpress", aliexpress) +
-                                  displayProductsSection("Amazon", amazon);
-  } catch (err) {
-    productsContainer.innerHTML = `<p>❌ ${err.message}</p>`;
+// Fonction pour afficher les produits
+function displayProducts(products) {
+  if (!products || !products.length) {
+    productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
+    return;
   }
+
+  // Séparer AliExpress et Amazon
+  const aliProducts = products.filter(p => p.source.toLowerCase().includes("aliexpress"));
+  const amazonProducts = products.filter(p => p.source.toLowerCase().includes("amazon"));
+
+  const sections = [
+    { title: "AliExpress", items: aliProducts },
+    { title: "Amazon", items: amazonProducts },
+  ];
+
+  productsContainer.innerHTML = sections
+    .map(section => {
+      if (!section.items.length) return "";
+      return `
+        <h3>${section.title}</h3>
+        <div class="products-container">
+          ${section.items.map(p => `
+            <div class="product-card">
+              <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200x200'"/>
+              <div class="product-info">
+                <h3>${p.title}</h3>
+                <p>${p.price}</p>
+                <div class="product-actions">
+                  <a class="view-btn" href="${p.link}" target="_blank">Voir</a>
+                  <button class="vote-btn" onclick="vote(${p.id})">
+                    Vote (${Number(p.user_rating || 0).toFixed(1)})
+                  </button>
+                </div>
+                <div class="reviews-section">
+                  <textarea placeholder="Votre avis..." id="review-${p.id}"></textarea>
+                  <button class="vote-btn" onclick="submitReview(${p.id})">Envoyer</button>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }).join("");
 }
 
-loadProducts();
+// Fonction de vote
+function vote(id) {
+  const rating = prompt("Donnez une note entre 1 et 5 :");
+  const stars = Number(rating);
+  if (!stars || stars < 1 || stars > 5) return alert("Note invalide");
 
-// === Recherche ===
+  fetch(`https://sawem-backend.onrender.com/vote`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product_id: id, stars }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || "Vote enregistré !");
+      loadInitialProducts();
+    })
+    .catch(err => alert("Erreur vote: " + err.message));
+}
+
+// Fonction pour envoyer un commentaire
+function submitReview(id) {
+  const textarea = document.getElementById(`review-${id}`);
+  const comment = textarea.value.trim();
+  if (!comment) return alert("Veuillez écrire un commentaire.");
+
+  fetch(`https://sawem-backend.onrender.com/review`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product_id: id, comment }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || "Commentaire envoyé !");
+      textarea.value = "";
+      loadInitialProducts();
+    })
+    .catch(err => alert("Erreur commentaire: " + err.message));
+}
+
+// Recherche par Jina embeddings
 searchBtn.addEventListener("click", async () => {
   const query = searchInput.value.trim();
   if (!query) return;
 
-  productsContainer.innerHTML = "<p>⏳ Chargement...</p>";
+  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
 
   try {
-    const res = await fetch("https://sawem-backend.onrender.com/search", {
+    const response = await fetch("https://sawem-backend.onrender.com/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
     });
-    const data = await res.json();
 
-    const aliexpress = data.aliexpress || [];
-    const amazon = data.amazon || [];
+    if (!response.ok) throw new Error("Erreur serveur");
 
-    productsContainer.innerHTML = displayProductsSection("AliExpress", aliexpress) +
-                                  displayProductsSection("Amazon", amazon);
+    const products = await response.json();
+    displayProducts(products);
 
-    if (!aliexpress.length && !amazon.length) {
-      productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
-    }
   } catch (err) {
     productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
   }
 });
 
-// === Voter ===
-async function vote(productId) {
-  const userId = 1; // temporaire
-  const stars = parseInt(prompt("Notez de 1 à 5 étoiles :"));
-  if (!stars || stars < 1 || stars > 5) return alert("Note invalide");
-
+// Chargement initial de tous les produits
+async function loadInitialProducts() {
+  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
   try {
-    const res = await fetch("https://sawem-backend.onrender.com/vote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, user_id: userId, stars }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert(`Merci pour votre vote ! Note actuelle: ${data.user_rating.toFixed(1)}`);
-      loadProducts();
-    }
-  } catch {
-    alert("Erreur vote");
+    const response = await fetch("https://sawem-backend.onrender.com/products");
+    if (!response.ok) throw new Error("Erreur serveur");
+
+    const products = await response.json();
+    displayProducts(products);
+  } catch (err) {
+    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${err.message}</p>`;
   }
 }
 
-// === Envoyer un avis ===
-async function sendReview(productId) {
-  const userId = 1; // temporaire
-  const comment = document.getElementById(`review-${productId}`).value;
-  if (!comment) return alert("Avis vide");
-
-  try {
-    const res = await fetch("https://sawem-backend.onrender.com/review", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, user_id: userId, comment }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert("Merci pour votre avis !");
-      document.getElementById(`review-${productId}`).value = "";
-      loadProducts();
-    }
-  } catch {
-    alert("Erreur review");
-  }
-}
+// Initial load
+loadInitialProducts();
