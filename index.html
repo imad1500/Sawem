@@ -11,6 +11,9 @@
   <header>
     <h1>Sawem.shop 🛒</h1>
     <div class="header-right">
+      <!-- Bouton test temporaire JWT -->
+      <button onclick="testJWT()" style="background: #17a2b8; color: white; padding: 5px 10px; border: none; border-radius: 3px; margin-right: 10px; cursor: pointer;">Test JWT</button>
+      
       <!-- Statut d'authentification -->
       <div id="authStatus" class="auth-status loading">
         ⏳ Vérification...
@@ -82,6 +85,37 @@
 
     // Variable globale pour l'état utilisateur
     let currentUser = null;
+    let authToken = null;
+
+    // ==================== JWT Token Management ====================
+    function saveToken(token) {
+      localStorage.setItem('sawem_auth_token', token);
+      authToken = token;
+      console.log('Token saved to localStorage');
+    }
+
+    function getToken() {
+      if (!authToken) {
+        authToken = localStorage.getItem('sawem_auth_token');
+      }
+      return authToken;
+    }
+
+    function removeToken() {
+      localStorage.removeItem('sawem_auth_token');
+      authToken = null;
+      console.log('Token removed from localStorage');
+    }
+
+    function getAuthHeaders() {
+      const token = getToken();
+      return token ? {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      } : {
+        'Content-Type': 'application/json'
+      };
+    }
 
     // ==================== Utilitaires ====================
     function escapeHtml(s) {
@@ -122,33 +156,63 @@
       `).join("");
     }
 
-    // ==================== Gestion utilisateur ====================
+    // ==================== Gestion utilisateur JWT ====================
     async function checkUser() {
       try {
         authStatus.textContent = "⏳ Vérification...";
         authStatus.className = "auth-status loading";
         
-        const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
+        // Vérifier d'abord s'il y a un token dans l'URL (après OAuth)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
         
-        if (!res.ok) throw new Error("Not logged in");
+        if (urlToken) {
+          console.log('Token trouvé dans URL après OAuth');
+          saveToken(urlToken);
+          // Nettoyer l'URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        const token = getToken();
+        if (!token) {
+          throw new Error("Aucun token disponible");
+        }
+        
+        // Vérifier le token avec le serveur
+        const res = await fetch(`${BACKEND_URL}/verify-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ token })
+        });
+        
+        console.log('Verify token response status:', res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.log('Token verification failed:', errorData);
+          throw new Error("Token invalide");
+        }
         
         const data = await res.json();
+        console.log('Token verification success:', data);
+        
         if (data.success && data.user) {
           currentUser = data.user;
           displayUserConnected(data.user);
           
           // Vérifier si on vient d'une redirection OAuth
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get('auth') === 'success' || window.location.hash.includes('auth')) {
+          if (urlToken || urlParams.get('auth') === 'success') {
             showNotification(`Connexion réussie ! Bienvenue ${data.user.name}`, 'success');
-            // Nettoyer l'URL
-            window.history.replaceState({}, document.title, window.location.pathname);
           }
         } else {
-          throw new Error("User data invalid");
+          throw new Error("Données utilisateur invalides");
         }
       } catch (error) {
+        console.error('checkUser error:', error);
         currentUser = null;
+        removeToken(); // Supprimer le token invalide
         displayUserDisconnected();
         
         // Vérifier si on vient d'une redirection OAuth qui a échoué
@@ -169,7 +233,7 @@
       userName.textContent = user.name || "Utilisateur";
       userEmail.textContent = user.email || "";
       
-      // Essayer d'afficher la photo Google si disponible
+      // Afficher la photo Google si disponible
       if (user.photo) {
         userAvatar.src = user.photo;
         userAvatar.alt = user.name || "Avatar";
@@ -202,23 +266,69 @@
 
     async function logout() {
       try {
-        const res = await fetch(`${BACKEND_URL}/logout`, { 
-          method: 'POST', 
-          credentials: 'include' 
+        // Informer le serveur (optionnel avec JWT)
+        await fetch(`${BACKEND_URL}/logout`, { 
+          method: 'POST',
+          headers: getAuthHeaders()
         });
         
-        if (res.ok) {
-          showNotification("Déconnexion réussie", 'success');
-          currentUser = null;
-          displayUserDisconnected();
-        } else {
-          throw new Error("Erreur de déconnexion");
-        }
+        // Supprimer le token côté client
+        removeToken();
+        currentUser = null;
+        
+        showNotification("Déconnexion réussie", 'success');
+        displayUserDisconnected();
       } catch (err) {
         console.error('Logout error:', err);
-        showNotification("Erreur lors de la déconnexion", 'error');
-        // Force le rechargement en cas d'erreur
-        setTimeout(() => window.location.reload(), 1500);
+        // Même en cas d'erreur, supprimer le token côté client
+        removeToken();
+        currentUser = null;
+        showNotification("Déconnexion effectuée", 'success');
+        displayUserDisconnected();
+      }
+    }
+
+    // ==================== Test JWT (temporaire) ====================
+    async function testJWT() {
+      try {
+        console.log('=== TEST JWT ===');
+        
+        // Test 1: Vérifier le token local
+        const localToken = getToken();
+        console.log('Local token:', localToken ? 'EXISTS' : 'NONE');
+        
+        // Test 2: Tester la génération de token
+        const testRes = await fetch(`${BACKEND_URL}/test-jwt`);
+        const testData = await testRes.json();
+        console.log('Test JWT data:', testData);
+        
+        // Test 3: Vérifier avec notre token
+        if (localToken) {
+          const verifyRes = await fetch(`${BACKEND_URL}/verify-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: localToken })
+          });
+          const verifyData = await verifyRes.json();
+          console.log('Token verification:', verifyData);
+        }
+        
+        // Test 4: Tester /me avec Authorization header
+        if (localToken) {
+          const meRes = await fetch(`${BACKEND_URL}/me`, {
+            headers: { 'Authorization': `Bearer ${localToken}` }
+          });
+          console.log('Me status:', meRes.status);
+          const meData = await meRes.json();
+          console.log('Me data:', meData);
+        }
+        
+        // Afficher le résultat dans une alerte
+        alert(`JWT Test:\nLocal token: ${localToken ? 'EXISTS' : 'NONE'}\nUser: ${currentUser ? currentUser.email : 'NONE'}`);
+        
+      } catch (err) {
+        console.error('Test JWT error:', err);
+        alert('Erreur test JWT: ' + err.message);
       }
     }
 
@@ -341,8 +451,7 @@
       try {
         const res = await fetch(`${BACKEND_URL}/vote`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          headers: getAuthHeaders(),
           body: JSON.stringify({ product_id: productId, stars })
         });
         if (!res.ok) throw new Error(await res.text());
@@ -353,7 +462,13 @@
         if (q) searchProducts(q); else loadInitialProducts();
       } catch (err) {
         console.error("promptVote error:", err);
-        showNotification("Erreur lors du vote", 'error');
+        if (err.message.includes('401')) {
+          showNotification("Session expirée, veuillez vous reconnecter", 'error');
+          removeToken();
+          displayUserDisconnected();
+        } else {
+          showNotification("Erreur lors du vote", 'error');
+        }
       }
     }
 
@@ -375,8 +490,7 @@
       try {
         const res = await fetch(`${BACKEND_URL}/review`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          headers: getAuthHeaders(),
           body: JSON.stringify({ product_id: productId, comment })
         });
         if (!res.ok) throw new Error(await res.text());
@@ -394,7 +508,13 @@
         ta.value = "";
       } catch (err) {
         console.error("submitReview error:", err);
-        showNotification("Erreur lors de l'envoi de l'avis", 'error');
+        if (err.message.includes('401')) {
+          showNotification("Session expirée, veuillez vous reconnecter", 'error');
+          removeToken();
+          displayUserDisconnected();
+        } else {
+          showNotification("Erreur lors de l'envoi de l'avis", 'error');
+        }
       }
     }
 
@@ -422,7 +542,7 @@
     // Expose functions globally for onclick handlers
     window.promptVote = promptVote;
     window.submitReview = submitReview;
-    window.testCookies = testCookies; // Ajouter la fonction test
+    window.testJWT = testJWT;
   </script>
 </body>
 </html>
