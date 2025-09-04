@@ -1,5 +1,5 @@
 // script.js - frontend
-const BACKEND_URL = "https://sawem-backend.onrender.com";
+const BACKEND_URL = "https://sawem-backend.onrender.com"; 
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
@@ -56,7 +56,6 @@ function productCardHTML(p) {
           <a class="view-btn" href="${escapeHtml(link)}" target="_blank" rel="noopener">Voir</a>
           <button class="vote-btn" onclick="promptVote(${p.id})">Voter</button>
         </div>
-
         <div class="reviews-section">
           <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
           <textarea id="review-${p.id}" placeholder="Votre avis..." rows="3"></textarea>
@@ -192,10 +191,13 @@ async function checkUser() {
     if (!res.ok) throw new Error("Not logged in");
     const data = await res.json();
     googleLoginBtn.textContent = `Connecté: ${data.user.name}`;
-    googleLoginBtn.href = "#";
+    googleLoginBtn.disabled = true;
   } catch {
     googleLoginBtn.textContent = "Se connecter avec Google";
-    googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+    googleLoginBtn.disabled = false;
+    googleLoginBtn.onclick = () => {
+      window.location.href = `${BACKEND_URL}/auth/google`;
+    };
   }
 }
 
