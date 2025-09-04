@@ -299,6 +299,192 @@ button.send-review:hover {
   background-color: #c82333;
 }
 
+/* Ajoutez ces styles à votre style.css existant */
+
+/* ==================== Auth Status ==================== */
+.auth-status {
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.auth-status.loading { color: #ffc107; }
+.auth-status.connected { color: #28a745; }
+.auth-status.disconnected { color: #dc3545; }
+
+/* ==================== User Info ==================== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 25px;
+  max-width: 300px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+/* ==================== Welcome Message ==================== */
+.welcome-message {
+  background: linear-gradient(135deg, #0d6efd, #28a745);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.welcome-message h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.welcome-message p {
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+/* ==================== Notifications ==================== */
+.notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  z-index: 1001;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.notification.success { 
+  background-color: #28a745;
+}
+
+.notification.error { 
+  background-color: #dc3545;
+}
+
+.notification.show { 
+  transform: translateX(0);
+}
+
+/* ==================== Responsive Auth ==================== */
+@media (max-width: 768px) {
+  .header-right {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .auth-status {
+    margin-right: 0;
+    text-align: center;
+  }
+  
+  .user-info {
+    max-width: none;
+    justify-content: center;
+  }
+  
+  .user-details {
+    text-align: center;
+  }
+  
+  .notification {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    transform: translateY(-100px);
+  }
+  
+  .notification.show {
+    transform: translateY(0);
+  }
+}
+
+/* ==================== Disabled Buttons ==================== */
+button:disabled, textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background-color: #6c757d !important;
+}
+
+button:disabled:hover {
+  background-color: #6c757d !important;
+}
+
+/* ==================== Loading States ==================== */
+.loading-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ==================== Welcome Message ==================== */
 .welcome-message {
   background: linear-gradient(135deg, #0d6efd, #28a745);
@@ -361,4 +547,5 @@ footer {
     max-width: 300px;
   }
 }
+
 
