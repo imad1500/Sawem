@@ -24,6 +24,8 @@
           <div id="userEmail" class="user-email"></div>
         </div>
         <button id="logoutBtn" class="logout-btn">Déconnexion</button>
+        <!-- Ajoutez temporairement dans le header après le bouton Google -->
+        <button onclick="testCookies()" style="background: orange; color: white; padding: 5px;">Test Cookies</button>
       </div>
       
       <!-- Bouton de connexion (caché par défaut) -->
@@ -169,13 +171,14 @@
       userName.textContent = user.name || "Utilisateur";
       userEmail.textContent = user.email || "";
       
-      // Essayer d'afficher la photo Google (si disponible via l'API)
-      if (user.google_id) {
-        // Photo par défaut ou tentative avec Google
-        userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
+      // Essayer d'afficher la photo Google si disponible
+      if (user.photo) {
+        userAvatar.src = user.photo;
         userAvatar.alt = user.name || "Avatar";
       } else {
+        // Photo par défaut générée
         userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
+        userAvatar.alt = user.name || "Avatar";
       }
       
       userInfo.style.display = "flex";
