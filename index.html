@@ -11,9 +11,6 @@
   <header>
     <h1>Sawem.shop 🛒</h1>
     <div class="header-right">
-      <!-- Bouton test temporaire JWT -->
-      <button onclick="testJWT()" style="background: #17a2b8; color: white; padding: 5px 10px; border: none; border-radius: 3px; margin-right: 10px; cursor: pointer;">Test JWT</button>
-      
       <!-- Statut d'authentification -->
       <div id="authStatus" class="auth-status loading">
         ⏳ Vérification...
@@ -41,10 +38,17 @@
 
   <!-- ==================== Main / Produits ==================== -->
   <main>
+    <!-- Titre de section -->
+    <h2 class="section-title">Produits Tech & Électroniques</h2>
+
     <!-- Zone de recherche centrée -->
     <div class="search-container">
       <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
-      <button id="searchBtn">Rechercher</button>
+      <button id="searchBtn" class="ai-search-btn">
+        <span class="ai-icon">🤖</span>
+        <span class="search-text">Recherche IA</span>
+        <small class="search-subtitle">Basée sur embeddings</small>
+      </button>
     </div>
 
     <!-- Message de bienvenue pour utilisateur connecté -->
@@ -288,50 +292,6 @@
       }
     }
 
-    // ==================== Test JWT (temporaire) ====================
-    async function testJWT() {
-      try {
-        console.log('=== TEST JWT ===');
-        
-        // Test 1: Vérifier le token local
-        const localToken = getToken();
-        console.log('Local token:', localToken ? 'EXISTS' : 'NONE');
-        
-        // Test 2: Tester la génération de token
-        const testRes = await fetch(`${BACKEND_URL}/test-jwt`);
-        const testData = await testRes.json();
-        console.log('Test JWT data:', testData);
-        
-        // Test 3: Vérifier avec notre token
-        if (localToken) {
-          const verifyRes = await fetch(`${BACKEND_URL}/verify-token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: localToken })
-          });
-          const verifyData = await verifyRes.json();
-          console.log('Token verification:', verifyData);
-        }
-        
-        // Test 4: Tester /me avec Authorization header
-        if (localToken) {
-          const meRes = await fetch(`${BACKEND_URL}/me`, {
-            headers: { 'Authorization': `Bearer ${localToken}` }
-          });
-          console.log('Me status:', meRes.status);
-          const meData = await meRes.json();
-          console.log('Me data:', meData);
-        }
-        
-        // Afficher le résultat dans une alerte
-        alert(`JWT Test:\nLocal token: ${localToken ? 'EXISTS' : 'NONE'}\nUser: ${currentUser ? currentUser.email : 'NONE'}`);
-        
-      } catch (err) {
-        console.error('Test JWT error:', err);
-        alert('Erreur test JWT: ' + err.message);
-      }
-    }
-
     // ==================== Produits ====================
     function productCardHTML(p) {
       const title = escapeHtml(p.title || "");
@@ -360,7 +320,7 @@
             <div class="reviews-section">
               <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
               <textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea>
-              <button onclick="submitReview(${p.id})" ${!currentUser ? 'disabled' : ''}>Envoyer</button>
+              <button class="send-review-btn" onclick="submitReview(${p.id})" ${!currentUser ? 'disabled' : ''}>Envoyer</button>
             </div>
           </div>
         </div>
@@ -542,7 +502,6 @@
     // Expose functions globally for onclick handlers
     window.promptVote = promptVote;
     window.submitReview = submitReview;
-    window.testJWT = testJWT;
   </script>
 </body>
 </html>
