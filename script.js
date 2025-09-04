@@ -1,4 +1,3 @@
-
 // script.js - frontend
 const BACKEND_URL = "https://sawem-backend.onrender.com"; 
 
@@ -6,6 +5,15 @@ const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 const googleLoginBtn = document.getElementById("googleLoginBtn");
+
+// ==================== Gestion des paramètres URL ====================
+function getUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    auth: params.get('auth'),
+    error: params.get('error')
+  };
+}
 
 // ==================== Utilitaires ====================
 function escapeHtml(s) {
@@ -35,6 +43,38 @@ function renderReviewsList(reviews) {
       <div class="rev-body">${escapeHtml(r.comment)}</div>
     </div>
   `).join("");
+}
+
+// ==================== Notifications ====================
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    z-index: 1000;
+    font-weight: bold;
+    animation: slideIn 0.3s ease-out;
+  `;
+  
+  if (type === 'success') {
+    notification.style.backgroundColor = '#4CAF50';
+  } else if (type === 'error') {
+    notification.style.backgroundColor = '#f44336';
+  } else {
+    notification.style.backgroundColor = '#2196F3';
+  }
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 4000);
 }
 
 // ==================== Produits ====================
@@ -147,13 +187,21 @@ async function promptVote(productId) {
       credentials: "include",
       body: JSON.stringify({ product_id: productId, stars })
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) {
+      const errorText = await res.text();
+      if (res.status === 401) {
+        showNotification("Vous devez être connecté pour voter", "error");
+        return;
+      }
+      throw new Error(errorText);
+    }
     await res.json();
+    showNotification("Vote enregistré avec succès!", "success");
     const q = (searchInput.value||"").trim();
     if (q) searchProducts(q); else loadInitialProducts();
   } catch (err) {
     console.error("promptVote error:", err);
-    alert("Erreur lors du vote");
+    showNotification("Erreur lors du vote", "error");
   }
 }
 
@@ -170,8 +218,16 @@ async function submitReview(productId) {
       credentials: "include",
       body: JSON.stringify({ product_id: productId, comment })
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) {
+      const errorText = await res.text();
+      if (res.status === 401) {
+        showNotification("Vous devez être connecté pour laisser un avis", "error");
+        return;
+      }
+      throw new Error(errorText);
+    }
     const data = await res.json();
+    showNotification("Avis ajouté avec succès!", "success");
     if (data && Array.isArray(data.reviews)) {
       const list = document.getElementById(`reviews-list-${productId}`);
       if (list) list.innerHTML = renderReviewsList(data.reviews);
@@ -182,21 +238,74 @@ async function submitReview(productId) {
     ta.value = "";
   } catch (err) {
     console.error("submitReview error:", err);
-    alert("Erreur lors de l'envoi de l'avis");
+    showNotification("Erreur lors de l'envoi de l'avis", "error");
   }
 }
 
 // ==================== User Google ====================
+let currentUser = null;
+
 async function checkUser() {
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
-    // Ne met pas encore le nom dans le bouton
-    googleLoginBtn.textContent = "Connecté";
+    const data = await res.json();
+    currentUser = data.user;
+    
+    // Mise à jour de l'interface utilisateur
+    updateLoginButton(true, data.user.name);
+    
+    // Vérifier les paramètres URL pour les messages d'authentification
+    const urlParams = getUrlParams();
+    if (urlParams.auth === 'success') {
+      showNotification(`Connexion réussie! Bienvenue ${data.user.name}`, "success");
+      // Nettoyer l'URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+  } catch (err) {
+    currentUser = null;
+    updateLoginButton(false);
+    
+    // Vérifier les erreurs d'authentification dans l'URL
+    const urlParams = getUrlParams();
+    if (urlParams.error === 'auth_failed') {
+      showNotification("Erreur lors de la connexion Google", "error");
+      // Nettoyer l'URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+}
+
+function updateLoginButton(isLoggedIn, userName = '') {
+  if (isLoggedIn) {
+    googleLoginBtn.textContent = `Bonjour ${userName} - Déconnexion`;
     googleLoginBtn.href = "#";
-  } catch {
+    googleLoginBtn.onclick = logout;
+  } else {
     googleLoginBtn.textContent = "Se connecter avec Google";
     googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+    googleLoginBtn.onclick = null;
+  }
+}
+
+async function logout() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+    
+    if (res.ok) {
+      currentUser = null;
+      updateLoginButton(false);
+      showNotification("Déconnexion réussie!", "success");
+    } else {
+      throw new Error("Erreur lors de la déconnexion");
+    }
+  } catch (err) {
+    console.error("Logout error:", err);
+    showNotification("Erreur lors de la déconnexion", "error");
   }
 }
 
@@ -206,6 +315,30 @@ searchBtn.addEventListener("click", () => {
   searchProducts(q);
 });
 
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const q = (searchInput.value||"").trim();
+    searchProducts(q);
+  }
+});
+
 // ==================== Init ====================
+// Ajouter les styles CSS pour les notifications
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+`;
+document.head.appendChild(style);
+
+// Initialisation
 checkUser();
 loadInitialProducts();
