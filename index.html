@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sawem Shop</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sawem Shop</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>Sawem Shop</h1>
-  <div class="header-right">
-    <a href="#" class="cart">🛒</a>
-    <a href="https://sawem-backend.onrender.com/auth/google" class="google-login" id="loginBtn">Se connecter avec Google</a>
-    <div id="user-info" style="display:none;">
-      <img id="user-pic" src="" alt="Avatar" width="30" height="30" style="border-radius:50%;">
-      <span id="user-name"></span>
-      <button id="logoutBtn">Se déconnecter</button>
+  <!-- ==================== Header ==================== -->
+  <header>
+    <h1>Sawem Shop 🛒</h1>
+    <div class="header-right">
+      <button id="googleLoginBtn" class="google-login">Se connecter avec Google</button>
+      <span class="cart">🛒</span>
     </div>
+  </header>
+
+  <!-- ==================== Zone de recherche ==================== -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+    <button id="searchBtn">Rechercher</button>
   </div>
-</header>
 
-<div class="search-container">
-  <input type="text" id="searchQuery" placeholder="Rechercher des produits…">
-  <button id="searchBtn">Rechercher</button>
-</div>
+  <!-- ==================== Produits ==================== -->
+  <main id="productsContainer">
+    <p>⏳ Chargement des produits...</p>
+  </main>
 
-<main>
-  <div class="product-grid" id="productGrid"></div>
-</main>
+  <!-- ==================== Footer ==================== -->
+  <footer>
+    © 2025 Sawem Shop. Tous droits réservés.
+  </footer>
 
-<footer>
-  &copy; 2025 Sawem Shop
-</footer>
-
-<script src="script.js"></script>
+  <!-- ==================== Script ==================== -->
+  <script src="script.js"></script>
 </body>
 </html>
