@@ -9,28 +9,29 @@
 <body>
   <!-- ==================== Header ==================== -->
   <header>
-    <h1>Sawem Shop</h1>
-
-    <!-- Zone de recherche centrée -->
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-      <button id="searchBtn">Rechercher</button>
-    </div>
-
-    <!-- Chariot et login -->
+    <h1>Sawem Shop 🛒</h1>
     <div class="header-right">
+      <!-- Chariot à droite -->
       <span class="cart">🛒</span>
+      <!-- Bouton Google Login -->
       <button id="googleLoginBtn" class="google-login">Se connecter avec Google</button>
     </div>
   </header>
 
-  <!-- ==================== Main ==================== -->
+  <!-- ==================== Main / Produits ==================== -->
   <main>
-    <div id="productsContainer" class="product-grid">
-      <!-- Les cartes produits seront injectées ici par script.js -->
+    <div style="margin-bottom:1rem;">
+      <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
+      <button id="searchBtn">Rechercher</button>
+    </div>
+
+    <div id="productsContainer">
+      <!-- Produits chargés dynamiquement via script.js -->
+      <p>⏳ Chargement des produits...</p>
     </div>
   </main>
 
-  <script src="script.js"></script>
+  <!-- ==================== Scripts ==================== -->
+  <script src="script.js" type="module"></script>
 </body>
 </html>
