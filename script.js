@@ -56,6 +56,7 @@ function productCardHTML(p) {
           <a class="view-btn" href="${escapeHtml(link)}" target="_blank" rel="noopener">Voir</a>
           <button class="vote-btn" onclick="promptVote(${p.id})">Voter</button>
         </div>
+
         <div class="reviews-section">
           <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
           <textarea id="review-${p.id}" placeholder="Votre avis..." rows="3"></textarea>
@@ -189,15 +190,12 @@ async function checkUser() {
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
-    const data = await res.json();
-    googleLoginBtn.textContent = `Connecté: ${data.user.name}`;
-    googleLoginBtn.disabled = true;
+    // Ne met pas encore le nom dans le bouton
+    googleLoginBtn.textContent = "Connecté";
+    googleLoginBtn.href = "#";
   } catch {
     googleLoginBtn.textContent = "Se connecter avec Google";
-    googleLoginBtn.disabled = false;
-    googleLoginBtn.onclick = () => {
-      window.location.href = `${BACKEND_URL}/auth/google`;
-    };
+    googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
   }
 }
 
