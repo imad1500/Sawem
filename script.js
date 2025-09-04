@@ -1,4 +1,5 @@
-const BACKEND_URL = "https://sawem-backend.onrender.com"; 
+// script.js - frontend
+const BACKEND_URL = "https://sawem-backend.onrender.com";
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
@@ -173,6 +174,9 @@ async function submitReview(productId) {
     if (data && Array.isArray(data.reviews)) {
       const list = document.getElementById(`reviews-list-${productId}`);
       if (list) list.innerHTML = renderReviewsList(data.reviews);
+    } else {
+      const q = (searchInput.value||"").trim();
+      if (q) searchProducts(q); else loadInitialProducts();
     }
     ta.value = "";
   } catch (err) {
