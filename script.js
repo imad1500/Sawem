@@ -187,17 +187,50 @@ async function submitReview(productId) {
 }
 
 // ==================== User Google ====================
+// Modifier la fonction checkUser pour afficher les informations utilisateur
 async function checkUser() {
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
-    // Ne met pas encore le nom dans le bouton
-    googleLoginBtn.textContent = "Connecté";
-    googleLoginBtn.href = "#";
+    
+    const data = await res.json();
+    if (data.success && data.user) {
+      // Afficher le nom de l'utilisateur au lieu de "Connecté"
+      googleLoginBtn.textContent = `👋 ${data.user.name}`;
+      googleLoginBtn.href = "#";
+      
+      // Optionnel : ajouter un bouton de déconnexion
+      if (!document.getElementById('logoutBtn')) {
+        const logoutBtn = document.createElement('button');
+        logoutBtn.id = 'logoutBtn';
+        logoutBtn.textContent = 'Déconnexion';
+        logoutBtn.className = 'logout-btn';
+        logoutBtn.onclick = logout;
+        googleLoginBtn.parentNode.appendChild(logoutBtn);
+      }
+    }
   } catch {
     googleLoginBtn.textContent = "Se connecter avec Google";
     googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+    
+    // Supprimer le bouton de déconnexion s'il existe
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.remove();
   }
+}
+
+// Ajouter une fonction de déconnexion
+async function logout() {
+  try {
+    await fetch(`${BACKEND_URL}/logout`, { 
+      method: 'POST', 
+      credentials: 'include' 
+    });
+  } catch (err) {
+    console.log('Logout error:', err);
+  }
+  // Actualiser la page ou recharger l'état
+  window.location.reload();
 }
 
 // ==================== Events ====================
@@ -209,3 +242,4 @@ searchBtn.addEventListener("click", () => {
 // ==================== Init ====================
 checkUser();
 loadInitialProducts();
+
