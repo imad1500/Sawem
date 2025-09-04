@@ -1,5 +1,6 @@
-// script.js
-const BACKEND_URL = "https://sawem-backend.onrender.com";
+
+// script.js - frontend
+const BACKEND_URL = "https://sawem-backend.onrender.com"; 
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
@@ -12,7 +13,7 @@ function escapeHtml(s) {
 }
 
 function renderStarsHTML(rating) {
-  const r = Number(r || 0);
+  const r = Number(rating || 0);
   const full = Math.floor(r);
   const half = r - full >= 0.5;
   let html = "";
@@ -56,6 +57,7 @@ function productCardHTML(p) {
           <a class="view-btn" href="${escapeHtml(link)}" target="_blank" rel="noopener">Voir</a>
           <button class="vote-btn" onclick="promptVote(${p.id})">Voter</button>
         </div>
+
         <div class="reviews-section">
           <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
           <textarea id="review-${p.id}" placeholder="Votre avis..." rows="3"></textarea>
@@ -72,14 +74,38 @@ function displayProducts(products) {
     return;
   }
 
-  productsContainer.innerHTML = products.map(productCardHTML).join("");
+  const ali = products.filter(p => (p.source||"").toLowerCase().includes("aliexpress"));
+  const amazon = products.filter(p => (p.source||"").toLowerCase().includes("amazon"));
+  const others = products.filter(p => {
+    const s = (p.source||"").toLowerCase();
+    return !s.includes("aliexpress") && !s.includes("amazon");
+  });
+
+  let html = "";
+  if (ali.length) {
+    html += `<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">`;
+    html += ali.map(productCardHTML).join("");
+    html += `</div></div>`;
+  }
+  if (amazon.length) {
+    html += `<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">`;
+    html += amazon.map(productCardHTML).join("");
+    html += `</div></div>`;
+  }
+  if (others.length) {
+    html += `<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">`;
+    html += others.map(productCardHTML).join("");
+    html += `</div></div>`;
+  }
+
+  productsContainer.innerHTML = html;
 }
 
 // ==================== Chargement initial ====================
 async function loadInitialProducts() {
   productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
   try {
-    const res = await fetch(`${BACKEND_URL}/products`, { credentials: "include" });
+    const res = await fetch(`${BACKEND_URL}/products`);
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     displayProducts(data);
@@ -97,7 +123,6 @@ async function searchProducts(q) {
     const res = await fetch(`${BACKEND_URL}/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ query: q }),
     });
     if (!res.ok) throw new Error(await res.text());
@@ -166,6 +191,7 @@ async function checkUser() {
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
+    // Ne met pas encore le nom dans le bouton
     googleLoginBtn.textContent = "Connecté";
     googleLoginBtn.href = "#";
   } catch {
