@@ -237,6 +237,100 @@ button.send-review:hover {
   background-color: #084298;
 }
 
+/* Ajouter à votre style.css existant */
+
+/* ==================== Auth Status ==================== */
+.auth-status {
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  margin-right: 1rem;
+}
+
+.auth-status.loading { color: #ffc107; }
+.auth-status.connected { color: #28a745; }
+.auth-status.disconnected { color: #dc3545; }
+
+/* ==================== User Info ==================== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 25px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.user-email {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+/* ==================== Welcome Message ==================== */
+.welcome-message {
+  background: linear-gradient(135deg, #0d6efd, #28a745);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-message h2 {
+  margin-bottom: 0.5rem;
+}
+
+/* ==================== Notifications ==================== */
+.notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  z-index: 1001;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+}
+
+.notification.success { background-color: #28a745; }
+.notification.error { background-color: #dc3545; }
+.notification.show { transform: translateX(0); }
+
 /* ==================== Footer ==================== */
 footer {
   background-color: #0d6efd;
@@ -267,3 +361,4 @@ footer {
     max-width: 300px;
   }
 }
+
