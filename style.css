@@ -1,4 +1,4 @@
-/* style.css - version originale + chariot à droite */
+/* style.css - version originale + chariot à droite et corrections */
 
 /* ==================== Reset / Base ==================== */
 * {
@@ -57,6 +57,36 @@ button.google-login {
 button.google-login:hover {
   background-color: #0d6efd;
   color: #fff;
+}
+
+/* ==================== Zone de recherche ==================== */
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem auto;
+}
+
+.search-container input {
+  padding: 0.5rem 1rem;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+}
+
+.search-container button {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-container button:hover {
+  background-color: #084298;
 }
 
 /* ==================== Main / Produits ==================== */
@@ -173,6 +203,21 @@ textarea {
   border: 1px solid #ccc;
 }
 
+/* Bouton Envoyer (reviews) */
+button.send-review {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button.send-review:hover {
+  background-color: #084298;
+}
+
 /* ==================== Responsive ==================== */
 @media (max-width: 768px) {
   header {
@@ -182,5 +227,15 @@ textarea {
 
   .header-right {
     margin-top: 0.5rem;
+  }
+
+  .search-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .search-container input {
+    width: 100%;
+    max-width: 300px;
   }
 }
