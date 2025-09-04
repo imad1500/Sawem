@@ -1,18 +1,18 @@
 // script.js - frontend
-const BACKEND_URL = "https://sawem-backend.onrender.com"; // change if needed
+const BACKEND_URL = "https://sawem-backend.onrender.com"; 
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
+const googleLoginBtn = document.getElementById("googleLoginBtn");
 
-// escape helper
+// ==================== Utilitaires ====================
 function escapeHtml(s) {
   return String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
 }
 
-// render star HTML
 function renderStarsHTML(rating) {
-  const r = Number(rating || 0);
+  const r = Number(r || 0);
   const full = Math.floor(r);
   const half = r - full >= 0.5;
   let html = "";
@@ -24,7 +24,6 @@ function renderStarsHTML(rating) {
   return html;
 }
 
-// render reviews list HTML
 function renderReviewsList(reviews) {
   if (!reviews || !reviews.length) return `<div class="reviews-list-empty">Aucun avis</div>`;
   return reviews.map(r => `
@@ -37,7 +36,7 @@ function renderReviewsList(reviews) {
   `).join("");
 }
 
-// product card (uses classes in style.css)
+// ==================== Produits ====================
 function productCardHTML(p) {
   const title = escapeHtml(p.title || "");
   const price = escapeHtml(p.price || "");
@@ -68,7 +67,6 @@ function productCardHTML(p) {
   `;
 }
 
-// display products (vertical sections)
 function displayProducts(products) {
   if (!products || !products.length) {
     productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
@@ -102,7 +100,7 @@ function displayProducts(products) {
   productsContainer.innerHTML = html;
 }
 
-// load initial
+// ==================== Chargement initial ====================
 async function loadInitialProducts() {
   productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
   try {
@@ -116,7 +114,7 @@ async function loadInitialProducts() {
   }
 }
 
-// search
+// ==================== Recherche ====================
 async function searchProducts(q) {
   if (!q || !q.trim()) return loadInitialProducts();
   productsContainer.innerHTML = "<p>⏳ Recherche en cours...</p>";
@@ -135,13 +133,7 @@ async function searchProducts(q) {
   }
 }
 
-// events
-searchBtn.addEventListener("click", () => {
-  const q = (searchInput.value||"").trim();
-  searchProducts(q);
-});
-
-// vote prompt
+// ==================== Vote ====================
 async function promptVote(productId) {
   const input = prompt("Note (1-5) :");
   if (!input) return;
@@ -151,11 +143,11 @@ async function promptVote(productId) {
     const res = await fetch(`${BACKEND_URL}/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ product_id: productId, stars })
     });
     if (!res.ok) throw new Error(await res.text());
     await res.json();
-    // refresh (search if query exists, otherwise initial)
     const q = (searchInput.value||"").trim();
     if (q) searchProducts(q); else loadInitialProducts();
   } catch (err) {
@@ -164,7 +156,7 @@ async function promptVote(productId) {
   }
 }
 
-// submit review
+// ==================== Reviews ====================
 async function submitReview(productId) {
   const ta = document.getElementById(`review-${productId}`);
   if (!ta) return;
@@ -174,16 +166,15 @@ async function submitReview(productId) {
     const res = await fetch(`${BACKEND_URL}/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, comment, user_name: "Anonymous" })
+      credentials: "include",
+      body: JSON.stringify({ product_id: productId, comment })
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
-    // if server returned updated reviews, update only that product's reviews block
     if (data && Array.isArray(data.reviews)) {
       const list = document.getElementById(`reviews-list-${productId}`);
       if (list) list.innerHTML = renderReviewsList(data.reviews);
     } else {
-      // otherwise reload view
       const q = (searchInput.value||"").trim();
       if (q) searchProducts(q); else loadInitialProducts();
     }
@@ -194,18 +185,26 @@ async function submitReview(productId) {
   }
 }
 
-// helper to convert reviews array to HTML (used after posting)
-function renderReviewsList(reviews) {
-  if (!reviews || !reviews.length) return `<div class="reviews-list-empty">Aucun avis</div>`;
-  return reviews.map(r => `
-    <div class="single-review">
-      <div class="rev-head"><strong>${escapeHtml(r.user_name||"Anonyme")}</strong>
-        <span class="rev-date">${new Date(r.created_at).toLocaleString()}</span>
-      </div>
-      <div class="rev-body">${escapeHtml(r.comment)}</div>
-    </div>
-  `).join("");
+// ==================== User Google ====================
+async function checkUser() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
+    if (!res.ok) throw new Error("Not logged in");
+    const data = await res.json();
+    googleLoginBtn.textContent = `Connecté: ${data.user.name}`;
+    googleLoginBtn.href = "#";
+  } catch {
+    googleLoginBtn.textContent = "Se connecter avec Google";
+    googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+  }
 }
 
-// init
+// ==================== Events ====================
+searchBtn.addEventListener("click", () => {
+  const q = (searchInput.value||"").trim();
+  searchProducts(q);
+});
+
+// ==================== Init ====================
+checkUser();
 loadInitialProducts();
