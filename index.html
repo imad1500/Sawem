@@ -3,29 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem Shop</title>
+  <title>Sawem.shop</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Sawem Shop 🛒</h1>
+    <h1>Sawem.shop</h1>
     <div class="header-right">
-      <a id="googleLoginBtn" class="google-btn" href="#">Se connecter avec Google</a>
+      <a href="#" id="googleLoginBtn" class="google-btn">
+        <span id="userAvatarContainer"></span>
+        <span id="userNameContainer">Se connecter avec Google</span>
+      </a>
       <span class="cart">🛒</span>
     </div>
   </header>
 
-  <section class="search-container">
-    <input id="searchInput" type="text" placeholder="Rechercher...">
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Rechercher...">
     <button id="searchBtn">Rechercher</button>
-  </section>
+  </div>
 
   <main id="productsContainer">
-    <!-- Produits chargés ici par script.js -->
+    <!-- Produits générés ici -->
   </main>
 
   <footer>
-    <p>© 2025 Sawem Shop</p>
+    &copy; 2025 Sawem.shop
   </footer>
 
   <script src="script.js"></script>
