@@ -255,25 +255,17 @@ async function checkUser() {
     // Mise à jour de l'interface utilisateur
     updateLoginButton(true, data.user.name);
     
-    // Vérifier les paramètres URL pour les messages d'authentification
-    const urlParams = getUrlParams();
-    if (urlParams.auth === 'success') {
+    // Si l'utilisateur vient d'être authentifié, afficher le message de bienvenue
+    // (on peut détecter cela en vérifiant si c'était null avant)
+    if (!sessionStorage.getItem('welcomeShown')) {
       showNotification(`Connexion réussie! Bienvenue ${data.user.name}`, "success");
-      // Nettoyer l'URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      sessionStorage.setItem('welcomeShown', 'true');
     }
     
   } catch (err) {
     currentUser = null;
     updateLoginButton(false);
-    
-    // Vérifier les erreurs d'authentification dans l'URL
-    const urlParams = getUrlParams();
-    if (urlParams.error === 'auth_failed') {
-      showNotification("Erreur lors de la connexion Google", "error");
-      // Nettoyer l'URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+    sessionStorage.removeItem('welcomeShown');
   }
 }
 
