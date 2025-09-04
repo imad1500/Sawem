@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,33 +8,37 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <!-- ==================== Header ==================== -->
   <header>
-    <h1>Sawem Shop 🛒</h1>
+    <h1>Sawem.shop 🛒</h1>
     <div class="header-right">
-      <button id="googleLoginBtn" class="google-login">Se connecter avec Google</button>
-      <span class="cart">🛒</span>
+      <!-- Bouton Google Login -->
+      <!-- Avant : <button id="googleLoginBtn">Se connecter avec Google</button> -->
+       <a id="googleLoginBtn" class="google-btn" href="#">Se connecter avec Google</a>
     </div>
   </header>
 
-  <!-- ==================== Zone de recherche ==================== -->
-  <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-    <button id="searchBtn">Rechercher</button>
-  </div>
+  <!-- ==================== Main / Produits ==================== -->
+  <main>
+    <!-- Zone de recherche centrée -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
+      <button id="searchBtn">Rechercher</button>
+    </div>
 
-  <!-- ==================== Produits ==================== -->
-  <main id="productsContainer">
-    <p>⏳ Chargement des produits...</p>
+    <!-- Produits dynamiques -->
+    <div id="productsContainer">
+      <p>⏳ Chargement des produits...</p>
+    </div>
   </main>
 
   <!-- ==================== Footer ==================== -->
   <footer>
-    © 2025 Sawem Shop. Tous droits réservés.
+    <p>&copy; 2025 Sawem.shop - Tous droits réservés.</p>
   </footer>
 
-  <!-- ==================== Script ==================== -->
-  <script src="script.js"></script>
+  <!-- ==================== Scripts ==================== -->
+  <script src="script.js" type="module"></script>
 </body>
 </html>
+
