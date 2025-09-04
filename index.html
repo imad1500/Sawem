@@ -24,8 +24,6 @@
           <div id="userEmail" class="user-email"></div>
         </div>
         <button id="logoutBtn" class="logout-btn">Déconnexion</button>
-        <!-- Ajoutez temporairement dans le header après le bouton Google -->
-        <button onclick="testCookies()" style="background: orange; color: white; padding: 5px;">Test Cookies</button>
       </div>
       
       <!-- Bouton de connexion (caché par défaut) -->
@@ -424,6 +422,7 @@
     // Expose functions globally for onclick handlers
     window.promptVote = promptVote;
     window.submitReview = submitReview;
+    window.testCookies = testCookies; // Ajouter la fonction test
   </script>
 </body>
 </html>
