@@ -1,10 +1,13 @@
-// script.js - frontend
+// script.js - version complète
+
 const BACKEND_URL = "https://sawem-backend.onrender.com"; 
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const productsContainer = document.getElementById("productsContainer");
 const googleLoginBtn = document.getElementById("googleLoginBtn");
+const userNameContainer = document.getElementById("userNameContainer");
+const userAvatarContainer = document.getElementById("userAvatarContainer");
 
 // ==================== Utilitaires ====================
 function escapeHtml(s) {
@@ -60,7 +63,7 @@ function productCardHTML(p) {
         <div class="reviews-section">
           <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
           <textarea id="review-${p.id}" placeholder="Votre avis..." rows="3"></textarea>
-          <button onclick="submitReview(${p.id})">Envoyer</button>
+          <button class="send-review" onclick="submitReview(${p.id})">Envoyer</button>
         </div>
       </div>
     </div>
@@ -190,19 +193,22 @@ async function checkUser() {
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
-    const data = await res.json();
-    const user = data.user;
 
-    if (user) {
-      // Affiche nom + photo
-      googleLoginBtn.innerHTML = `
-        <img src="${escapeHtml(user.picture || '')}" alt="Avatar" class="user-avatar">
-        <span>${escapeHtml(user.name || 'Utilisateur')}</span>
-      `;
+    const data = await res.json();
+    if (data.user) {
+      userNameContainer.textContent = data.user.name || "Utilisateur";
+      if (data.user.avatar) {
+        userAvatarContainer.innerHTML = `<img src="${data.user.avatar}" alt="avatar" class="user-avatar">`;
+      }
       googleLoginBtn.href = "#";
-    } else throw new Error("No user");
+    } else {
+      userNameContainer.textContent = "Se connecter avec Google";
+      userAvatarContainer.innerHTML = "";
+      googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+    }
   } catch {
-    googleLoginBtn.textContent = "Se connecter avec Google";
+    userNameContainer.textContent = "Se connecter avec Google";
+    userAvatarContainer.innerHTML = "";
     googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
   }
 }
