@@ -1,106 +1,82 @@
-/* ====== RESET ====== */
+/* style.css - version originale + chariot à droite */
+
+/* ==================== Reset / Base ==================== */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f7fa;
+  background-color: #f9f9f9;
   color: #333;
   line-height: 1.6;
 }
 
-/* ====== HEADER ====== */
+/* ==================== Header ==================== */
 header {
-  background-color: #007bff; /* Bleu */
-  color: white;
-  padding: 15px 30px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  background-color: #0d6efd;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 header h1 {
-  font-size: 24px;
+  font-size: 1.5rem;
 }
 
-header .cart {
-  font-size: 28px;
-}
-
-/* ====== SECTION BIENVENUE ====== */
-.welcome {
-  text-align: center;
-  padding: 30px 20px;
-}
-
-.welcome h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.welcome p {
-  font-size: 18px;
-  color: #555;
-}
-
-/* ====== RECHERCHE ====== */
-.search-section {
+.header-right {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin: 20px 0;
-  gap: 10px;
+  gap: 1rem;
 }
 
-#searchInput {
-  padding: 10px;
-  width: 280px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-}
-
-#searchBtn {
-  padding: 10px 18px;
-  background-color: #007bff; /* Bleu */
-  color: white;
-  border: none;
-  border-radius: 6px;
+/* Chariot à droite */
+.header-right .cart {
+  font-size: 1.5rem;
   cursor: pointer;
-  font-size: 16px;
 }
 
-#searchBtn:hover {
-  background-color: #0056b3;
+/* ==================== Bouton Google ==================== */
+button.google-login {
+  background-color: #fff;
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-/* ====== PRODUITS ====== */
-.products-container {
+button.google-login:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+/* ==================== Main / Produits ==================== */
+main {
+  padding: 2rem;
+}
+
+.product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
 .product-card {
-  background: white;
-  border-radius: 8px;
+  background-color: white;
+  border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease-in-out;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
 }
 
 .product-card img {
@@ -110,68 +86,101 @@ header .cart {
 }
 
 .product-info {
-  padding: 15px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  padding: 1rem;
 }
 
 .product-info h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
-.product-info p {
-  font-size: 16px;
-  margin-bottom: 10px;
+.product-info .price {
+  color: #0d6efd;
   font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 .product-actions {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  margin-top: 0.5rem;
 }
 
-/* Bouton Voir */
-.view-btn {
-  padding: 8px 14px;
-  background-color: #007bff; /* Bleu */
-  color: white;
+.product-actions a.view-btn,
+.product-actions button.vote-btn {
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
   border: none;
-  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
   text-decoration: none;
-  font-size: 14px;
-  cursor: pointer;
 }
 
-.view-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Bouton Vote */
-.vote-btn {
-  padding: 8px 14px;
-  background-color: #28a745; /* Vert */
+.product-actions a.view-btn {
+  background-color: #0d6efd;
   color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
 }
 
-.vote-btn:hover {
-  background-color: #1e7e34;
+.product-actions button.vote-btn {
+  background-color: #ffc107;
+  color: #333;
 }
 
-/* ====== FOOTER ====== */
-footer {
-  background-color: #007bff; /* Bleu */
-  color: white;
-  text-align: center;
-  padding: 15px;
-  margin-top: 30px;
-  font-size: 14px;
+/* ==================== Stars ==================== */
+.stars {
+  display: flex;
+  gap: 2px;
 }
 
+.star.full { color: #ffc107; }
+.star.half { color: #ffc107; opacity: 0.5; }
+.star.empty { color: #ddd; }
+
+/* ==================== Reviews ==================== */
+.reviews-section {
+  margin-top: 1rem;
+}
+
+.reviews-list {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+}
+
+.single-review {
+  border-bottom: 1px solid #eee;
+  padding: 0.3rem 0;
+}
+
+.rev-head {
+  font-weight: bold;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rev-body {
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+textarea {
+  width: 100%;
+  resize: none;
+  padding: 0.4rem;
+  margin-bottom: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    margin-top: 0.5rem;
+  }
+}
