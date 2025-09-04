@@ -1,11 +1,5 @@
-
-// script.js - frontend
-const BACKEND_URL = "https://sawem-backend.onrender.com"; 
-
-const searchInput = document.getElementById("searchInput");
-const searchBtn = document.getElementById("searchBtn");
-const productsContainer = document.getElementById("productsContainer");
-const googleLoginBtn = document.getElementById("googleLoginBtn");
+// script.js - frontend corrigé
+const BACKEND_URL = "https://sawem-backend.onrender.com";
 
 // ==================== Utilitaires ====================
 function escapeHtml(s) {
@@ -13,7 +7,7 @@ function escapeHtml(s) {
 }
 
 function renderStarsHTML(rating) {
-  const r = Number(rating || 0);
+  const r = Number(r || 0);
   const full = Math.floor(r);
   const half = r - full >= 0.5;
   let html = "";
@@ -52,12 +46,11 @@ function productCardHTML(p) {
       <div class="product-info">
         <h3>${title}</h3>
         <p class="price">${price}</p>
-        <p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p>
+        <p class="stars">${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p>
         <div class="product-actions">
-          <a class="view-btn" href="${escapeHtml(link)}" target="_blank" rel="noopener">Voir</a>
+          <a class="view-btn" href="${escapeHtml(link)}" target="_blank">Voir</a>
           <button class="vote-btn" onclick="promptVote(${p.id})">Voter</button>
         </div>
-
         <div class="reviews-section">
           <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
           <textarea id="review-${p.id}" placeholder="Votre avis..." rows="3"></textarea>
@@ -69,41 +62,19 @@ function productCardHTML(p) {
 }
 
 function displayProducts(products) {
+  const container = document.getElementById("productsContainer");
   if (!products || !products.length) {
-    productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
+    container.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
     return;
   }
 
-  const ali = products.filter(p => (p.source||"").toLowerCase().includes("aliexpress"));
-  const amazon = products.filter(p => (p.source||"").toLowerCase().includes("amazon"));
-  const others = products.filter(p => {
-    const s = (p.source||"").toLowerCase();
-    return !s.includes("aliexpress") && !s.includes("amazon");
-  });
-
-  let html = "";
-  if (ali.length) {
-    html += `<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">`;
-    html += ali.map(productCardHTML).join("");
-    html += `</div></div>`;
-  }
-  if (amazon.length) {
-    html += `<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">`;
-    html += amazon.map(productCardHTML).join("");
-    html += `</div></div>`;
-  }
-  if (others.length) {
-    html += `<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">`;
-    html += others.map(productCardHTML).join("");
-    html += `</div></div>`;
-  }
-
-  productsContainer.innerHTML = html;
+  container.innerHTML = products.map(productCardHTML).join("");
 }
 
 // ==================== Chargement initial ====================
 async function loadInitialProducts() {
-  productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
+  const container = document.getElementById("productsContainer");
+  container.innerHTML = "<p>⏳ Chargement des produits...</p>";
   try {
     const res = await fetch(`${BACKEND_URL}/products`);
     if (!res.ok) throw new Error(await res.text());
@@ -111,34 +82,33 @@ async function loadInitialProducts() {
     displayProducts(data);
   } catch (err) {
     console.error("loadInitialProducts error:", err);
-    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
+    container.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
   }
 }
 
 // ==================== Recherche ====================
 async function searchProducts(q) {
   if (!q || !q.trim()) return loadInitialProducts();
-  productsContainer.innerHTML = "<p>⏳ Recherche en cours...</p>";
+  const container = document.getElementById("productsContainer");
+  container.innerHTML = "<p>⏳ Recherche en cours...</p>";
   try {
     const res = await fetch(`${BACKEND_URL}/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: q }),
+      body: JSON.stringify({ query: q })
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     displayProducts(data);
   } catch (err) {
     console.error("searchProducts error:", err);
-    productsContainer.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
+    container.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
   }
 }
 
 // ==================== Vote ====================
 async function promptVote(productId) {
-  const input = prompt("Note (1-5) :");
-  if (!input) return;
-  const stars = Number(input);
+  const stars = Number(prompt("Note (1-5) :"));
   if (!Number.isFinite(stars) || stars < 1 || stars > 5) return alert("Note invalide");
   try {
     const res = await fetch(`${BACKEND_URL}/vote`, {
@@ -149,8 +119,7 @@ async function promptVote(productId) {
     });
     if (!res.ok) throw new Error(await res.text());
     await res.json();
-    const q = (searchInput.value||"").trim();
-    if (q) searchProducts(q); else loadInitialProducts();
+    loadInitialProducts();
   } catch (err) {
     console.error("promptVote error:", err);
     alert("Erreur lors du vote");
@@ -172,12 +141,8 @@ async function submitReview(productId) {
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
-    if (data && Array.isArray(data.reviews)) {
-      const list = document.getElementById(`reviews-list-${productId}`);
-      if (list) list.innerHTML = renderReviewsList(data.reviews);
-    } else {
-      const q = (searchInput.value||"").trim();
-      if (q) searchProducts(q); else loadInitialProducts();
+    if (data.reviews) {
+      document.getElementById(`reviews-list-${productId}`).innerHTML = renderReviewsList(data.reviews);
     }
     ta.value = "";
   } catch (err) {
@@ -188,24 +153,27 @@ async function submitReview(productId) {
 
 // ==================== User Google ====================
 async function checkUser() {
+  const btn = document.getElementById("googleLoginBtn");
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
-    // Ne met pas encore le nom dans le bouton
-    googleLoginBtn.textContent = "Connecté";
-    googleLoginBtn.href = "#";
+    const data = await res.json();
+    btn.textContent = `Connecté: ${data.user.name || "Anonyme"}`;
+    btn.href = "#";
   } catch {
-    googleLoginBtn.textContent = "Se connecter avec Google";
-    googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+    btn.textContent = "Se connecter avec Google";
+    btn.href = `${BACKEND_URL}/auth/google`;
   }
 }
 
 // ==================== Events ====================
-searchBtn.addEventListener("click", () => {
-  const q = (searchInput.value||"").trim();
+document.getElementById("searchBtn").addEventListener("click", () => {
+  const q = document.getElementById("searchInput").value.trim();
   searchProducts(q);
 });
 
 // ==================== Init ====================
-checkUser();
-loadInitialProducts();
+window.addEventListener("DOMContentLoaded", () => {
+  checkUser();
+  loadInitialProducts();
+});
