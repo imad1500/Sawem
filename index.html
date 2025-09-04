@@ -1,34 +1,39 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem.shop</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sawem.shop</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="main-header">
-  <div class="logo">
+<header>
+  <div class="header-container">
     <h1>Sawem.shop</h1>
-  </div>
-
-  <div class="header-actions">
-    <!-- Recherche -->
-    <input id="searchInput" type="text" placeholder="Rechercher...">
-    <button id="searchBtn">🔍</button>
-
-    <!-- Google login -->
-    <a id="googleLoginBtn" href="#">Se connecter avec Google</a>
-
-    <!-- Icône chariot -->
-    <div class="cart-icon">🛒</div>
+    <div class="cart">🛒</div>
+    <div id="userStatus">
+      <a id="googleLoginBtn" href="#">Se connecter avec Google</a>
+    </div>
   </div>
 </header>
 
-<main>
-  <div id="productsContainer" class="products-container"></div>
-</main>
+<section class="welcome">
+  <h2>Bienvenue sur Sawem.shop</h2>
+  <p>Découvrez les meilleurs produits Tech & Électronique</p>
+</section>
+
+<section class="search-section">
+  <input id="searchInput" type="text" placeholder="Rechercher un produit...">
+  <button id="searchBtn">Rechercher</button>
+</section>
+
+<section class="products-container" id="productsContainer"></section>
+
+<footer>
+© 2025 Sawem.shop - Tous droits réservés
+</footer>
 
 <script src="script.js"></script>
 </body>
