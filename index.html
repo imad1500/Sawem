@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -12,11 +11,30 @@
   <header>
     <h1>Sawem.shop 🛒</h1>
     <div class="header-right">
-      <!-- Bouton Google Login -->
-      <!-- Avant : <button id="googleLoginBtn">Se connecter avec Google</button> -->
-       <a id="googleLoginBtn" class="google-btn" href="#">Se connecter avec Google</a>
+      <!-- Statut d'authentification -->
+      <div id="authStatus" class="auth-status loading">
+        ⏳ Vérification...
+      </div>
+      
+      <!-- Zone utilisateur connecté (cachée par défaut) -->
+      <div id="userInfo" class="user-info" style="display: none;">
+        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" />
+        <div class="user-details">
+          <div id="userName" class="user-name"></div>
+          <div id="userEmail" class="user-email"></div>
+        </div>
+        <button id="logoutBtn" class="logout-btn">Déconnexion</button>
+      </div>
+      
+      <!-- Bouton de connexion (caché par défaut) -->
+      <a id="googleLoginBtn" class="google-btn" href="#" style="display: none;">
+        🔗 Se connecter avec Google
+      </a>
     </div>
   </header>
+
+  <!-- ==================== Notification ==================== -->
+  <div id="notification" class="notification"></div>
 
   <!-- ==================== Main / Produits ==================== -->
   <main>
@@ -24,6 +42,12 @@
     <div class="search-container">
       <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
       <button id="searchBtn">Rechercher</button>
+    </div>
+
+    <!-- Message de bienvenue pour utilisateur connecté -->
+    <div id="welcomeMessage" class="welcome-message" style="display: none;">
+      <h2>Bienvenue <span id="welcomeUserName"></span> ! 👋</h2>
+      <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
 
     <!-- Produits dynamiques -->
@@ -38,7 +62,365 @@
   </footer>
 
   <!-- ==================== Scripts ==================== -->
-  <script src="script.js" type="module"></script>
+  <script>
+    const BACKEND_URL = "https://sawem-backend.onrender.com"; 
+
+    // Éléments DOM
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const productsContainer = document.getElementById("productsContainer");
+    const googleLoginBtn = document.getElementById("googleLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const authStatus = document.getElementById("authStatus");
+    const userInfo = document.getElementById("userInfo");
+    const userAvatar = document.getElementById("userAvatar");
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+    const welcomeUserName = document.getElementById("welcomeUserName");
+    const notification = document.getElementById("notification");
+
+    // Variable globale pour l'état utilisateur
+    let currentUser = null;
+
+    // ==================== Utilitaires ====================
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
+    }
+
+    function showNotification(message, type = 'success') {
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function renderStarsHTML(rating) {
+      const r = Number(rating || 0);
+      const full = Math.floor(r);
+      const half = r - full >= 0.5;
+      let html = "";
+      for (let i = 1; i <= 5; i++) {
+        if (i <= full) html += '<span class="star full">★</span>';
+        else if (half && i === full + 1) html += '<span class="star half">★</span>';
+        else html += '<span class="star empty">★</span>';
+      }
+      return html;
+    }
+
+    function renderReviewsList(reviews) {
+      if (!reviews || !reviews.length) return `<div class="reviews-list-empty">Aucun avis</div>`;
+      return reviews.map(r => `
+        <div class="single-review">
+          <div class="rev-head"><strong>${escapeHtml(r.user_name || 'Anonyme')}</strong>
+            <span class="rev-date">${new Date(r.created_at).toLocaleString()}</span>
+          </div>
+          <div class="rev-body">${escapeHtml(r.comment)}</div>
+        </div>
+      `).join("");
+    }
+
+    // ==================== Gestion utilisateur ====================
+    async function checkUser() {
+      try {
+        authStatus.textContent = "⏳ Vérification...";
+        authStatus.className = "auth-status loading";
+        
+        const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
+        
+        if (!res.ok) throw new Error("Not logged in");
+        
+        const data = await res.json();
+        if (data.success && data.user) {
+          currentUser = data.user;
+          displayUserConnected(data.user);
+          
+          // Vérifier si on vient d'une redirection OAuth
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('auth') === 'success' || window.location.hash.includes('auth')) {
+            showNotification(`Connexion réussie ! Bienvenue ${data.user.name}`, 'success');
+            // Nettoyer l'URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } else {
+          throw new Error("User data invalid");
+        }
+      } catch (error) {
+        currentUser = null;
+        displayUserDisconnected();
+        
+        // Vérifier si on vient d'une redirection OAuth qui a échoué
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('auth') === 'error') {
+          showNotification("Erreur lors de la connexion", 'error');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    }
+
+    function displayUserConnected(user) {
+      // Cacher le statut de chargement et le bouton de connexion
+      authStatus.style.display = "none";
+      googleLoginBtn.style.display = "none";
+      
+      // Afficher les informations utilisateur
+      userName.textContent = user.name || "Utilisateur";
+      userEmail.textContent = user.email || "";
+      
+      // Essayer d'afficher la photo Google (si disponible via l'API)
+      if (user.google_id) {
+        // Photo par défaut ou tentative avec Google
+        userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
+        userAvatar.alt = user.name || "Avatar";
+      } else {
+        userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
+      }
+      
+      userInfo.style.display = "flex";
+      
+      // Afficher le message de bienvenue
+      welcomeUserName.textContent = user.name || "Utilisateur";
+      welcomeMessage.style.display = "block";
+    }
+
+    function displayUserDisconnected() {
+      // Cacher les informations utilisateur et le message de bienvenue
+      userInfo.style.display = "none";
+      welcomeMessage.style.display = "none";
+      
+      // Afficher le statut déconnecté et le bouton de connexion
+      authStatus.textContent = "❌ Non connecté";
+      authStatus.className = "auth-status disconnected";
+      authStatus.style.display = "block";
+      
+      googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+      googleLoginBtn.style.display = "flex";
+    }
+
+    async function logout() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/logout`, { 
+          method: 'POST', 
+          credentials: 'include' 
+        });
+        
+        if (res.ok) {
+          showNotification("Déconnexion réussie", 'success');
+          currentUser = null;
+          displayUserDisconnected();
+        } else {
+          throw new Error("Erreur de déconnexion");
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        showNotification("Erreur lors de la déconnexion", 'error');
+        // Force le rechargement en cas d'erreur
+        setTimeout(() => window.location.reload(), 1500);
+      }
+    }
+
+    // ==================== Produits ====================
+    function productCardHTML(p) {
+      const title = escapeHtml(p.title || "");
+      const price = escapeHtml(p.price || "");
+      const link = p.link || "#";
+      const ratingNum = Number(p.user_rating || 0);
+      const starsHTML = renderStarsHTML(ratingNum);
+      const reviewsHTML = renderReviewsList(p.reviews || []);
+
+      // Désactiver les boutons si pas connecté
+      const voteDisabled = !currentUser ? 'disabled title="Connectez-vous pour voter"' : '';
+      const reviewDisabled = !currentUser ? 'disabled placeholder="Connectez-vous pour laisser un avis"' : 'placeholder="Votre avis..."';
+
+      return `
+        <div class="product-card" data-id="${p.id}">
+          <img src="${p.image || 'https://via.placeholder.com/400x300'}" alt="${title}" />
+          <div class="product-info">
+            <h3>${title}</h3>
+            <p class="price">${price}</p>
+            <p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p>
+            <div class="product-actions">
+              <a class="view-btn" href="${escapeHtml(link)}" target="_blank" rel="noopener">Voir</a>
+              <button class="vote-btn" onclick="promptVote(${p.id})" ${voteDisabled}>Voter</button>
+            </div>
+
+            <div class="reviews-section">
+              <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
+              <textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea>
+              <button onclick="submitReview(${p.id})" ${!currentUser ? 'disabled' : ''}>Envoyer</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function displayProducts(products) {
+      if (!products || !products.length) {
+        productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
+        return;
+      }
+
+      const ali = products.filter(p => (p.source||"").toLowerCase().includes("aliexpress"));
+      const amazon = products.filter(p => (p.source||"").toLowerCase().includes("amazon"));
+      const others = products.filter(p => {
+        const s = (p.source||"").toLowerCase();
+        return !s.includes("aliexpress") && !s.includes("amazon");
+      });
+
+      let html = "";
+      if (ali.length) {
+        html += `<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">`;
+        html += ali.map(productCardHTML).join("");
+        html += `</div></div>`;
+      }
+      if (amazon.length) {
+        html += `<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">`;
+        html += amazon.map(productCardHTML).join("");
+        html += `</div></div>`;
+      }
+      if (others.length) {
+        html += `<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">`;
+        html += others.map(productCardHTML).join("");
+        html += `</div></div>`;
+      }
+
+      productsContainer.innerHTML = html;
+    }
+
+    // ==================== Chargement initial ====================
+    async function loadInitialProducts() {
+      productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
+      try {
+        const res = await fetch(`${BACKEND_URL}/products`);
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        displayProducts(data);
+      } catch (err) {
+        console.error("loadInitialProducts error:", err);
+        productsContainer.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
+      }
+    }
+
+    // ==================== Recherche ====================
+    async function searchProducts(q) {
+      if (!q || !q.trim()) return loadInitialProducts();
+      productsContainer.innerHTML = "<p>⏳ Recherche en cours...</p>";
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: q }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        displayProducts(data);
+      } catch (err) {
+        console.error("searchProducts error:", err);
+        productsContainer.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
+      }
+    }
+
+    // ==================== Vote ====================
+    async function promptVote(productId) {
+      if (!currentUser) {
+        showNotification("Veuillez vous connecter pour voter", 'error');
+        return;
+      }
+      
+      const input = prompt("Note (1-5) :");
+      if (!input) return;
+      const stars = Number(input);
+      if (!Number.isFinite(stars) || stars < 1 || stars > 5) {
+        showNotification("Note invalide (1-5)", 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/vote`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ product_id: productId, stars })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        await res.json();
+        showNotification(`Vote enregistré: ${stars}/5 étoiles`, 'success');
+        
+        const q = (searchInput.value||"").trim();
+        if (q) searchProducts(q); else loadInitialProducts();
+      } catch (err) {
+        console.error("promptVote error:", err);
+        showNotification("Erreur lors du vote", 'error');
+      }
+    }
+
+    // ==================== Reviews ====================
+    async function submitReview(productId) {
+      if (!currentUser) {
+        showNotification("Veuillez vous connecter pour laisser un avis", 'error');
+        return;
+      }
+      
+      const ta = document.getElementById(`review-${productId}`);
+      if (!ta) return;
+      const comment = ta.value.trim();
+      if (!comment) {
+        showNotification("Écrivez un commentaire", 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/review`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ product_id: productId, comment })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        
+        showNotification("Avis publié avec succès", 'success');
+        
+        if (data && Array.isArray(data.reviews)) {
+          const list = document.getElementById(`reviews-list-${productId}`);
+          if (list) list.innerHTML = renderReviewsList(data.reviews);
+        } else {
+          const q = (searchInput.value||"").trim();
+          if (q) searchProducts(q); else loadInitialProducts();
+        }
+        ta.value = "";
+      } catch (err) {
+        console.error("submitReview error:", err);
+        showNotification("Erreur lors de l'envoi de l'avis", 'error');
+      }
+    }
+
+    // ==================== Events ====================
+    searchBtn.addEventListener("click", () => {
+      const q = (searchInput.value||"").trim();
+      searchProducts(q);
+    });
+
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const q = (searchInput.value||"").trim();
+        searchProducts(q);
+      }
+    });
+
+    logoutBtn.addEventListener("click", logout);
+
+    // ==================== Init ====================
+    // Vérifier l'utilisateur en premier, puis charger les produits
+    checkUser().then(() => {
+      loadInitialProducts();
+    });
+
+    // Expose functions globally for onclick handlers
+    window.promptVote = promptVote;
+    window.submitReview = submitReview;
+  </script>
 </body>
 </html>
-
