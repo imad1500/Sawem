@@ -12,7 +12,7 @@ function escapeHtml(s) {
 }
 
 function renderStarsHTML(rating) {
-  const r = Number(r || 0);
+  const r = Number(rating || 0);  // ✅ CORRIGÉ: utilise 'rating' au lieu de 'r'
   const full = Math.floor(r);
   const half = r - full >= 0.5;
   let html = "";
