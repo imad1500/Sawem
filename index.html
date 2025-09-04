@@ -1,40 +1,37 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sawem.shop</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sawem Shop</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<header>
-  <div class="header-container">
-    <h1>Sawem.shop</h1>
-    <div class="cart">🛒</div>
-    <div id="userStatus">
-      <a id="googleLoginBtn" href="#">Se connecter avec Google</a>
+  <!-- ==================== Header ==================== -->
+  <header>
+    <h1>Sawem Shop 🛒</h1>
+    <div class="header-right">
+      <!-- Chariot à droite -->
+      <span class="cart">🛒</span>
+      <!-- Bouton Google Login -->
+      <button id="googleLoginBtn" class="google-login">Se connecter avec Google</button>
     </div>
-  </div>
-</header>
+  </header>
 
-<section class="welcome">
-  <h2>Bienvenue sur Sawem.shop</h2>
-  <p>Découvrez les meilleurs produits Tech & Électronique</p>
-</section>
+  <!-- ==================== Main / Produits ==================== -->
+  <main>
+    <div style="margin-bottom:1rem;">
+      <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
+      <button id="searchBtn">Rechercher</button>
+    </div>
 
-<section class="search-section">
-  <input id="searchInput" type="text" placeholder="Rechercher un produit...">
-  <button id="searchBtn">Rechercher</button>
-</section>
+    <div id="productsContainer">
+      <!-- Produits chargés dynamiquement via script.js -->
+      <p>⏳ Chargement des produits...</p>
+    </div>
+  </main>
 
-<section class="products-container" id="productsContainer"></section>
-
-<footer>
-© 2025 Sawem.shop - Tous droits réservés
-</footer>
-
-<script src="script.js"></script>
+  <!-- ==================== Scripts ==================== -->
+  <script src="script.js" type="module"></script>
 </body>
 </html>
