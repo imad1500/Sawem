@@ -1,4 +1,4 @@
-/* style.css - version originale + chariot à droite */
+/* style.css - version corrigée avec chariot à droite et recherche centrée */
 
 /* ==================== Reset / Base ==================== */
 * {
@@ -41,6 +41,35 @@ header h1 {
 .header-right .cart {
   font-size: 1.5rem;
   cursor: pointer;
+}
+
+/* ==================== Zone de recherche ==================== */
+.search-bar {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar input {
+  width: 50%;
+  padding: 0.5rem 1rem;
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-bar button {
+  padding: 0.5rem 1rem;
+  border-radius: 0 5px 5px 0;
+  border: 1px solid #0d6efd;
+  background-color: #0d6efd;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
 }
 
 /* ==================== Bouton Google ==================== */
@@ -173,6 +202,20 @@ textarea {
   border: 1px solid #ccc;
 }
 
+.reviews-section button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  border: none;
+  background-color: #0d6efd;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.reviews-section button:hover {
+  background-color: #0056b3;
+}
+
 /* ==================== Responsive ==================== */
 @media (max-width: 768px) {
   header {
@@ -182,5 +225,14 @@ textarea {
 
   .header-right {
     margin-top: 0.5rem;
+  }
+
+  .search-bar input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .search-bar {
+    justify-content: flex-start;
   }
 }
