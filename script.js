@@ -190,9 +190,17 @@ async function checkUser() {
   try {
     const res = await fetch(`${BACKEND_URL}/me`, { credentials: 'include' });
     if (!res.ok) throw new Error("Not logged in");
-    // Ne met pas encore le nom dans le bouton
-    googleLoginBtn.textContent = "Connecté";
-    googleLoginBtn.href = "#";
+    const data = await res.json();
+    const user = data.user;
+
+    if (user) {
+      // Affiche nom + photo
+      googleLoginBtn.innerHTML = `
+        <img src="${escapeHtml(user.picture || '')}" alt="Avatar" class="user-avatar">
+        <span>${escapeHtml(user.name || 'Utilisateur')}</span>
+      `;
+      googleLoginBtn.href = "#";
+    } else throw new Error("No user");
   } catch {
     googleLoginBtn.textContent = "Se connecter avec Google";
     googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
