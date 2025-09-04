@@ -9,9 +9,10 @@
 <body>
   <!-- ==================== Header ==================== -->
   <header>
-    <h1>Sawem.shop 🛒</h1>
+    <h1>Sawem.shop</h1>
     <div class="header-right">
-    
+      <!-- Chariot à droite -->
+      <span class="cart">🛒</span>
       <!-- Bouton Google Login -->
       <button id="googleLoginBtn" class="google-login">Se connecter avec Google</button>
     </div>
@@ -19,7 +20,8 @@
 
   <!-- ==================== Main / Produits ==================== -->
   <main>
-    <div style="margin-bottom:1rem;">
+    <!-- Zone de recherche centrée -->
+    <div class="search-container" style="text-align:center; margin-bottom:2rem;">
       <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
       <button id="searchBtn">Rechercher</button>
     </div>
@@ -30,8 +32,12 @@
     </div>
   </main>
 
+  <!-- ==================== Footer ==================== -->
+  <footer style="text-align:center; padding:1rem; background:#0d6efd; color:white; margin-top:2rem;">
+    © 2025 Sawem.shop. Tous droits réservés.
+  </footer>
+
   <!-- ==================== Scripts ==================== -->
   <script src="script.js" type="module"></script>
 </body>
 </html>
-
