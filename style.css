@@ -44,6 +44,11 @@ header h1 {
   gap: 1rem;
 }
 
+.section-title {
+  text-align: center; /* centre le texte */
+  margin: 20px 0;     /* espace autour du titre */
+}
+
 /* Chariot à droite */
 .header-right .cart {
   font-size: 1.5rem;
@@ -547,5 +552,6 @@ footer {
     max-width: 300px;
   }
 }
+
 
 
