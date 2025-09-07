@@ -4,507 +4,224 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sawem Shop</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Sawem Shop - Produits tech et électroniques">
+  
+  <!-- Preconnect aux domaines externes -->
+  <link rel="preconnect" href="https://sawem-backend.onrender.com">
+  <link rel="preconnect" href="https://api.jina.ai">
+  <link rel="dns-prefetch" href="//ui-avatars.com">
+  
+  <!-- CSS inline critique pour éviter le FOUC -->
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      line-height: 1.5;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #0d6efd;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1.5rem auto;
+      max-width: 500px;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 0.7rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .search-container button {
+      background: #0d6efd;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+    .product-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-2px);
+    }
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
 </head>
 <body>
-  <!-- ==================== Header ==================== -->
   <header>
-    <h1>Sawem.shop 🛒</h1>
+    <h1>Sawem.shop</h1>
     <div class="header-right">
-      <!-- Statut d'authentification -->
-      <div id="authStatus" class="auth-status loading">
-        ⏳ Vérification...
-      </div>
-      
-      <!-- Zone utilisateur connecté (cachée par défaut) -->
+      <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
       <div id="userInfo" class="user-info" style="display: none;">
-        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" />
+        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy" />
         <div class="user-details">
           <div id="userName" class="user-name"></div>
           <div id="userEmail" class="user-email"></div>
         </div>
-        <button id="logoutBtn" class="logout-btn">Déconnexion</button>
+        <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
       </div>
-      
-      <!-- Bouton de connexion (caché par défaut) -->
       <a id="googleLoginBtn" class="google-btn" href="#" style="display: none;">
-        🔗 Se connecter avec Google
+        Se connecter avec Google
       </a>
     </div>
   </header>
 
-  <!-- ==================== Notification ==================== -->
-  <div id="notification" class="notification"></div>
+  <div id="notification" class="notification" role="alert" aria-live="polite"></div>
 
-  <!-- ==================== Main / Produits ==================== -->
   <main>
-    <!-- Titre de section -->
-    <h3 class="section-title">Produits Tech & Électroniques</h3>
+    <h2 class="section-title">Produits Tech & Électroniques</h2>
 
-    <!-- Zone de recherche centrée -->
     <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Rechercher un produit..." />
-      <button id="searchBtn" class="ai-search-btn">
+      <input type="text" id="searchInput" placeholder="Rechercher un produit..." autocomplete="off" />
+      <button id="searchBtn" type="button">
         <span class="ai-icon">🤖</span>
         <span class="search-text">Recherche IA</span>
       </button>
     </div>
 
-    <!-- Message de bienvenue pour utilisateur connecté -->
     <div id="welcomeMessage" class="welcome-message" style="display: none;">
-      <h2>Bienvenue <span id="welcomeUserName"></span> ! 👋</h2>
+      <h3>Bienvenue <span id="welcomeUserName"></span>!</h3>
       <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
 
-    <!-- Produits dynamiques -->
     <div id="productsContainer">
-      <p>⏳ Chargement des produits...</p>
+      <!-- Skeleton loader initial -->
+      <div class="product-grid">
+        <div class="product-card skeleton" style="height: 400px;"></div>
+        <div class="product-card skeleton" style="height: 400px;"></div>
+        <div class="product-card skeleton" style="height: 400px;"></div>
+      </div>
     </div>
   </main>
 
-  <!-- ==================== Footer ==================== -->
   <footer>
     <p>&copy; 2025 Sawem.shop - Tous droits réservés.</p>
   </footer>
 
-  <!-- ==================== Scripts ==================== -->
+  <!-- CSS non-critique chargé de manière asynchrone -->
+  <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="style.css"></noscript>
+
   <script>
-    const BACKEND_URL = "https://sawem-backend.onrender.com"; 
+    // Configuration globale
+    const BACKEND_URL = "https://sawem-backend.onrender.com";
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    
+    // Cache côté client
+    const clientCache = new Map();
+    
+    // Éléments DOM (mise en cache)
+    const elements = {
+      searchInput: document.getElementById("searchInput"),
+      searchBtn: document.getElementById("searchBtn"),
+      productsContainer: document.getElementById("productsContainer"),
+      googleLoginBtn: document.getElementById("googleLoginBtn"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      authStatus: document.getElementById("authStatus"),
+      userInfo: document.getElementById("userInfo"),
+      userAvatar: document.getElementById("userAvatar"),
+      userName: document.getElementById("userName"),
+      userEmail: document.getElementById("userEmail"),
+      welcomeMessage: document.getElementById("welcomeMessage"),
+      welcomeUserName: document.getElementById("welcomeUserName"),
+      notification: document.getElementById("notification")
+    };
 
-    // Éléments DOM
-    const searchInput = document.getElementById("searchInput");
-    const searchBtn = document.getElementById("searchBtn");
-    const productsContainer = document.getElementById("productsContainer");
-    const googleLoginBtn = document.getElementById("googleLoginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const authStatus = document.getElementById("authStatus");
-    const userInfo = document.getElementById("userInfo");
-    const userAvatar = document.getElementById("userAvatar");
-    const userName = document.getElementById("userName");
-    const userEmail = document.getElementById("userEmail");
-    const welcomeMessage = document.getElementById("welcomeMessage");
-    const welcomeUserName = document.getElementById("welcomeUserName");
-    const notification = document.getElementById("notification");
-
-    // Variable globale pour l'état utilisateur
+    // Variables globales
     let currentUser = null;
     let authToken = null;
-
-    // ==================== JWT Token Management ====================
-    function saveToken(token) {
-      localStorage.setItem('sawem_auth_token', token);
-      authToken = token;
-      console.log('Token saved to localStorage');
-    }
-
-    function getToken() {
-      if (!authToken) {
-        authToken = localStorage.getItem('sawem_auth_token');
-      }
-      return authToken;
-    }
-
-    function removeToken() {
-      localStorage.removeItem('sawem_auth_token');
-      authToken = null;
-      console.log('Token removed from localStorage');
-    }
-
-    function getAuthHeaders() {
-      const token = getToken();
-      return token ? {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      } : {
-        'Content-Type': 'application/json'
-      };
-    }
+    let isLoading = false;
 
     // ==================== Utilitaires ====================
-    function escapeHtml(s) {
-      return String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
-    }
+    const utils = {
+      escapeHtml: (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])),
+      
+      debounce: (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      },
+      
+      formatDate: (dateStr) => new Date(dateStr).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    };
 
-    function showNotification(message, type = 'success') {
-      notification.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.classList.add('show');
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
-
-    function renderStarsHTML(rating) {
-      const r = Number(rating || 0);
-      const full = Math.floor(r);
-      const half = r - full >= 0.5;
-      let html = "";
-      for (let i = 1; i <= 5; i++) {
-        if (i <= full) html += '<span class="star full">★</span>';
-        else if (half && i === full + 1) html += '<span class="star half">★</span>';
-        else html += '<span class="star empty">★</span>';
-      }
-      return html;
-    }
-
-    function renderReviewsList(reviews) {
-      if (!reviews || !reviews.length) return `<div class="reviews-list-empty">Aucun avis</div>`;
-      return reviews.map(r => `
-        <div class="single-review">
-          <div class="rev-head"><strong>${escapeHtml(r.user_name || 'Anonyme')}</strong>
-            <span class="rev-date">${new Date(r.created_at).toLocaleString()}</span>
-          </div>
-          <div class="rev-body">${escapeHtml(r.comment)}</div>
-        </div>
-      `).join("");
-    }
-
-    // ==================== Gestion utilisateur JWT ====================
-    async function checkUser() {
-      try {
-        authStatus.textContent = "⏳ Vérification...";
-        authStatus.className = "auth-status loading";
-        
-        // Vérifier d'abord s'il y a un token dans l'URL (après OAuth)
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlToken = urlParams.get('token');
-        
-        if (urlToken) {
-          console.log('Token trouvé dans URL après OAuth');
-          saveToken(urlToken);
-          // Nettoyer l'URL
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-        
-        const token = getToken();
-        if (!token) {
-          throw new Error("Aucun token disponible");
-        }
-        
-        // Vérifier le token avec le serveur
-        const res = await fetch(`${BACKEND_URL}/verify-token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ token })
+    // ==================== Cache Management ====================
+    const cache = {
+      set: (key, value, duration = CACHE_DURATION) => {
+        clientCache.set(key, {
+          value,
+          expires: Date.now() + duration
         });
-        
-        console.log('Verify token response status:', res.status);
-        
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.log('Token verification failed:', errorData);
-          throw new Error("Token invalide");
+      },
+      
+      get: (key) => {
+        const cached = clientCache.get(key);
+        if (!cached) return null;
+        if (Date.now() > cached.expires) {
+          clientCache.delete(key);
+          return null;
         }
-        
-        const data = await res.json();
-        console.log('Token verification success:', data);
-        
-        if (data.success && data.user) {
-          currentUser = data.user;
-          displayUserConnected(data.user);
-          
-          // Vérifier si on vient d'une redirection OAuth
-          if (urlToken || urlParams.get('auth') === 'success') {
-            showNotification(`Connexion réussie ! Bienvenue ${data.user.name}`, 'success');
-          }
-        } else {
-          throw new Error("Données utilisateur invalides");
-        }
-      } catch (error) {
-        console.error('checkUser error:', error);
-        currentUser = null;
-        removeToken(); // Supprimer le token invalide
-        displayUserDisconnected();
-        
-        // Vérifier si on vient d'une redirection OAuth qui a échoué
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('auth') === 'error') {
-          showNotification("Erreur lors de la connexion", 'error');
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }
-    }
-
-    function displayUserConnected(user) {
-      // Cacher le statut de chargement et le bouton de connexion
-      authStatus.style.display = "none";
-      googleLoginBtn.style.display = "none";
+        return cached.value;
+      },
       
-      // Afficher les informations utilisateur
-      userName.textContent = user.name || "Utilisateur";
-      userEmail.textContent = user.email || "";
-      
-      // Afficher la photo Google si disponible
-      if (user.photo) {
-        userAvatar.src = user.photo;
-        userAvatar.alt = user.name || "Avatar";
-      } else {
-        // Photo par défaut générée
-        userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
-        userAvatar.alt = user.name || "Avatar";
-      }
-      
-      userInfo.style.display = "flex";
-      
-      // Afficher le message de bienvenue
-      welcomeUserName.textContent = user.name || "Utilisateur";
-      welcomeMessage.style.display = "block";
-    }
+      clear: () => clientCache.clear()
+    };
 
-    function displayUserDisconnected() {
-      // Cacher les informations utilisateur et le message de bienvenue
-      userInfo.style.display = "none";
-      welcomeMessage.style.display = "none";
-      
-      // Afficher le statut déconnecté et le bouton de connexion
-      authStatus.textContent = "❌ Non connecté";
-      authStatus.className = "auth-status disconnected";
-      authStatus.style.display = "block";
-      
-      googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
-      googleLoginBtn.style.display = "flex";
-    }
-
-    async function logout() {
-      try {
-        // Informer le serveur (optionnel avec JWT)
-        await fetch(`${BACKEND_URL}/logout`, { 
-          method: 'POST',
-          headers: getAuthHeaders()
-        });
-        
-        // Supprimer le token côté client
-        removeToken();
-        currentUser = null;
-        
-        showNotification("Déconnexion réussie", 'success');
-        displayUserDisconnected();
-      } catch (err) {
-        console.error('Logout error:', err);
-        // Même en cas d'erreur, supprimer le token côté client
-        removeToken();
-        currentUser = null;
-        showNotification("Déconnexion effectuée", 'success');
-        displayUserDisconnected();
-      }
-    }
-
-    // ==================== Produits ====================
-    function productCardHTML(p) {
-      const title = escapeHtml(p.title || "");
-      const price = escapeHtml(p.price || "");
-      const link = p.link || "#";
-      const ratingNum = Number(p.user_rating || 0);
-      const starsHTML = renderStarsHTML(ratingNum);
-      const reviewsHTML = renderReviewsList(p.reviews || []);
-
-      // Désactiver les boutons si pas connecté
-      const voteDisabled = !currentUser ? 'disabled title="Connectez-vous pour voter"' : '';
-      const reviewDisabled = !currentUser ? 'disabled placeholder="Connectez-vous pour laisser un avis"' : 'placeholder="Votre avis..."';
-
-      return `
-        <div class="product-card" data-id="${p.id}">
-          <img src="${p.image || 'https://via.placeholder.com/400x300'}" alt="${title}" />
-          <div class="product-info">
-            <h3>${title}</h3>
-            <p class="price">${price}</p>
-            <p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p>
-            <div class="product-actions">
-              <a class="view-btn" href="${escapeHtml(link)}" target="_blank" rel="noopener">Voir</a>
-              <button class="vote-btn" onclick="promptVote(${p.id})" ${voteDisabled}>Voter</button>
-            </div>
-
-            <div class="reviews-section">
-              <div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div>
-              <textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea>
-              <button class="send-review-btn" onclick="submitReview(${p.id})" ${!currentUser ? 'disabled' : ''}>Envoyer</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function displayProducts(products) {
-      if (!products || !products.length) {
-        productsContainer.innerHTML = "<p>❌ Aucun produit trouvé.</p>";
-        return;
-      }
-
-      const ali = products.filter(p => (p.source||"").toLowerCase().includes("aliexpress"));
-      const amazon = products.filter(p => (p.source||"").toLowerCase().includes("amazon"));
-      const others = products.filter(p => {
-        const s = (p.source||"").toLowerCase();
-        return !s.includes("aliexpress") && !s.includes("amazon");
-      });
-
-      let html = "";
-      if (ali.length) {
-        html += `<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">`;
-        html += ali.map(productCardHTML).join("");
-        html += `</div></div>`;
-      }
-      if (amazon.length) {
-        html += `<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">`;
-        html += amazon.map(productCardHTML).join("");
-        html += `</div></div>`;
-      }
-      if (others.length) {
-        html += `<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">`;
-        html += others.map(productCardHTML).join("");
-        html += `</div></div>`;
-      }
-
-      productsContainer.innerHTML = html;
-    }
-
-    // ==================== Chargement initial ====================
-    async function loadInitialProducts() {
-      productsContainer.innerHTML = "<p>⏳ Chargement des produits...</p>";
-      try {
-        const res = await fetch(`${BACKEND_URL}/products`);
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        displayProducts(data);
-      } catch (err) {
-        console.error("loadInitialProducts error:", err);
-        productsContainer.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
-      }
-    }
-
-    // ==================== Recherche ====================
-    async function searchProducts(q) {
-      if (!q || !q.trim()) return loadInitialProducts();
-      productsContainer.innerHTML = "<p>⏳ Recherche en cours...</p>";
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: q }),
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        displayProducts(data);
-      } catch (err) {
-        console.error("searchProducts error:", err);
-        productsContainer.innerHTML = `<p>❌ Erreur serveur: ${escapeHtml(err.message||err)}</p>`;
-      }
-    }
-
-    // ==================== Vote ====================
-    async function promptVote(productId) {
-      if (!currentUser) {
-        showNotification("Veuillez vous connecter pour voter", 'error');
-        return;
-      }
-      
-      const input = prompt("Note (1-5) :");
-      if (!input) return;
-      const stars = Number(input);
-      if (!Number.isFinite(stars) || stars < 1 || stars > 5) {
-        showNotification("Note invalide (1-5)", 'error');
-        return;
-      }
-      
-      try {
-        const res = await fetch(`${BACKEND_URL}/vote`, {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ product_id: productId, stars })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        await res.json();
-        showNotification(`Vote enregistré: ${stars}/5 étoiles`, 'success');
-        
-        const q = (searchInput.value||"").trim();
-        if (q) searchProducts(q); else loadInitialProducts();
-      } catch (err) {
-        console.error("promptVote error:", err);
-        if (err.message.includes('401')) {
-          showNotification("Session expirée, veuillez vous reconnecter", 'error');
-          removeToken();
-          displayUserDisconnected();
-        } else {
-          showNotification("Erreur lors du vote", 'error');
-        }
-      }
-    }
-
-    // ==================== Reviews ====================
-    async function submitReview(productId) {
-      if (!currentUser) {
-        showNotification("Veuillez vous connecter pour laisser un avis", 'error');
-        return;
-      }
-      
-      const ta = document.getElementById(`review-${productId}`);
-      if (!ta) return;
-      const comment = ta.value.trim();
-      if (!comment) {
-        showNotification("Écrivez un commentaire", 'error');
-        return;
-      }
-      
-      try {
-        const res = await fetch(`${BACKEND_URL}/review`, {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ product_id: productId, comment })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        
-        showNotification("Avis publié avec succès", 'success');
-        
-        if (data && Array.isArray(data.reviews)) {
-          const list = document.getElementById(`reviews-list-${productId}`);
-          if (list) list.innerHTML = renderReviewsList(data.reviews);
-        } else {
-          const q = (searchInput.value||"").trim();
-          if (q) searchProducts(q); else loadInitialProducts();
-        }
-        ta.value = "";
-      } catch (err) {
-        console.error("submitReview error:", err);
-        if (err.message.includes('401')) {
-          showNotification("Session expirée, veuillez vous reconnecter", 'error');
-          removeToken();
-          displayUserDisconnected();
-        } else {
-          showNotification("Erreur lors de l'envoi de l'avis", 'error');
-        }
-      }
-    }
-
-    // ==================== Events ====================
-    searchBtn.addEventListener("click", () => {
-      const q = (searchInput.value||"").trim();
-      searchProducts(q);
-    });
-
-    searchInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        const q = (searchInput.value||"").trim();
-        searchProducts(q);
-      }
-    });
-
-    logoutBtn.addEventListener("click", logout);
-
-    // ==================== Init ====================
-    // Vérifier l'utilisateur en premier, puis charger les produits
-    checkUser().then(() => {
-      loadInitialProducts();
-    });
-
-    // Expose functions globally for onclick handlers
-    window.promptVote = promptVote;
-    window.submitReview = submitReview;
-  </script>
-</body>
-</html>
-
-
-
-
+    // ==================== JWT Token Management ====================
+    const auth = {
+      saveToken: (token) => {
+        localStorage.setItem('sawem_auth_token', token);
+        authToken = token;
+      },
