@@ -5,104 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sawem Shop</title>
   <meta name="description" content="Sawem Shop - Produits tech et électroniques">
-  
-  <!-- Preconnect aux domaines externes -->
+
+  <!-- Preconnect aux services externes -->
   <link rel="preconnect" href="https://sawem-backend.onrender.com">
   <link rel="preconnect" href="https://api.jina.ai">
   <link rel="dns-prefetch" href="//ui-avatars.com">
-  
-  <!-- CSS inline critique pour éviter le FOUC -->
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: #f9f9f9;
-      color: #333;
-      line-height: 1.5;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: #0d6efd;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    .search-container {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin: 1.5rem auto;
-      max-width: 500px;
-    }
-    .search-container input {
-      flex: 1;
-      padding: 0.7rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    .search-container button {
-      background: #0d6efd;
-      color: white;
-      border: none;
-      padding: 0.7rem 1.2rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      white-space: nowrap;
-    }
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      padding: 0 1rem;
-    }
-    .product-card {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
-    }
-    .product-card:hover {
-      transform: translateY(-2px);
-    }
-    /* Skeleton loader */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-    }
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-  </style>
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1>Sawem.shop</h1>
     <div class="header-right">
       <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
-      <div id="userInfo" class="user-info" style="display: none;">
-        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy" />
+      <div id="userInfo" class="user-info" style="display:none;">
+        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
         <div class="user-details">
           <div id="userName" class="user-name"></div>
           <div id="userEmail" class="user-email"></div>
         </div>
         <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
       </div>
-      <a id="googleLoginBtn" class="google-btn" href="#" style="display: none;">
-        Se connecter avec Google
-      </a>
+      <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
     </div>
   </header>
 
@@ -119,17 +44,16 @@
       </button>
     </div>
 
-    <div id="welcomeMessage" class="welcome-message" style="display: none;">
+    <div id="welcomeMessage" class="welcome-message" style="display:none;">
       <h3>Bienvenue <span id="welcomeUserName"></span>!</h3>
       <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
 
     <div id="productsContainer">
-      <!-- Skeleton loader initial -->
       <div class="product-grid">
-        <div class="product-card skeleton" style="height: 400px;"></div>
-        <div class="product-card skeleton" style="height: 400px;"></div>
-        <div class="product-card skeleton" style="height: 400px;"></div>
+        <div class="product-card skeleton" style="height:400px;"></div>
+        <div class="product-card skeleton" style="height:400px;"></div>
+        <div class="product-card skeleton" style="height:400px;"></div>
       </div>
     </div>
   </main>
@@ -138,19 +62,9 @@
     <p>&copy; 2025 Sawem.shop - Tous droits réservés.</p>
   </footer>
 
-  <!-- CSS non-critique chargé de manière asynchrone -->
-  <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="style.css"></noscript>
-
   <script>
-    // Configuration globale
     const BACKEND_URL = "https://sawem-backend.onrender.com";
-    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-    
-    // Cache côté client
-    const clientCache = new Map();
-    
-    // Éléments DOM (mise en cache)
+
     const elements = {
       searchInput: document.getElementById("searchInput"),
       searchBtn: document.getElementById("searchBtn"),
@@ -167,61 +81,178 @@
       notification: document.getElementById("notification")
     };
 
-    // Variables globales
     let currentUser = null;
     let authToken = null;
-    let isLoading = false;
 
     // ==================== Utilitaires ====================
     const utils = {
-      escapeHtml: (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])),
-      
+      escapeHtml: (s) => String(s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])),
       debounce: (func, wait) => {
         let timeout;
-        return function executedFunction(...args) {
-          const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-          };
+        return (...args) => {
           clearTimeout(timeout);
-          timeout = setTimeout(later, wait);
+          timeout = setTimeout(() => func(...args), wait);
         };
       },
-      
       formatDate: (dateStr) => new Date(dateStr).toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
       })
     };
 
-    // ==================== Cache Management ====================
-    const cache = {
-      set: (key, value, duration = CACHE_DURATION) => {
-        clientCache.set(key, {
-          value,
-          expires: Date.now() + duration
-        });
-      },
-      
-      get: (key) => {
-        const cached = clientCache.get(key);
-        if (!cached) return null;
-        if (Date.now() > cached.expires) {
-          clientCache.delete(key);
-          return null;
-        }
-        return cached.value;
-      },
-      
-      clear: () => clientCache.clear()
-    };
+    // ==================== Auth Management ====================
+    function saveToken(token){ localStorage.setItem('sawem_auth_token', token); authToken=token; }
+    function getToken(){ if(!authToken) authToken=localStorage.getItem('sawem_auth_token'); return authToken; }
+    function removeToken(){ localStorage.removeItem('sawem_auth_token'); authToken=null; }
+    function getAuthHeaders(){ const token=getToken(); return token?{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}:{'Content-Type':'application/json'}; }
 
-    // ==================== JWT Token Management ====================
-    const auth = {
-      saveToken: (token) => {
-        localStorage.setItem('sawem_auth_token', token);
-        authToken = token;
-      },
+    // ==================== Notifications ====================
+    function showNotification(message,type='success'){
+      const n=elements.notification;
+      n.textContent=message;
+      n.className=`notification ${type} show`;
+      setTimeout(()=>{ n.classList.remove('show'); },3000);
+    }
+
+    // ==================== User ====================
+    async function checkUser(){
+      try{
+        elements.authStatus.textContent="⏳ Vérification...";
+        const urlToken=new URLSearchParams(window.location.search).get('token');
+        if(urlToken){ saveToken(urlToken); window.history.replaceState({},document.title,window.location.pathname); }
+        const token=getToken();
+        if(!token) throw new Error("Aucun token");
+        const res=await fetch(`${BACKEND_URL}/verify-token`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token}) });
+        if(!res.ok) throw new Error("Token invalide");
+        const data=await res.json();
+        if(data.success && data.user){ currentUser=data.user; displayUserConnected(data.user); }
+      }catch(e){ console.error(e); currentUser=null; removeToken(); displayUserDisconnected(); }
+    }
+
+    function displayUserConnected(user){
+      elements.authStatus.style.display="none";
+      elements.googleLoginBtn.style.display="none";
+      elements.userName.textContent=user.name||"Utilisateur";
+      elements.userEmail.textContent=user.email||"";
+      elements.userAvatar.src=user.photo||`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&size=40&background=0d6efd&color=fff`;
+      elements.userAvatar.alt=user.name||"Avatar";
+      elements.userInfo.style.display="flex";
+      elements.welcomeUserName.textContent=user.name||"Utilisateur";
+      elements.welcomeMessage.style.display="block";
+    }
+
+    function displayUserDisconnected(){
+      elements.userInfo.style.display="none";
+      elements.welcomeMessage.style.display="none";
+      elements.authStatus.textContent="❌ Non connecté";
+      elements.authStatus.className="auth-status disconnected";
+      elements.authStatus.style.display="block";
+      elements.googleLoginBtn.href=`${BACKEND_URL}/auth/google`;
+      elements.googleLoginBtn.style.display="flex";
+    }
+
+    async function logout(){
+      try{ await fetch(`${BACKEND_URL}/logout`,{method:'POST',headers:getAuthHeaders()}); }catch(e){ console.error(e); }
+      removeToken(); currentUser=null; showNotification("Déconnexion réussie",'success'); displayUserDisconnected();
+    }
+
+    // ==================== Products ====================
+    function renderStarsHTML(rating){
+      const full=Math.floor(rating||0), half=(rating-full)>=0.5;
+      let html="";
+      for(let i=1;i<=5;i++){ html+=i<=full?"<span class='star full'>★</span>":half&&i===full+1?"<span class='star half'>★</span>":"<span class='star empty'>★</span>"; }
+      return html;
+    }
+
+    function renderReviewsList(reviews){ 
+      if(!reviews||!reviews.length) return "<div class='reviews-list-empty'>Aucun avis</div>";
+      return reviews.map(r=>`<div class="single-review"><div class="rev-head"><strong>${utils.escapeHtml(r.user_name||'Anonyme')}</strong><span class="rev-date">${utils.formatDate(r.created_at)}</span></div><div class="rev-body">${utils.escapeHtml(r.comment)}</div></div>`).join(""); 
+    }
+
+    function productCardHTML(p){
+      const title=utils.escapeHtml(p.title||""), price=utils.escapeHtml(p.price||""), link=p.link||"#";
+      const ratingNum=Number(p.user_rating||0), starsHTML=renderStarsHTML(ratingNum), reviewsHTML=renderReviewsList(p.reviews||[]);
+      const voteDisabled=!currentUser?'disabled title="Connectez-vous pour voter"':'';
+      const reviewDisabled=!currentUser?'disabled placeholder="Connectez-vous pour laisser un avis"':'placeholder="Votre avis..."';
+      return `<div class="product-card" data-id="${p.id}"><img src="${p.image||'https://via.placeholder.com/400x300'}" alt="${title}"/><div class="product-info"><h3>${title}</h3><p class="price">${price}</p><p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p><div class="product-actions"><a class="view-btn" href="${link}" target="_blank" rel="noopener">Voir</a><button class="vote-btn" onclick="promptVote(${p.id})" ${voteDisabled}>Voter</button></div><div class="reviews-section"><div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div><textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea><button class="send-review-btn" onclick="submitReview(${p.id})" ${!currentUser?'disabled':''}>Envoyer</button></div></div></div>`;
+    }
+
+    function displayProducts(products){
+      if(!products||!products.length){ elements.productsContainer.innerHTML="<p>❌ Aucun produit trouvé.</p>"; return; }
+      const ali=products.filter(p=>(p.source||"").toLowerCase().includes("aliexpress"));
+      const amazon=products.filter(p=>(p.source||"").toLowerCase().includes("amazon"));
+      const others=products.filter(p=>{ const s=(p.source||"").toLowerCase(); return !s.includes("aliexpress")&&!s.includes("amazon"); });
+      let html="";
+      if(ali.length){ html+=`<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">${ali.map(productCardHTML).join("")}</div></div>`; }
+      if(amazon.length){ html+=`<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">${amazon.map(productCardHTML).join("")}</div></div>`; }
+      if(others.length){ html+=`<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">${others.map(productCardHTML).join("")}</div></div>`; }
+      elements.productsContainer.innerHTML=html;
+    }
+
+    async function loadInitialProducts(){
+      elements.productsContainer.innerHTML="<p>⏳ Chargement des produits...</p>";
+      try{
+        const res=await fetch(`${BACKEND_URL}/products`);
+        if(!res.ok) throw new Error(await res.text());
+        const data=await res.json();
+        displayProducts(data);
+      }catch(err){
+        console.error(err);
+        elements.productsContainer.innerHTML=`<p>❌ Erreur serveur: ${utils.escapeHtml(err.message||err)}</p>`;
+      }
+    }
+
+    async function searchProducts(q){
+      if(!q||!q.trim()) return loadInitialProducts();
+      elements.productsContainer.innerHTML="<p>⏳ Recherche en cours...</p>";
+      try{
+        const res=await fetch(`${BACKEND_URL}/search`,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
+        if(!res.ok) throw new Error(await res.text());
+        const data=await res.json();
+        displayProducts(data);
+      }catch(err){
+        console.error(err);
+        elements.productsContainer.innerHTML=`<p>❌ Erreur serveur: ${utils.escapeHtml(err.message||err)}</p>`;
+      }
+    }
+
+    async function promptVote(productId){
+      if(!currentUser){ showNotification("Veuillez vous connecter pour voter",'error'); return; }
+      const input=prompt("Note (1-5) :"); if(!input) return;
+      const stars=Number(input); if(!Number.isFinite(stars)||stars<1||stars>5){ showNotification("Note invalide (1-5)",'error'); return; }
+      try{
+        const res=await fetch(`${BACKEND_URL}/vote`,{method:"POST",headers:getAuthHeaders(),body:JSON.stringify({product_id:productId,stars})});
+        if(!res.ok) throw new Error(await res.text());
+        await res.json(); showNotification(`Vote enregistré: ${stars}/5 étoiles`,'success');
+        const q=elements.searchInput.value.trim(); if(q) searchProducts(q); else loadInitialProducts();
+      }catch(err){ console.error(err); showNotification("Erreur lors du vote",'error'); if(err.message.includes('401')){ removeToken(); displayUserDisconnected(); } }
+    }
+
+    async function submitReview(productId){
+      if(!currentUser){ showNotification("Veuillez vous connecter pour laisser un avis",'error'); return; }
+      const ta=document.getElementById(`review-${productId}`); if(!ta) return;
+      const comment=ta.value.trim(); if(!comment){ showNotification("Écrivez un commentaire",'error'); return; }
+      try{
+        const res=await fetch(`${BACKEND_URL}/review`,{method:"POST",headers:getAuthHeaders(),body:JSON.stringify({product_id:productId,comment})});
+        if(!res.ok) throw new Error(await res.text());
+        const data=await res.json();
+        showNotification("Avis publié avec succès",'success');
+        if(data && Array.isArray(data.reviews)){ const list=document.getElementById(`reviews-list-${productId}`); if(list) list.innerHTML=renderReviewsList(data.reviews); }
+        else{ const q=elements.searchInput.value.trim(); if(q) searchProducts(q); else loadInitialProducts(); }
+        ta.value="";
+      }catch(err){ console.error(err); showNotification("Erreur lors de l'envoi de l'avis",'error'); if(err.message.includes('401')){ removeToken(); displayUserDisconnected(); } }
+    }
+
+    // ==================== Events ====================
+    elements.searchBtn.addEventListener("click",()=>{ searchProducts(elements.searchInput.value.trim()); });
+    elements.searchInput.addEventListener("keypress",(e)=>{ if(e.key==="Enter") searchProducts(elements.searchInput.value.trim()); });
+    elements.logoutBtn.addEventListener("click",logout);
+
+    // ==================== Init ====================
+    checkUser().then(()=>{ loadInitialProducts(); });
+
+    // Expose functions for inline onclick
+    window.promptVote=promptVote;
+    window.submitReview=submitReview;
+  </script>
+</body>
+</html>
