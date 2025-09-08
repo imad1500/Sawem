@@ -1,6 +1,6 @@
-/* ====================== */
-/*      GLOBAL STYLES     */
-/* ====================== */
+/* style.css - version finale adaptée */
+
+/* ==================== Reset / Base ==================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,55 +8,86 @@
   font-family: 'Arial', sans-serif;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   background-color: #f9f9f9;
   color: #333;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-/* ====================== */
-/*        HEADER          */
-/* ====================== */
+/* ==================== Header ==================== */
 header {
-  background-color: #0d6efd;
-  color: white;
-  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  background-color: #0d6efd;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 header h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
-header nav a {
-  margin-left: 1rem;
-  font-weight: bold;
-  color: white;
-  transition: color 0.2s ease-in-out;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-header nav a:hover {
-  color: #ffd700;
+.section-title {
+  text-align: center; /* centre le texte */
+  margin: 20px 0;     /* espace autour du titre */
 }
 
-/* ====================== */
-/*     SEARCH CONTAINER    */
-/* ====================== */
+/* Chariot à droite */
+.header-right .cart {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ==================== Bouton Google ==================== */
+.google-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fff;
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.google-btn:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.google-btn .user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ==================== Zone de recherche ==================== */
 .search-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
   margin: 2rem auto;
-  text-align: center;
 }
 
 .search-container input {
@@ -65,7 +96,7 @@ header nav a:hover {
   border: 1px solid #ccc;
   border-radius: 5px;
   outline: none;
-  font-size: 1rem;
+  font-size: 15px; /* ✅ Taille du texte dans l'input */
 }
 
 .search-container button {
@@ -73,144 +104,453 @@ header nav a:hover {
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  margin-left: 0.5rem;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
+  transition: 0.3s;
+  font-size: 15px; /* ✅ Taille du texte dans l'input */
 }
 
 .search-container button:hover {
-  background-color: #0b5ed7;
+  background-color: #084298;
 }
 
-/* ====================== */
-/*         CARDS          */
-/* ====================== */
-.card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+/* ==================== Main / Produits ==================== */
+main {
   padding: 2rem;
+  flex: 1;
 }
 
-.card {
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
   background-color: white;
   border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.card img {
+.product-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
 }
 
-.card-content {
+.product-info {
   padding: 1rem;
 }
 
-.card-content h3 {
+.product-info h3 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
 
-.card-content p {
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-.card-content .price {
-  font-weight: bold;
+.product-info .price {
   color: #0d6efd;
+  font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-.card-content button {
-  background-color: #28a745;
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.product-actions a.view-btn,
+.product-actions button.vote-btn {
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.product-actions a.view-btn {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.product-actions button.vote-btn {
+  background-color: #ffc107;
+  color: #333;
+}
+
+/* ==================== Stars ==================== */
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star.full { color: #ffc107; }
+.star.half { color: #ffc107; opacity: 0.5; }
+.star.empty { color: #ddd; }
+
+/* ==================== Reviews ==================== */
+.reviews-section {
+  margin-top: 1rem;
+}
+
+.reviews-list {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+}
+
+.single-review {
+  border-bottom: 1px solid #eee;
+  padding: 0.3rem 0;
+}
+
+.rev-head {
+  font-weight: bold;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rev-body {
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+textarea {
+  width: 100%;
+  resize: none;
+  padding: 0.4rem;
+  margin-bottom: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Bouton Envoyer (reviews) */
+button.send-review {
+  background-color: #0d6efd;
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: 0.3s;
 }
 
-.card-content button:hover {
-  background-color: #218838;
+button.send-review:hover {
+  background-color: #084298;
 }
 
-/* ====================== */
-/*         REVIEWS        */
-/* ====================== */
-.review {
-  border-top: 1px solid #eee;
-  padding: 0.5rem 0;
-}
+/* Ajouter à votre style.css existant */
 
-.review .user-name {
-  font-weight: bold;
-  margin-bottom: 0.2rem;
-}
-
-.review .comment {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.review .created-at {
+/* ==================== Auth Status ==================== */
+.auth-status {
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
   font-size: 0.8rem;
-  color: #aaa;
-  margin-top: 0.2rem;
+  margin-right: 1rem;
 }
 
-/* ====================== */
-/*        BUTTONS         */
-/* ====================== */
-button {
-  font-family: inherit;
+.auth-status.loading { color: #ffc107; }
+.auth-status.connected { color: #28a745; }
+.auth-status.disconnected { color: #dc3545; }
+
+/* ==================== User Info ==================== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 25px;
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-/* ====================== */
-/*         FOOTER         */
-/* ====================== */
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.user-email {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+/* Ajoutez ces styles à votre style.css existant */
+
+/* ==================== Auth Status ==================== */
+.auth-status {
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.auth-status.loading { color: #ffc107; }
+.auth-status.connected { color: #28a745; }
+.auth-status.disconnected { color: #dc3545; }
+
+/* ==================== User Info ==================== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: rgba(255,255,255,0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 25px;
+  max-width: 300px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+/* ==================== Welcome Message ==================== */
+.welcome-message {
+  background: linear-gradient(135deg, #0d6efd, #28a745);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.welcome-message h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.welcome-message p {
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+/* ==================== Notifications ==================== */
+.notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  z-index: 1001;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.notification.success { 
+  background-color: #28a745;
+}
+
+.notification.error { 
+  background-color: #dc3545;
+}
+
+.notification.show { 
+  transform: translateX(0);
+}
+
+/* ==================== Responsive Auth ==================== */
+@media (max-width: 768px) {
+  .header-right {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .auth-status {
+    margin-right: 0;
+    text-align: center;
+  }
+  
+  .user-info {
+    max-width: none;
+    justify-content: center;
+  }
+  
+  .user-details {
+    text-align: center;
+  }
+  
+  .notification {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    transform: translateY(-100px);
+  }
+  
+  .notification.show {
+    transform: translateY(0);
+  }
+}
+
+/* ==================== Disabled Buttons ==================== */
+button:disabled, textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background-color: #6c757d !important;
+}
+
+button:disabled:hover {
+  background-color: #6c757d !important;
+}
+
+/* ==================== Loading States ==================== */
+.loading-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== Welcome Message ==================== */
+.welcome-message {
+  background: linear-gradient(135deg, #0d6efd, #28a745);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-message h2 {
+  margin-bottom: 0.5rem;
+}
+
+/* ==================== Notifications ==================== */
+.notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  z-index: 1001;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+}
+
+.notification.success { background-color: #28a745; }
+.notification.error { background-color: #dc3545; }
+.notification.show { transform: translateX(0); }
+
+/* ==================== Footer ==================== */
 footer {
   background-color: #0d6efd;
   color: white;
-  padding: 1rem 2rem;
   text-align: center;
-  margin-top: 3rem;
-  font-size: 0.9rem;
+  padding: 1rem;
+  margin-top: auto;
 }
 
-/* ====================== */
-/*       RESPONSIVE       */
-/* ====================== */
+/* ==================== Responsive ==================== */
 @media (max-width: 768px) {
   header {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    margin-top: 0.5rem;
+  }
+
+  .search-container {
+    flex-direction: column;
+    align-items: center;
   }
 
   .search-container input {
-    width: 80%;
-    margin-bottom: 0.5rem;
-  }
-
-  .card-container {
-    padding: 1rem;
+    width: 100%;
+    max-width: 300px;
   }
 }
