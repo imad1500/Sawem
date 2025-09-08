@@ -618,3 +618,55 @@ footer {
   }
 }
 
+
+/* Ajoutez à la fin de style.css */
+
+/* ==================== Optimisations Performance ==================== */
+.product-grid {
+  contain: layout style paint;
+}
+
+.product-card {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.product-card img {
+  content-visibility: auto;
+  contain-intrinsic-size: 250px 200px;
+}
+
+/* Skeleton plus léger */
+.skeleton-card {
+  background: #f0f0f0;
+  border-radius: 10px;
+  height: 400px;
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+.skeleton-image {
+  height: 200px;
+  background: #e0e0e0;
+  border-radius: 10px 10px 0 0;
+}
+
+.skeleton-content {
+  padding: 1rem;
+}
+
+.skeleton-line {
+  height: 20px;
+  background: #e0e0e0;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.skeleton-line.short { width: 60%; }
+.skeleton-line.medium { width: 80%; }
+
+
