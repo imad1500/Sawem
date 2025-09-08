@@ -533,24 +533,88 @@ footer {
   margin-top: auto;
 }
 
-/* ==================== Responsive ==================== */
+/* ==================== Responsive Auth CORRIGÉ ==================== */
 @media (max-width: 768px) {
   header {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 1rem;
   }
-
+  
   .header-right {
-    margin-top: 0.5rem;
-  }
-
-  .search-container {
-    flex-direction: column;
+    /* GARDER EN LIGNE même sur mobile */
+    flex-direction: row;
+    gap: 0.5rem;
     align-items: center;
+    flex-wrap: wrap;
   }
-
-  .search-container input {
-    width: 100%;
-    max-width: 300px;
+  
+  .auth-status {
+    margin-right: 0;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+  
+  .user-info {
+    max-width: 250px;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .user-name {
+    font-size: 0.8rem;
+  }
+  
+  .user-email {
+    font-size: 0.6rem;
+  }
+  
+  .logout-btn {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+  }
+  
+  .google-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Notification corrigée pour mobile */
+  .notification {
+    top: 70px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    transform: translateX(100%);
+    font-size: 0.9rem;
+    padding: 0.8rem 1rem;
+  }
+  
+  .notification.show {
+    transform: translateX(0);
+  }
+  
+  /* Message de bienvenue responsive */
+  .welcome-message {
+    margin: 1rem 0;
+    padding: 1rem;
+  }
+  
+  .welcome-message h3 {
+    font-size: 1.2rem;
   }
 }
+
+/* Pour très petits écrans */
+@media (max-width: 480px) {
+  .header-right {
+    justify-content: flex-end;
+    width: 100%;
+  }
+  
+  .user-info {
+    max-width: 200px;
+  }
+  
+  .user-details {
+    min-width: 0; /* Permet la troncature */
+  }
+}
+
