@@ -1,4 +1,4 @@
-// script.js - VERSION OPTIMISÉE POUR PERFORMANCE ET GOOGLE LOGIN
+// script.js - VERSION CORRIGÉE POUR LE VOTE
 (function() {
   'use strict';
   
@@ -150,7 +150,7 @@
     renderReviews(reviews){ if(!reviews||!reviews.length) return '<div class="no-reviews">Aucun avis disponible</div>'; return reviews.slice(0,3).map(r=>`<div class="review"><div class="review-header"><strong>${utils.escapeHtml(r.user_name||'Anonyme')}</strong><span class="review-date">${utils.formatDate(r.created_at)}</span></div><div class="review-body">${utils.escapeHtml(r.comment)}</div></div>`).join(''); },
     renderProductCard(p){
       const title=utils.escapeHtml(p.title||""),price=utils.escapeHtml(p.price||""),link=p.link||"#",rating=Number(p.user_rating||0),starsHTML=this.renderStars(rating),reviewsHTML=this.renderReviews(p.reviews||[]),isLoggedIn=!!currentUser;
-      return `<div class="product-card" data-id="${p.id}"><img src="${p.image||'https://via.placeholder.com/400x300'}" alt="${title}" loading="lazy" decoding="async" /><div class="product-info"><h3 class="product-title">${title}</h3><div class="product-price">${price}</div><div class="product-rating">${starsHTML}<span class="rating-value">(${rating.toFixed(1)})</span></div><div class="product-actions"><a class="view-btn" href="${utils.escapeHtml(link)}" target="_blank" rel="noopener">Voir le produit</a><button class="vote-btn" data-product-id="${p.id}" ${!isLoggedIn?'disabled title="Connectez-vous pour voter"':''}>Noter</button></div><div class="reviews-section"><div class="reviews-list" id="reviews-${p.id}">${reviewsHTML}</div><div class="review-form"><textarea id="review-textarea-${p.id}" rows="3" ${!isLoggedIn?'placeholder="Connectez-vous pour laisser un avis" disabled':'placeholder="Votre avis..."'}></textarea><button class="send-review-btn" data-product-id="${p.id}" ${!isLoggedIn?'disabled':''}>Envoyer l'avis</button></div></div></div></div>`; 
+      return `<div class="product-card" data-id="${p.id}"><img src="${p.image||'https://via.placeholder.com/400x300'}" alt="${title}" loading="lazy" decoding="async" /><div class="product-info"><h3 class="product-title">${title}</h3><div class="product-price">${price}</div><div class="product-rating">${starsHTML}<span class="rating-value">(${rating.toFixed(1)})</span></div><div class="product-actions"><a class="view-btn" href="${utils.escapeHtml(link)}" target="_blank" rel="noopener">Voir le produit</a><button class="vote-btn" onclick="window.promptVote(${p.id})" ${!isLoggedIn?'disabled title="Connectez-vous pour voter"':''}>Noter</button></div><div class="reviews-section"><div class="reviews-list" id="reviews-${p.id}">${reviewsHTML}</div><div class="review-form"><textarea id="review-textarea-${p.id}" rows="3" ${!isLoggedIn?'placeholder="Connectez-vous pour laisser un avis" disabled':'placeholder="Votre avis..."'}></textarea><button class="send-review-btn" onclick="window.submitReview(${p.id})" ${!isLoggedIn?'disabled':''}>Envoyer l'avis</button></div></div></div></div>`; 
     },
     renderSkeletonCards(count=6){ return Array.from({length:count}).map(()=>`<div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line medium"></div></div></div>`).join(''); },
     displayProducts(products){
@@ -159,13 +159,7 @@
       const sources={aliexpress:products.filter(p=>(p.source||"").toLowerCase().includes("aliexpress")),amazon:products.filter(p=>(p.source||"").toLowerCase().includes("amazon")),others:products.filter(p=>{const s=(p.source||"").toLowerCase();return!s.includes("aliexpress")&&!s.includes("amazon");})};
       let html='';
       Object.entries(sources).forEach(([key,prods])=>{ if(prods.length===0) return; const titles={aliexpress:'AliExpress',amazon:'Amazon',others:'Autres sources'}; html+=`<div class="source-section"><h2 class="source-title">${titles[key]}</h2><div class="product-grid">${prods.map(p=>this.renderProductCard(p)).join('')}</div></div>`; });
-      container.innerHTML=html; this.attachEventListeners();
-    },
-    attachEventListeners(){
-      document.addEventListener('click',e=>{
-        if(e.target.matches('.vote-btn')){ e.preventDefault(); const id=e.target.dataset.productId; if(id) productActions.promptVote(parseInt(id)); }
-        if(e.target.matches('.send-review-btn')){ e.preventDefault(); const id=e.target.dataset.productId; if(id) productActions.submitReview(parseInt(id)); }
-      });
+      container.innerHTML=html;
     }
   };
 
@@ -174,7 +168,22 @@
     async promptVote(id){
       if(!currentUser){ notifications.show("Veuillez vous connecter pour voter",'error'); return; }
       const stars=parseInt(prompt("Notez ce produit (1-5 étoiles) :")); if(!Number.isInteger(stars)||stars<1||stars>5){ notifications.show("Note invalide",'error'); return; }
-      try{ await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/vote`,{method:'POST',headers:auth.getAuthHeaders(),body:JSON.stringify({product_id:id,stars})}); notifications.show(`Vote enregistré : ${stars}/5 étoiles`,'success'); const q=domManager.get('searchInput')?.value?.trim(); if(q) productManager.searchProducts(q); else productManager.loadProducts(); }catch(e){ console.error('Vote error:',e); if(e.message.includes('401')){ notifications.show("Session expirée",'error'); auth.removeToken(); userManager.displayUserDisconnected(); }else{ notifications.show("Erreur lors du vote",'error'); } }
+      try{ 
+        await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/vote`,{method:'POST',headers:auth.getAuthHeaders(),body:JSON.stringify({product_id:id,stars})}); 
+        notifications.show(`Vote enregistré : ${stars}/5 étoiles`,'success'); 
+        const q=domManager.get('searchInput')?.value?.trim(); 
+        if(q) productManager.searchProducts(q); 
+        else productManager.loadProducts(); 
+      }catch(e){ 
+        console.error('Vote error:',e); 
+        if(e.message.includes('401')){ 
+          notifications.show("Session expirée",'error'); 
+          auth.removeToken(); 
+          userManager.displayUserDisconnected(); 
+        }else{ 
+          notifications.show("Erreur lors du vote",'error'); 
+        } 
+      }
     },
     async submitReview(id){
       if(!currentUser){ notifications.show("Veuillez vous connecter pour laisser un avis",'error'); return; }
@@ -191,17 +200,44 @@
   // ==================== PRODUCT MANAGER ====================
   const productManager={
     async loadProducts(){
-      const container=domManager.get('productsContainer'); if(container) container.innerHTML=productRenderer.renderSkeletonCards(6);
+      const container=domManager.get('productsContainer'); 
+      
+      // Essayer d'abord le cache localStorage
+      try {
+        const cached = localStorage.getItem('sawem_products_cache');
+        const cacheTime = localStorage.getItem('sawem_products_cache_time');
+        
+        if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < 300000) { // 5 min
+          productRenderer.displayProducts(JSON.parse(cached));
+        } else {
+          if (container) container.innerHTML = productRenderer.renderSkeletonCards(6);
+        }
+      } catch(e) {
+        if (container) container.innerHTML = productRenderer.renderSkeletonCards(6);
+      }
+
       try{
         const products = await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/products`,{method:'GET',headers:auth.getAuthHeaders()},true,'products-list');
         productRenderer.displayProducts(products);
-      }catch(e){ console.error('Load products error:',e); const container=domManager.get('productsContainer'); if(container) container.innerHTML='<div class="no-products">❌ Impossible de charger les produits.</div>'; }
+        
+        // Sauvegarder en cache
+        try {
+          localStorage.setItem('sawem_products_cache', JSON.stringify(products));
+          localStorage.setItem('sawem_products_cache_time', Date.now().toString());
+        } catch(e) {}
+        
+      }catch(e){ 
+        console.error('Load products error:',e); 
+        if (container && !container.innerHTML.includes('product-card')) {
+          container.innerHTML='<div class="no-products">❌ Impossible de charger les produits.</div>'; 
+        }
+      }
     },
     async searchProducts(query){
       if(!query){ this.loadProducts(); return; }
       const container=domManager.get('productsContainer'); if(container) container.innerHTML=productRenderer.renderSkeletonCards(4);
       try{
-        const products = await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/search?q=${encodeURIComponent(query)}`,{method:'GET',headers:auth.getAuthHeaders()},true,`search-${query}`);
+        const products = await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/search`,{method:'POST',headers:auth.getAuthHeaders(),body:JSON.stringify({query})});
         productRenderer.displayProducts(products);
       }catch(e){ console.error('Search products error:',e); const container=domManager.get('productsContainer'); if(container) container.innerHTML='<div class="no-products">❌ Recherche impossible.</div>'; }
     }
@@ -215,9 +251,22 @@
     const logoutBtn = domManager.get('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>userManager.logout());
   }
 
+  // ==================== EXPOSER LES FONCTIONS POUR LES ONCLICK ====================
+  window.promptVote = productActions.promptVote;
+  window.submitReview = productActions.submitReview;
+
+  // ==================== INIT SERVICE WORKER ====================
+  function initServiceWorkerCache() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
+    }
+  }
+
   // ==================== INIT APP ====================
   async function initApp(){
-    domManager.init(); attachGlobalEvents();
+    domManager.init(); 
+    attachGlobalEvents();
+    initServiceWorkerCache();
     setInterval(()=>clientCache.cleanup(),5*60*1000);
     await userManager.checkUser();
     productManager.loadProducts();
