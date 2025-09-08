@@ -201,7 +201,7 @@
       if(!query){ this.loadProducts(); return; }
       const container=domManager.get('productsContainer'); if(container) container.innerHTML=productRenderer.renderSkeletonCards(4);
       try{
-        const products = await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/search`,{method:'POST',headers:auth.getAuthHeaders(),body:JSON.stringify({query})});
+        const products = await apiManager.makeRequest(`${CONFIG.BACKEND_URL}/search?q=${encodeURIComponent(query)}`,{method:'GET',headers:auth.getAuthHeaders()},true,`search-${query}`);
         productRenderer.displayProducts(products);
       }catch(e){ console.error('Search products error:',e); const container=domManager.get('productsContainer'); if(container) container.innerHTML='<div class="no-products">❌ Recherche impossible.</div>'; }
     }
@@ -226,4 +226,3 @@
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',initApp); } else { initApp(); }
 
 })();
-
