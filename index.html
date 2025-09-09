@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -129,17 +130,23 @@
       }catch(e){ console.error(e); currentUser=null; removeToken(); displayUserDisconnected(); }
     }
 
-    function displayUserConnected(user){
-      elements.authStatus.style.display="none";
-      elements.googleLoginBtn.style.display="none";
-      elements.userName.textContent=user.name||"Utilisateur";
-      elements.userEmail.textContent=user.email||"";
-      elements.userAvatar.src=user.photo||`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&size=40&background=0d6efd&color=fff`;
-      elements.userAvatar.alt=user.name||"Avatar";
-      elements.userInfo.style.display="flex";
-      elements.welcomeUserName.textContent=user.name||"Utilisateur";
-      elements.welcomeMessage.style.display="block";
-    }
+    function displayUserConnected(user) {
+  elements.authStatus.style.display = "none";
+  elements.googleLoginBtn.style.display = "none";
+  elements.userName.textContent = user.name || "Utilisateur";
+  elements.userEmail.textContent = user.email || "";
+  elements.userAvatar.src = user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&size=40&background=0d6efd&color=fff`;
+  elements.userAvatar.alt = user.name || "Avatar";
+  elements.userInfo.style.display = "flex";
+  elements.welcomeUserName.textContent = user.name || "Utilisateur";
+  elements.welcomeMessage.style.display = "block";
+  
+  // Afficher le lien admin si c'est votre compte
+  const adminLink = document.getElementById('adminLink');
+  if (adminLink && user.email === 'imadbelkaceminfo@gmail.com') {
+    adminLink.style.display = 'flex';
+  }
+}
 
     function displayUserDisconnected(){
       elements.userInfo.style.display="none";
@@ -149,6 +156,12 @@
       elements.authStatus.style.display="block";
       elements.googleLoginBtn.href=`${BACKEND_URL}/auth/google`;
       elements.googleLoginBtn.style.display="flex";
+	  
+	  // Cacher le lien admin
+    const adminLink = document.getElementById('adminLink');
+    if (adminLink) {
+      adminLink.style.display = 'none';
+    }
     }
 
     async function logout(){
@@ -257,6 +270,3 @@
   </script>
 </body>
 </html>
-
-
-
