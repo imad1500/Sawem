@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration - Sawem Shop</title>
+  <meta name="description" content="Panel d'administration Sawem Shop">
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+  <header class="admin-header">
+    <div class="header-content">
+      <h1>🛒 Administration Sawem.shop</h1>
+      <div class="header-right">
+        <span id="adminInfo" class="admin-info">⏳ Vérification...</span>
+        <button id="backToSiteBtn" class="back-btn" onclick="window.location.href='/'">Retour au site</button>
+        <button id="logoutBtn" class="logout-btn">Déconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="notification" class="notification" role="alert"></div>
+
+  <div id="accessDenied" class="access-denied" style="display:none;">
+    <h2>❌ Accès refusé</h2>
+    <p>Vous devez être administrateur pour accéder à cette page.</p>
+    <button onclick="window.location.href='/'">Retour au site</button>
+  </div>
+
+  <main id="adminMain" class="admin-main" style="display:none;">
+    
+    <!-- Navigation -->
+    <nav class="admin-nav">
+      <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
+      <button class="nav-btn" data-section="products">📦 Produits</button>
+      <button class="nav-btn" data-section="users">👥 Utilisateurs</button>
+      <button class="nav-btn" data-section="reviews">💬 Avis</button>
+      <button class="nav-btn" data-section="settings">⚙️ Paramètres</button>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="admin-section active">
+      <h2>📊 Tableau de bord</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Produits actifs</h3>
+          <div id="activeProducts" class="stat-number">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Utilisateurs</h3>
+          <div id="totalUsers" class="stat-number">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Notes données</h3>
+          <div id="totalRatings" class="stat-number">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Avis publiés</h3>
+          <div id="totalReviews" class="stat-number">-</div>
+        </div>
+      </div>
+
+      <div class="recent-activity">
+        <h3>Activité récente</h3>
+        <div id="recentActivity" class="activity-list">⏳ Chargement...</div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="admin-section">
+      <div class="section-header">
+        <h2>📦 Gestion des produits</h2>
+        <button id="addProductBtn" class="btn-primary">➕ Ajouter un produit</button>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="productSearch" placeholder="Rechercher un produit...">
+        <select id="statusFilter">
+          <option value="">Tous les statuts</option>
+          <option value="active">Actif</option>
+          <option value="inactive">Inactif</option>
+        </select>
+        <select id="sourceFilter">
+          <option value="">Toutes les sources</option>
+          <option value="aliexpress">AliExpress</option>
+          <option value="amazon">Amazon</option>
+          <option value="other">Autre</option>
+        </select>
+      </div>
+
+      <div class="products-table-container">
+        <table id="productsTable" class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Titre</th>
+              <th>Prix</th>
+              <th>Source</th>
+              <th>Note</th>
+              <th>Statut</th>
+              <th>Créé le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="9">⏳ Chargement des produits...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button id="prevPage" disabled>← Précédent</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextPage">Suivant →</button>
+      </div>
+    </section>
+
+    <!-- Users Section -->
+    <section id="users" class="admin-section">
+      <h2>👥 Gestion des utilisateurs</h2>
+      
+      <div class="filters">
+        <input type="text" id="userSearch" placeholder="Rechercher un utilisateur...">
+        <select id="roleFilter">
+          <option value="">Tous les rôles</option>
+          <option value="admin">Administrateur</option>
+          <option value="user">Utilisateur</option>
+        </select>
+      </div>
+
+      <div class="users-table-container">
+        <table id="usersTable" class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Photo</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+              <th>Inscrit le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7">⏳ Chargement des utilisateurs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="admin-section">
+      <h2>💬 Gestion des avis</h2>
+      
+      <div class="filters">
+        <input type="text" id="reviewSearch" placeholder="Rechercher dans les avis...">
+        <select id="reviewProductFilter">
+          <option value="">Tous les produits</option>
+        </select>
+      </div>
+
+      <div id="reviewsList" class="reviews-list">⏳ Chargement des avis...</div>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings" class="admin-section">
+      <h2>⚙️ Paramètres du site</h2>
+      
+      <div class="settings-grid">
+        <div class="setting-card">
+          <h3>🗄️ Base de données</h3>
+          <button id="backupBtn" class="btn-secondary">Créer une sauvegarde</button>
+          <div id="backupStatus"></div>
+        </div>
+
+        <div class="setting-card">
+          <h3>🧹 Maintenance</h3>
+          <button id="cacheBtn" class="btn-secondary">Vider le cache</button>
+          <button id="reindexBtn" class="btn-secondary">Réindexer les embeddings</button>
+        </div>
+
+        <div class="setting-card">
+          <h3>📊 Statistiques</h3>
+          <button id="exportStatsBtn" class="btn-secondary">Exporter les stats</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal pour ajouter/modifier un produit -->
+  <div id="productModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Ajouter un produit</h3>
+        <button id="closeModal" class="close-btn">×</button>
+      </div>
+      
+      <form id="productForm" class="product-form">
+        <input type="hidden" id="productId">
+        
+        <div class="form-group">
+          <label for="productTitle">Titre *</label>
+          <input type="text" id="productTitle" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productPrice">Prix *</label>
+            <input type="text" id="productPrice" required placeholder="ex: 29.99€">
+          </div>
+          
+          <div class="form-group">
+            <label for="productSource">Source *</label>
+            <select id="productSource" required>
+              <option value="">Choisir une source</option>
+              <option value="aliexpress">AliExpress</option>
+              <option value="amazon">Amazon</option>
+              <option value="other">Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="productLink">Lien d'affiliation *</label>
+          <input type="url" id="productLink" required>
+        </div>
+
+        <div class="form-group">
+          <label for="productImage">URL de l'image *</label>
+          <input type="url" id="productImage" required>
+          <div id="imagePreview" class="image-preview"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="productStatus">Statut</label>
+          <select id="productStatus">
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelBtn" class="btn-secondary">Annuler</button>
+          <button type="submit" class="btn-primary">
+            <span id="submitText">Ajouter</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = "https://sawem-backend.onrender.com";
+    let currentUser = null;
+    let authToken = null;
+    let currentPage = 1;
+    const itemsPerPage = 20;
+
+    // ==================== Utilities ====================
+    const utils = {
+      escapeHtml: (s) => String(s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])),
+      formatDate: (dateStr) => new Date(dateStr).toLocaleDateString('fr-FR', {
+        day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
+      }),
+      debounce: (func, wait) => {
+        let timeout;
+        return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func(...args), wait);
+        };
+      }
+    };
+
+    // ==================== Auth ====================
+    function getToken() { return authToken || localStorage.getItem('sawem_auth_token'); }
+    function getAuthHeaders() { 
+      const token = getToken(); 
+      return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'}; 
+    }
+
+    // ==================== Notifications ====================
+    function showNotification(message, type = 'success') {
+      const n = document.getElementById('notification');
+      n.textContent = message;
+      n.className = `notification ${type} show`;
+      setTimeout(() => n.classList.remove('show'), 3000);
+    }
+
+    // ==================== Auth Check ====================
+    async function checkAdminAccess() {
+      try {
+        const token = getToken();
+        if (!token) throw new Error("No token");
+        
+        const res = await fetch(`${BACKEND_URL}/verify-token`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({token})
+        });
+        
+        if (!res.ok) throw new Error("Invalid token");
+        
+        const data = await res.json();
+        if (data.success && data.user) {
+          currentUser = data.user;
+          authToken = token;
+          
+          if (data.user.role !== 'admin') {
+            throw new Error("Not admin");
+          }
+          
+          document.getElementById('adminInfo').textContent = `👨‍💼 ${data.user.name}`;
+          document.getElementById('adminMain').style.display = 'block';
+          loadDashboard();
+        } else {
+          throw new Error("Invalid response");
+        }
+      } catch (error) {
+        console.error('Admin access denied:', error);
+        document.getElementById('accessDenied').style.display = 'block';
+      }
+    }
+
+    // ==================== Navigation ====================
+    function initNavigation() {
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const sections = document.querySelectorAll('.admin-section');
+      
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.section;
+          
+          // Update nav
+          navBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          // Update sections
+          sections.forEach(s => s.classList.remove('active'));
+          document.getElementById(target).classList.add('active');
+          
+          // Load section data
+          switch(target) {
+            case 'dashboard': loadDashboard(); break;
+            case 'products': loadProducts(); break;
+            case 'users': loadUsers(); break;
+            case 'reviews': loadReviews(); break;
+          }
+        });
+      });
+    }
+
+    // ==================== Dashboard ====================
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/stats`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('Failed to load stats');
+        
+        const stats = await res.json();
+        document.getElementById('activeProducts').textContent = stats.active_products || 0;
+        document.getElementById('totalUsers').textContent = stats.total_users || 0;
+        document.getElementById('totalRatings').textContent = stats.total_ratings || 0;
+        document.getElementById('totalReviews').textContent = stats.total_reviews || 0;
+        
+        loadRecentActivity();
+      } catch (error) {
+        console.error('Dashboard error:', error);
+        showNotification('Erreur de chargement du dashboard', 'error');
+      }
+    }
+
+    async function loadRecentActivity() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/recent-activity`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('Failed to load activity');
+        
+        const activities = await res.json();
+        const container = document.getElementById('recentActivity');
+        
+        if (activities.length === 0) {
+          container.innerHTML = '<p>Aucune activité récente</p>';
+          return;
+        }
+        
+        container.innerHTML = activities.map(activity => `
+          <div class="activity-item">
+            <span class="activity-icon">${getActivityIcon(activity.type)}</span>
+            <span class="activity-text">${activity.description}</span>
+            <span class="activity-time">${utils.formatDate(activity.created_at)}</span>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        document.getElementById('recentActivity').innerHTML = '<p>Erreur de chargement</p>';
+      }
+    }
+
+    function getActivityIcon(type) {
+      const icons = {
+        user_registered: '👤',
+        product_added: '📦',
+        review_posted: '💬',
+        vote_cast: '⭐'
+      };
+      return icons[type] || '📝';
+    }
+
+    // ==================== Products Management ====================
+    async function loadProducts() {
+      try {
+        const searchTerm = document.getElementById('productSearch').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const sourceFilter = document.getElementById('sourceFilter').value;
+        
+        const params = new URLSearchParams({
+          page: currentPage,
+          limit: itemsPerPage,
+          ...(searchTerm && { search: searchTerm }),
+          ...(statusFilter && { status: statusFilter }),
+          ...(sourceFilter && { source: sourceFilter })
+        });
+        
+        const res = await fetch(`${BACKEND_URL}/admin/products?${params}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('Failed to load products');
+        
+        const data = await res.json();
+        displayProducts(data.products);
+        updatePagination(data.total, data.page, data.totalPages);
+        
+      } catch (error) {
+        console.error('Products error:', error);
+        document.querySelector('#productsTable tbody').innerHTML = 
+          '<tr><td colspan="9">❌ Erreur de chargement</td></tr>';
+      }
+    }
+
+    function displayProducts(products) {
+      const tbody = document.querySelector('#productsTable tbody');
+      
+      if (!products || products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9">Aucun produit trouvé</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = products.map(product => `
+        <tr>
+          <td>${product.id}</td>
+          <td><img src="${product.image || ''}" alt="" class="product-thumb" /></td>
+          <td class="product-title">${utils.escapeHtml(product.title || '')}</td>
+          <td>${utils.escapeHtml(product.price || '')}</td>
+          <td><span class="source-badge source-${(product.source || '').toLowerCase()}">${product.source || 'N/A'}</span></td>
+          <td>${product.user_rating || 0}/5 ⭐</td>
+          <td><span class="status-badge status-${product.status || 'active'}">${product.status || 'active'}</span></td>
+          <td>${product.created_at ? utils.formatDate(product.created_at) : 'N/A'}</td>
+          <td class="actions">
+            <button onclick="editProduct(${product.id})" class="btn-edit">✏️</button>
+            <button onclick="deleteProduct(${product.id})" class="btn-delete">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updatePagination(total, page, totalPages) {
+      document.getElementById('pageInfo').textContent = `Page ${page} sur ${totalPages}`;
+      document.getElementById('prevPage').disabled = page <= 1;
+      document.getElementById('nextPage').disabled = page >= totalPages;
+    }
+
+    // ==================== Product Modal ====================
+    function initProductModal() {
+      const modal = document.getElementById('productModal');
+      const form = document.getElementById('productForm');
+      const imageInput = document.getElementById('productImage');
+      const preview = document.getElementById('imagePreview');
+      
+      // Add product button
+      document.getElementById('addProductBtn').addEventListener('click', () => {
+        openProductModal();
+      });
+      
+      // Close modal
+      document.getElementById('closeModal').addEventListener('click', closeProductModal);
+      document.getElementById('cancelBtn').addEventListener('click', closeProductModal);
+      
+      // Image preview
+      imageInput.addEventListener('input', () => {
+        const url = imageInput.value;
+        if (url) {
+          preview.innerHTML = `<img src="${url}" alt="Preview" style="max-width: 200px; max-height: 150px;" />`;
+        } else {
+          preview.innerHTML = '';
+        }
+      });
+      
+      // Form submission
+      form.addEventListener('submit', handleProductSubmit);
+    }
+
+    function openProductModal(productId = null) {
+      const modal = document.getElementById('productModal');
+      const title = document.getElementById('modalTitle');
+      const submitText = document.getElementById('submitText');
+      
+      if (productId) {
+        title.textContent = 'Modifier le produit';
+        submitText.textContent = 'Modifier';
+        loadProductForEdit(productId);
+      } else {
+        title.textContent = 'Ajouter un produit';
+        submitText.textContent = 'Ajouter';
+        document.getElementById('productForm').reset();
+        document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('productId').value = '';
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').style.display = 'none';
+    }
+
+    async function loadProductForEdit(productId) {
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/products/${productId}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('Product not found');
+        
+        const product = await res.json();
+        
+        document.getElementById('productId').value = product.id;
+        document.getElementById('productTitle').value = product.title || '';
+        document.getElementById('productPrice').value = product.price || '';
+        document.getElementById('productSource').value = product.source || '';
+        document.getElementById('productLink').value = product.link || '';
+        document.getElementById('productImage').value = product.image || '';
+        document.getElementById('productStatus').value = product.status || 'active';
+        
+        if (product.image) {
+          document.getElementById('imagePreview').innerHTML = 
+            `<img src="${product.image}" alt="Preview" style="max-width: 200px; max-height: 150px;" />`;
+        }
+        
+      } catch (error) {
+        console.error('Load product error:', error);
+        showNotification('Erreur de chargement du produit', 'error');
+      }
+    }
+
+    async function handleProductSubmit(e) {
+      e.preventDefault();
+      
+      const productId = document.getElementById('productId').value;
+      const isEdit = !!productId;
+      
+      const productData = {
+        title: document.getElementById('productTitle').value,
+        price: document.getElementById('productPrice').value,
+        source: document.getElementById('productSource').value,
+        link: document.getElementById('productLink').value,
+        image: document.getElementById('productImage').value,
+        status: document.getElementById('productStatus').value
+      };
+      
+      try {
+        const url = isEdit ? `${BACKEND_URL}/admin/products/${productId}` : `${BACKEND_URL}/admin/products`;
+        const method = isEdit ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: getAuthHeaders(),
+          body: JSON.stringify(productData)
+        });
+        
+        if (!res.ok) throw new Error('Failed to save product');
+        
+        showNotification(isEdit ? 'Produit modifié avec succès' : 'Produit ajouté avec succès', 'success');
+        closeProductModal();
+        loadProducts();
+        
+      } catch (error) {
+        console.error('Save product error:', error);
+        showNotification('Erreur lors de la sauvegarde', 'error');
+      }
+    }
+
+    // Global functions for inline onclick
+    window.editProduct = (id) => openProductModal(id);
+    window.deleteProduct = async (id) => {
+      if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/products/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Failed to delete');
+        
+        showNotification('Produit supprimé avec succès', 'success');
+        loadProducts();
+        
+      } catch (error) {
+        console.error('Delete error:', error);
+        showNotification('Erreur lors de la suppression', 'error');
+      }
+    };
+
+    // ==================== Users Management ====================
+    async function loadUsers() {
+      try {
+        const searchTerm = document.getElementById('userSearch').value;
+        const roleFilter = document.getElementById('roleFilter').value;
+        
+        const params = new URLSearchParams({
+          ...(searchTerm && { search: searchTerm }),
+          ...(roleFilter && { role: roleFilter })
+        });
+        
+        const res = await fetch(`${BACKEND_URL}/admin/users?${params}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('Failed to load users');
+        
+        const users = await res.json();
+        displayUsers(users);
+        
+      } catch (error) {
+        console.error('Users error:', error);
+        document.querySelector('#usersTable tbody').innerHTML = 
+          '<tr><td colspan="7">❌ Erreur de chargement</td></tr>';
+      }
+    }
+
+    function displayUsers(users) {
+      const tbody = document.querySelector('#usersTable tbody');
+      
+      if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">Aucun utilisateur trouvé</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = users.map(user => `
+        <tr>
+          <td>${user.id}</td>
+          <td><img src="${user.photo || ''}" alt="" class="user-thumb" /></td>
+          <td>${utils.escapeHtml(user.name || '')}</td>
+          <td>${utils.escapeHtml(user.email || '')}</td>
+          <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+          <td>${user.created_at ? utils.formatDate(user.created_at) : 'N/A'}</td>
+          <td class="actions">
+            <button onclick="toggleUserRole(${user.id}, '${user.role}')" class="btn-edit">
+              ${user.role === 'admin' ? '👤' : '👑'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    window.toggleUserRole = async (userId, currentRole) => {
+      const newRole = currentRole === 'admin' ? 'user' : 'admin';
+      const action = newRole === 'admin' ? 'promouvoir' : 'rétrograder';
+      
+      if (!confirm(`Êtes-vous sûr de vouloir ${action} cet utilisateur ?`)) return;
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/users/${userId}/role`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ role: newRole })
+        });
+        
+        if (!res.ok) throw new Error('Failed to update role');
+        
+        showNotification('Rôle mis à jour avec succès', 'success');
+        loadUsers();
+        
+      } catch (error) {
+        console.error('Update role error:', error);
+        showNotification('Erreur lors de la mise à jour', 'error');
+      }
+    };
+
+    // ==================== Reviews Management ====================
+    async function loadReviews() {
+      try {
+        const searchTerm = document.getElementById('reviewSearch').value;
+        const productFilter = document.getElementById('reviewProductFilter').value;
+        
+        const params = new URLSearchParams({
+          ...(searchTerm && { search: searchTerm }),
+          ...(productFilter && { product_id: productFilter })
+        });
+        
+        const res = await fetch(`${BACKEND_URL}/admin/reviews?${params}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('Failed to load reviews');
+        
+        const reviews = await res.json();
+        displayReviews(reviews);
+        
+      } catch (error) {
+        console.error('Reviews error:', error);
+        document.getElementById('reviewsList').innerHTML = '❌ Erreur de chargement';
+      }
+    }
+
+    function displayReviews(reviews) {
+      const container = document.getElementById('reviewsList');
+      
+      if (!reviews || reviews.length === 0) {
+        container.innerHTML = '<p>Aucun avis trouvé</p>';
+        return;
+      }
+      
+      container.innerHTML = reviews.map(review => `
+        <div class="review-card">
+          <div class="review-header">
+            <strong>${utils.escapeHtml(review.user_name || 'Anonyme')}</strong>
+            <span class="review-product">${utils.escapeHtml(review.product_title || `Produit #${review.product_id}`)}</span>
+            <span class="review-date">${utils.formatDate(review.created_at)}</span>
+          </div>
+          <div class="review-content">${utils.escapeHtml(review.comment)}</div>
+          <div class="review-actions">
+            <button onclick="deleteReview(${review.id})" class="btn-delete">🗑️ Supprimer</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.deleteReview = async (reviewId) => {
+      if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/reviews/${reviewId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Failed to delete review');
+        
+        showNotification('Avis supprimé avec succès', 'success');
+        loadReviews();
+        
+      } catch (error) {
+        console.error('Delete review error:', error);
+        showNotification('Erreur lors de la suppression', 'error');
+      }
+    };
+
+    // ==================== Settings & Maintenance ====================
+    function initSettings() {
+      document.getElementById('backupBtn').addEventListener('click', createBackup);
+      document.getElementById('cacheBtn').addEventListener('click', clearCache);
+      document.getElementById('reindexBtn').addEventListener('click', reindexEmbeddings);
+      document.getElementById('exportStatsBtn').addEventListener('click', exportStats);
+    }
+
+    async function createBackup() {
+      try {
+        document.getElementById('backupStatus').innerHTML = '⏳ Création de la sauvegarde...';
+        
+        const res = await fetch(`${BACKEND_URL}/admin/backup`, {
+          method: 'POST',
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Backup failed');
+        
+        const result = await res.json();
+        document.getElementById('backupStatus').innerHTML = `✅ Sauvegarde créée: ${result.filename}`;
+        showNotification('Sauvegarde créée avec succès', 'success');
+        
+      } catch (error) {
+        console.error('Backup error:', error);
+        document.getElementById('backupStatus').innerHTML = '❌ Erreur lors de la sauvegarde';
+        showNotification('Erreur lors de la sauvegarde', 'error');
+      }
+    }
+
+    async function clearCache() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/clear-cache`, {
+          method: 'POST',
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Cache clear failed');
+        
+        showNotification('Cache vidé avec succès', 'success');
+        
+      } catch (error) {
+        console.error('Clear cache error:', error);
+        showNotification('Erreur lors du vidage du cache', 'error');
+      }
+    }
+
+    async function reindexEmbeddings() {
+      if (!confirm('Cette opération peut prendre du temps. Continuer ?')) return;
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/reindex-embeddings`, {
+          method: 'POST',
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Reindex failed');
+        
+        showNotification('Réindexation lancée en arrière-plan', 'success');
+        
+      } catch (error) {
+        console.error('Reindex error:', error);
+        showNotification('Erreur lors de la réindexation', 'error');
+      }
+    }
+
+    async function exportStats() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/export-stats`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Export failed');
+        
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sawem-stats-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Statistiques exportées', 'success');
+        
+      } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Erreur lors de l\'export', 'error');
+      }
+    }
+
+    // ==================== Search & Filters ====================
+    function initFilters() {
+      const productSearch = document.getElementById('productSearch');
+      const userSearch = document.getElementById('userSearch');
+      const reviewSearch = document.getElementById('reviewSearch');
+      
+      if (productSearch) {
+        productSearch.addEventListener('input', utils.debounce(() => {
+          currentPage = 1;
+          loadProducts();
+        }, 300));
+      }
+      
+      if (userSearch) {
+        userSearch.addEventListener('input', utils.debounce(loadUsers, 300));
+      }
+      
+      if (reviewSearch) {
+        reviewSearch.addEventListener('input', utils.debounce(loadReviews, 300));
+      }
+      
+      // Status and source filters
+      const filters = ['statusFilter', 'sourceFilter', 'roleFilter', 'reviewProductFilter'];
+      filters.forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element) {
+          element.addEventListener('change', () => {
+            if (filterId.startsWith('status') || filterId.startsWith('source')) {
+              currentPage = 1;
+              loadProducts();
+            } else if (filterId.startsWith('role')) {
+              loadUsers();
+            } else if (filterId.startsWith('reviewProduct')) {
+              loadReviews();
+            }
+          });
+        }
+      });
+    }
+
+    // ==================== Pagination ====================
+    function initPagination() {
+      document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          loadProducts();
+        }
+      });
+      
+      document.getElementById('nextPage').addEventListener('click', () => {
+        currentPage++;
+        loadProducts();
+      });
+    }
+
+    // ==================== Logout ====================
+    function logout() {
+      localStorage.removeItem('sawem_auth_token');
+      authToken = null;
+      currentUser = null;
+      window.location.href = '/';
+    }
+
+    // ==================== Init App ====================
+    function initApp() {
+      initNavigation();
+      initProductModal();
+      initFilters();
+      initPagination();
+      initSettings();
+      
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      
+      // Check admin access
+      checkAdminAccess();
+    }
+
+    // Start app when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
