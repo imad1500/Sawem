@@ -5,18 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sawem Shop</title>
   <meta name="description" content="Sawem Shop - Produits tech et électroniques">
-  <!-- Balise de vérification Admitad -->
   <meta name="verify-admitad" content="5ae23ad5f3" />
 
-  <!-- Preconnect aux services externes -->
+  <!-- Preconnect -->
   <link rel="preconnect" href="https://sawem-backend.onrender.com">
   <link rel="preconnect" href="https://api.jina.ai">
   <link rel="dns-prefetch" href="//ui-avatars.com">
 
-  <!-- CSS principal -->
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- ==================== HEADER ==================== -->
   <header>
     <div class="container">
       <h1>Sawem.shop 🛒</h1>
@@ -36,13 +37,16 @@
     </div>
   </header>
 
+  <!-- ==================== NOTIFICATION ==================== -->
   <div id="notification" class="notification" role="alert" aria-live="polite"></div>
 
+  <!-- ==================== MAIN ==================== -->
   <main class="container">
-    <!-- Section de recherche et filtres -->
+
+    <!-- ===== RECHERCHE & FILTRES ===== -->
     <section class="search-section">
       <h2 class="section-title">Recherche & Filtres</h2>
-      
+
       <!-- Barre de recherche principale -->
       <div class="search-container">
         <div class="search-input-group">
@@ -117,13 +121,13 @@
       </div>
     </section>
 
-    <!-- Message de bienvenue -->
+    <!-- ===== MESSAGE DE BIENVENUE ===== -->
     <div id="welcomeMessage" class="welcome-message" style="display:none;">
       <h3>Bienvenue <span id="welcomeUserName"></span> ! 👋</h3>
       <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
 
-    <!-- Résultats et statistiques -->
+    <!-- ===== STATISTIQUES ===== -->
     <div id="searchStats" class="search-stats" style="display:none;">
       <div class="stats-content">
         <span id="resultsCount">0 résultats</span>
@@ -132,7 +136,7 @@
       </div>
     </div>
 
-    <!-- Conteneur des produits -->
+    <!-- ===== PRODUITS ===== -->
     <div id="productsContainer" class="products-container">
       <div class="loading-skeleton">
         <div class="skeleton-card"></div>
@@ -144,19 +148,26 @@
       </div>
     </div>
 
-    <!-- Pagination -->
+    <!-- ===== PAGINATION ===== -->
     <div id="pagination" class="pagination" style="display:none;">
       <button id="prevPageBtn" class="page-btn">← Précédent</button>
       <span id="pageInfo" class="page-info">Page 1</span>
       <button id="nextPageBtn" class="page-btn">Suivant →</button>
     </div>
+
   </main>
 
+  <!-- ==================== FOOTER ==================== -->
   <footer>
     <div class="container">
       <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
     </div>
   </footer>
+
+ 
+
+
+
 
   <script>
     const BACKEND_URL = "https://sawem-backend.onrender.com";
@@ -658,3 +669,4 @@
   </script>
 </body>
 </html>
+
