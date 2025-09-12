@@ -20,23 +20,26 @@
 
   <!-- ==================== HEADER ==================== -->
   <header>
-    <div class="container">
-      <h1>Sawem.shop 🛒</h1>
-      <div class="header-right">
-        <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
-        <div id="userInfo" class="user-info" style="display:none;">
-          <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
-          <div class="user-details">
-            <div id="userName" class="user-name"></div>
-            <div id="userEmail" class="user-email"></div>
-          </div>
-          <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
-        </div>
-        <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
-        <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
-      </div>
+  <div class="container header-container">
+    <div class="header-left">
+      <h1>Sawem.shop</h1>
+      <span class="cart">🛒</span>
     </div>
-  </header>
+    <div class="header-right">
+      <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
+      <div id="userInfo" class="user-info" style="display:none;">
+        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
+        <div class="user-details">
+          <div id="userName" class="user-name"></div>
+          <div id="userEmail" class="user-email"></div>
+        </div>
+        <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
+      </div>
+      <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
+      <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
+    </div>
+  </div>
+</header>
 
   <!-- ==================== NOTIFICATION ==================== -->
   <div id="notification" class="notification" role="alert" aria-live="polite"></div>
@@ -670,5 +673,6 @@
   </script>
 </body>
 </html>
+
 
 
