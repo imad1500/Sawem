@@ -23,6 +23,8 @@ body {
 .header-container {
   display: flex;
   justify-content: space-between;
+  background-color: #0d6efd;
+  color: white;
   align-items: center;
   width: 100%;
 }
@@ -729,4 +731,5 @@ button:disabled:hover {
 .product-grid { contain: layout style paint; }
 .product-card { will-change: transform; contain: layout style paint; }
 .product-card img { content-visibility: auto; contain-intrinsic-size: 250px 200px; }
+
 
