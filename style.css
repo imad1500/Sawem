@@ -20,32 +20,33 @@ body {
 }
 
 /* ==================== Header / Navigation ==================== */
-header {
+.header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #0d6efd;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  width: 100%;
 }
 
-header h1 {
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* espace entre le texte et le chariot */
+}
+
+.header-left h1 {
   font-size: 1.5rem;
+  margin: 0;
+}
+
+.header-left .cart {
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-/* Chariot à droite */
-.header-right .cart {
-  font-size: 1.5rem;
-  cursor: pointer;
 }
 
 .section-title {
@@ -728,3 +729,4 @@ button:disabled:hover {
 .product-grid { contain: layout style paint; }
 .product-card { will-change: transform; contain: layout style paint; }
 .product-card img { content-visibility: auto; contain-intrinsic-size: 250px 200px; }
+
