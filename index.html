@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -19,60 +18,169 @@
 </head>
 <body>
   <header>
-    <h1>Sawem.shop 🛒</h1>
-    <div class="header-right">
-      <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
-      <div id="userInfo" class="user-info" style="display:none;">
-        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
-        <div class="user-details">
-          <div id="userName" class="user-name"></div>
-          <div id="userEmail" class="user-email"></div>
+    <div class="container">
+      <h1>Sawem.shop 🛒</h1>
+      <div class="header-right">
+        <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
+        <div id="userInfo" class="user-info" style="display:none;">
+          <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
+          <div class="user-details">
+            <div id="userName" class="user-name"></div>
+            <div id="userEmail" class="user-email"></div>
+          </div>
+          <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
         </div>
-        <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
+        <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
+        <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
       </div>
-      <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
-      <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
     </div>
   </header>
 
   <div id="notification" class="notification" role="alert" aria-live="polite"></div>
 
-  <main>
-    <h2 class="section-title">Produits Tech & Électroniques</h2>
+  <main class="container">
+    <!-- Section de recherche et filtres -->
+    <section class="search-section">
+      <h2 class="section-title">Recherche & Filtres</h2>
+      
+      <!-- Barre de recherche principale -->
+      <div class="search-container">
+        <div class="search-input-group">
+          <input type="text" id="searchInput" placeholder="Rechercher un produit..." autocomplete="off" />
+          <div class="search-buttons">
+            <button id="textSearchBtn" type="button" class="search-btn text-search">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Recherche Textuelle</span>
+            </button>
+            <button id="aiSearchBtn" type="button" class="search-btn ai-search">
+              <span class="search-icon">🤖</span>
+              <span class="search-text">Recherche IA</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Rechercher un produit..." autocomplete="off" />
-      <button id="searchBtn" type="button">
-        <span class="ai-icon">🤖</span>
-        <span class="search-text">Recherche IA</span>
-      </button>
-    </div>
+      <!-- Catégories rapides -->
+      <div class="quick-categories">
+        <h3>Catégories populaires :</h3>
+        <div class="category-buttons">
+          <button class="category-btn" data-search="smartphone">📱 Smartphones</button>
+          <button class="category-btn" data-search="laptop">💻 Laptops</button>
+          <button class="category-btn" data-search="headphones">🎧 Casques Audio</button>
+          <button class="category-btn" data-search="smartwatch">⌚ Montres Connectées</button>
+          <button class="category-btn" data-search="tablet">📱 Tablettes</button>
+          <button class="category-btn" data-search="camera">📸 Appareils Photo</button>
+          <button class="category-btn" data-search="gaming">🎮 Gaming</button>
+          <button class="category-btn" data-search="drone">🚁 Drones</button>
+          <button class="category-btn" data-search="speaker">🔊 Enceintes</button>
+          <button class="category-btn" data-search="keyboard">⌨️ Claviers</button>
+          <button class="category-btn" data-search="mouse">🖱️ Souris</button>
+          <button class="category-btn" data-search="monitor">🖥️ Écrans</button>
+        </div>
+      </div>
 
+      <!-- Filtres avancés -->
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="sourceFilter">Source :</label>
+          <select id="sourceFilter" class="filter-select">
+            <option value="">Toutes les sources</option>
+            <option value="aliexpress">AliExpress</option>
+            <option value="amazon">Amazon</option>
+            <option value="other">Autres</option>
+          </select>
+        </div>
+
+        <div class="filter-group price-filter-group">
+          <label for="priceRange">Gamme de prix :</label>
+          <div class="price-range-container">
+            <input type="range" id="priceMinRange" class="price-slider" min="0" max="1000" value="0" step="10">
+            <input type="range" id="priceMaxRange" class="price-slider" min="0" max="1000" value="1000" step="10">
+            <div class="price-display">
+              <span id="priceMinDisplay">0€</span> - <span id="priceMaxDisplay">1000€+</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="sortBy">Trier par :</label>
+          <select id="sortBy" class="filter-select">
+            <option value="relevance">Pertinence</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="price_desc">Prix décroissant</option>
+            <option value="rating_desc">Meilleures notes</option>
+            <option value="newest">Plus récents</option>
+          </select>
+        </div>
+
+        <button id="clearFiltersBtn" class="clear-filters-btn">🗑️ Réinitialiser les filtres</button>
+      </div>
+    </section>
+
+    <!-- Message de bienvenue -->
     <div id="welcomeMessage" class="welcome-message" style="display:none;">
       <h3>Bienvenue <span id="welcomeUserName"></span> ! 👋</h3>
       <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
 
-    <div id="productsContainer">
-      <div class="product-grid">
-        <div class="product-card skeleton" style="height:400px;"></div>
-        <div class="product-card skeleton" style="height:400px;"></div>
-        <div class="product-card skeleton" style="height:400px;"></div>
+    <!-- Résultats et statistiques -->
+    <div id="searchStats" class="search-stats" style="display:none;">
+      <div class="stats-content">
+        <span id="resultsCount">0 résultats</span>
+        <span id="searchQuery"></span>
+        <span id="searchMethod"></span>
       </div>
+    </div>
+
+    <!-- Conteneur des produits -->
+    <div id="productsContainer" class="products-container">
+      <div class="loading-skeleton">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination" style="display:none;">
+      <button id="prevPageBtn" class="page-btn">← Précédent</button>
+      <span id="pageInfo" class="page-info">Page 1</span>
+      <button id="nextPageBtn" class="page-btn">Suivant →</button>
     </div>
   </main>
 
   <footer>
-    <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
-</footer>
+    <div class="container">
+      <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
+    </div>
+  </footer>
 
   <script>
     const BACKEND_URL = "https://sawem-backend.onrender.com";
 
     const elements = {
       searchInput: document.getElementById("searchInput"),
-      searchBtn: document.getElementById("searchBtn"),
+      textSearchBtn: document.getElementById("textSearchBtn"),
+      aiSearchBtn: document.getElementById("aiSearchBtn"),
+      sourceFilter: document.getElementById("sourceFilter"),
+      priceMinRange: document.getElementById("priceMinRange"),
+      priceMaxRange: document.getElementById("priceMaxRange"),
+      priceMinDisplay: document.getElementById("priceMinDisplay"),
+      priceMaxDisplay: document.getElementById("priceMaxDisplay"),
+      sortBy: document.getElementById("sortBy"),
+      clearFiltersBtn: document.getElementById("clearFiltersBtn"),
       productsContainer: document.getElementById("productsContainer"),
+      searchStats: document.getElementById("searchStats"),
+      resultsCount: document.getElementById("resultsCount"),
+      searchQuery: document.getElementById("searchQuery"),
+      searchMethod: document.getElementById("searchMethod"),
+      pagination: document.getElementById("pagination"),
+      prevPageBtn: document.getElementById("prevPageBtn"),
+      nextPageBtn: document.getElementById("nextPageBtn"),
+      pageInfo: document.getElementById("pageInfo"),
       googleLoginBtn: document.getElementById("googleLoginBtn"),
       logoutBtn: document.getElementById("logoutBtn"),
       authStatus: document.getElementById("authStatus"),
@@ -87,6 +195,12 @@
 
     let currentUser = null;
     let authToken = null;
+    let currentProducts = [];
+    let filteredProducts = [];
+    let currentPage = 1;
+    const itemsPerPage = 12;
+    let lastSearchQuery = '';
+    let isAISearch = false;
 
     // ==================== Utilitaires ====================
     const utils = {
@@ -100,7 +214,15 @@
       },
       formatDate: (dateStr) => new Date(dateStr).toLocaleDateString('fr-FR', {
         day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
-      })
+      }),
+      extractPrice: (priceStr) => {
+        if (!priceStr) return 0;
+        const numbers = priceStr.match(/[\d,\.]+/);
+        return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
+      },
+      formatPrice: (price) => {
+        return price > 999 ? '1000€+' : price + '€';
+      }
     };
 
     // ==================== Auth Management ====================
@@ -117,7 +239,7 @@
       setTimeout(()=>{ n.classList.remove('show'); },3000);
     }
 
-    // ==================== User ====================
+    // ==================== User Management ====================
     async function checkUser(){
       try{
         elements.authStatus.textContent="⏳ Vérification...";
@@ -133,22 +255,22 @@
     }
 
     function displayUserConnected(user) {
-  elements.authStatus.style.display = "none";
-  elements.googleLoginBtn.style.display = "none";
-  elements.userName.textContent = user.name || "Utilisateur";
-  elements.userEmail.textContent = user.email || "";
-  elements.userAvatar.src = user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&size=40&background=0d6efd&color=fff`;
-  elements.userAvatar.alt = user.name || "Avatar";
-  elements.userInfo.style.display = "flex";
-  elements.welcomeUserName.textContent = user.name || "Utilisateur";
-  elements.welcomeMessage.style.display = "block";
-  
-  // Afficher le lien admin si c'est votre compte
-  const adminLink = document.getElementById('adminLink');
-  if (adminLink && user.email === 'imadbelkaceminfo@gmail.com') {
-    adminLink.style.display = 'flex';
-  }
-}
+      elements.authStatus.style.display = "none";
+      elements.googleLoginBtn.style.display = "none";
+      elements.userName.textContent = user.name || "Utilisateur";
+      elements.userEmail.textContent = user.email || "";
+      elements.userAvatar.src = user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&size=40&background=0d6efd&color=fff`;
+      elements.userAvatar.alt = user.name || "Avatar";
+      elements.userInfo.style.display = "flex";
+      elements.welcomeUserName.textContent = user.name || "Utilisateur";
+      elements.welcomeMessage.style.display = "block";
+      
+      // Afficher le lien admin si c'est votre compte
+      const adminLink = document.getElementById('adminLink');
+      if (adminLink && user.email === 'imadbelkaceminfo@gmail.com') {
+        adminLink.style.display = 'flex';
+      }
+    }
 
     function displayUserDisconnected(){
       elements.userInfo.style.display="none";
@@ -158,12 +280,12 @@
       elements.authStatus.style.display="block";
       elements.googleLoginBtn.href=`${BACKEND_URL}/auth/google`;
       elements.googleLoginBtn.style.display="flex";
-	  
-	  // Cacher le lien admin
-    const adminLink = document.getElementById('adminLink');
-    if (adminLink) {
-      adminLink.style.display = 'none';
-    }
+      
+      // Cacher le lien admin
+      const adminLink = document.getElementById('adminLink');
+      if (adminLink) {
+        adminLink.style.display = 'none';
+      }
     }
 
     async function logout(){
@@ -171,7 +293,7 @@
       removeToken(); currentUser=null; showNotification("Déconnexion réussie",'success'); displayUserDisconnected();
     }
 
-    // ==================== Products ====================
+    // ==================== Product Rendering ====================
     function renderStarsHTML(rating){
       const full=Math.floor(rating||0), half=(rating-full)>=0.5;
       let html="";
@@ -181,7 +303,7 @@
 
     function renderReviewsList(reviews){ 
       if(!reviews||!reviews.length) return "<div class='reviews-list-empty'>Aucun avis</div>";
-      return reviews.map(r=>`<div class="single-review"><div class="rev-head"><strong>${utils.escapeHtml(r.user_name||'Anonyme')}</strong><span class="rev-date">${utils.formatDate(r.created_at)}</span></div><div class="rev-body">${utils.escapeHtml(r.comment)}</div></div>`).join(""); 
+      return reviews.slice(0,3).map(r=>`<div class="single-review"><div class="rev-head"><strong>${utils.escapeHtml(r.user_name||'Anonyme')}</strong><span class="rev-date">${utils.formatDate(r.created_at)}</span></div><div class="rev-body">${utils.escapeHtml(r.comment)}</div></div>`).join(""); 
     }
 
     function productCardHTML(p){
@@ -189,48 +311,219 @@
       const ratingNum=Number(p.user_rating||0), starsHTML=renderStarsHTML(ratingNum), reviewsHTML=renderReviewsList(p.reviews||[]);
       const voteDisabled=!currentUser?'disabled title="Connectez-vous pour voter"':'';
       const reviewDisabled=!currentUser?'disabled placeholder="Connectez-vous pour laisser un avis"':'placeholder="Votre avis..."';
-      return `<div class="product-card" data-id="${p.id}"><img src="${p.image||'https://via.placeholder.com/400x300'}" alt="${title}"/><div class="product-info"><h3>${title}</h3><p class="price">${price}</p><p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p><div class="product-actions"><a class="view-btn" href="${link}" target="_blank" rel="noopener">Voir</a><button class="vote-btn" onclick="promptVote(${p.id})" ${voteDisabled}>Voter</button></div><div class="reviews-section"><div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div><textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea><button class="send-review-btn" onclick="submitReview(${p.id})" ${!currentUser?'disabled':''}>Envoyer</button></div></div></div>`;
+      return `<div class="product-card" data-id="${p.id}"><img src="${p.image||'https://via.placeholder.com/400x300'}" alt="${title}" loading="lazy"/><div class="product-info"><h3>${title}</h3><p class="price">${price}</p><p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p><div class="product-actions"><a class="view-btn" href="${link}" target="_blank" rel="noopener">Voir</a><button class="vote-btn" onclick="promptVote(${p.id})" ${voteDisabled}>Voter</button></div><div class="reviews-section"><div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div><textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea><button class="send-review-btn" onclick="submitReview(${p.id})" ${!currentUser?'disabled':''}>Envoyer</button></div></div></div>`;
     }
 
+    // ==================== Product Display ====================
     function displayProducts(products){
-      if(!products||!products.length){ elements.productsContainer.innerHTML="<p>❌ Aucun produit trouvé.</p>"; return; }
-      const ali=products.filter(p=>(p.source||"").toLowerCase().includes("aliexpress"));
-      const amazon=products.filter(p=>(p.source||"").toLowerCase().includes("amazon"));
-      const others=products.filter(p=>{ const s=(p.source||"").toLowerCase(); return !s.includes("aliexpress")&&!s.includes("amazon"); });
+      if(!products||!products.length){ 
+        elements.productsContainer.innerHTML="<div class='no-products'>❌ Aucun produit trouvé.</div>"; 
+        elements.pagination.style.display = "none";
+        return; 
+      }
+
+      // Pagination
+      const totalPages = Math.ceil(products.length / itemsPerPage);
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const productsToShow = products.slice(startIndex, endIndex);
+
+      // Grouper par sources
+      const ali=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("aliexpress"));
+      const amazon=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("amazon"));
+      const others=productsToShow.filter(p=>{ const s=(p.source||"").toLowerCase(); return !s.includes("aliexpress")&&!s.includes("amazon"); });
+      
       let html="";
       if(ali.length){ html+=`<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">${ali.map(productCardHTML).join("")}</div></div>`; }
       if(amazon.length){ html+=`<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">${amazon.map(productCardHTML).join("")}</div></div>`; }
       if(others.length){ html+=`<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">${others.map(productCardHTML).join("")}</div></div>`; }
+      
       elements.productsContainer.innerHTML=html;
+
+      // Update pagination
+      updatePagination(totalPages);
+      
+      // Update stats
+      updateSearchStats(products.length);
     }
 
-    async function loadInitialProducts(){
-      elements.productsContainer.innerHTML="<p>⏳ Chargement des produits...</p>";
-      try{
-        const res=await fetch(`${BACKEND_URL}/products`);
-        if(!res.ok) throw new Error(await res.text());
-        const data=await res.json();
-        displayProducts(data);
-      }catch(err){
-        console.error(err);
-        elements.productsContainer.innerHTML=`<p>❌ Erreur serveur: ${utils.escapeHtml(err.message||err)}</p>`;
+    function updatePagination(totalPages) {
+      if (totalPages <= 1) {
+        elements.pagination.style.display = "none";
+        return;
+      }
+      
+      elements.pagination.style.display = "flex";
+      elements.pageInfo.textContent = `Page ${currentPage} sur ${totalPages}`;
+      elements.prevPageBtn.disabled = currentPage <= 1;
+      elements.nextPageBtn.disabled = currentPage >= totalPages;
+    }
+
+    function updateSearchStats(count) {
+      elements.resultsCount.textContent = `${count} résultat${count > 1 ? 's' : ''}`;
+      elements.searchQuery.textContent = lastSearchQuery ? `pour "${lastSearchQuery}"` : '';
+      elements.searchMethod.textContent = isAISearch ? '(Recherche IA)' : '(Recherche textuelle)';
+      elements.searchStats.style.display = "block";
+    }
+
+    // ==================== Search Functions ====================
+    async function performTextSearch(query) {
+      isAISearch = false;
+      lastSearchQuery = query;
+      elements.productsContainer.innerHTML = '<div class="loading">⏳ Recherche en cours...</div>';
+      
+      try {
+        let url, body;
+        if (query && query.trim()) {
+          url = `${BACKEND_URL}/search`;
+          body = JSON.stringify({ query: query.trim(), type: 'text' });
+        } else {
+          url = `${BACKEND_URL}/products`;
+          body = null;
+        }
+        
+        const res = await fetch(url, {
+          method: body ? 'POST' : 'GET',
+          headers: getAuthHeaders(),
+          ...(body && { body })
+        });
+        
+        if (!res.ok) throw new Error(await res.text());
+        const products = await res.json();
+        
+        currentProducts = products;
+        applyFilters();
+        
+      } catch (err) {
+        console.error('Text search error:', err);
+        elements.productsContainer.innerHTML = `<div class="error">❌ Erreur: ${utils.escapeHtml(err.message)}</div>`;
+        elements.searchStats.style.display = "none";
       }
     }
 
-    async function searchProducts(q){
-      if(!q||!q.trim()) return loadInitialProducts();
-      elements.productsContainer.innerHTML="<p>⏳ Recherche en cours...</p>";
-      try{
-        const res=await fetch(`${BACKEND_URL}/search`,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
-        if(!res.ok) throw new Error(await res.text());
-        const data=await res.json();
-        displayProducts(data);
-      }catch(err){
-        console.error(err);
-        elements.productsContainer.innerHTML=`<p>❌ Erreur serveur: ${utils.escapeHtml(err.message||err)}</p>`;
+    async function performAISearch(query) {
+      if (!query || !query.trim()) {
+        showNotification('Veuillez saisir un terme de recherche pour la recherche IA', 'error');
+        return;
+      }
+      
+      isAISearch = true;
+      lastSearchQuery = query;
+      elements.productsContainer.innerHTML = '<div class="loading">🤖 Recherche IA en cours...</div>';
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'ai' })
+        });
+        
+        if (!res.ok) throw new Error(await res.text());
+        const products = await res.json();
+        
+        currentProducts = products;
+        applyFilters();
+        
+      } catch (err) {
+        console.error('AI search error:', err);
+        elements.productsContainer.innerHTML = `<div class="error">❌ Erreur recherche IA: ${utils.escapeHtml(err.message)}</div>`;
+        elements.searchStats.style.display = "none";
       }
     }
 
+    // ==================== Filters ====================
+    function applyFilters() {
+      let filtered = [...currentProducts];
+      
+      // Filter by source
+      const sourceFilter = elements.sourceFilter.value;
+      if (sourceFilter) {
+        if (sourceFilter === 'aliexpress') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
+        } else if (sourceFilter === 'amazon') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
+        } else if (sourceFilter === 'other') {
+          filtered = filtered.filter(p => {
+            const source = (p.source || '').toLowerCase();
+            return !source.includes('aliexpress') && !source.includes('amazon');
+          });
+        }
+      }
+      
+      // Filter by price range
+      const minPrice = parseInt(elements.priceMinRange.value);
+      const maxPrice = parseInt(elements.priceMaxRange.value);
+      
+      filtered = filtered.filter(p => {
+        const price = utils.extractPrice(p.price);
+        return price >= minPrice && (maxPrice >= 1000 || price <= maxPrice);
+      });
+      
+      // Sort products
+      const sortBy = elements.sortBy.value;
+      switch(sortBy) {
+        case 'price_asc':
+          filtered.sort((a, b) => utils.extractPrice(a.price) - utils.extractPrice(b.price));
+          break;
+        case 'price_desc':
+          filtered.sort((a, b) => utils.extractPrice(b.price) - utils.extractPrice(a.price));
+          break;
+        case 'rating_desc':
+          filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
+          break;
+        case 'newest':
+          filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          break;
+        default: // relevance - keep original order
+          break;
+      }
+      
+      filteredProducts = filtered;
+      currentPage = 1; // Reset to first page
+      displayProducts(filtered);
+    }
+
+    function clearAllFilters() {
+      elements.sourceFilter.value = '';
+      elements.priceMinRange.value = 0;
+      elements.priceMaxRange.value = 1000;
+      elements.priceMinDisplay.textContent = '0€';
+      elements.priceMaxDisplay.textContent = '1000€+';
+      elements.sortBy.value = 'relevance';
+      elements.searchInput.value = '';
+      
+      // Reset search
+      lastSearchQuery = '';
+      isAISearch = false;
+      elements.searchStats.style.display = "none";
+      
+      // Load initial products
+      performTextSearch('');
+    }
+
+    // ==================== Price Range Handlers ====================
+    function initPriceRangeSliders() {
+      function updatePriceDisplay() {
+        const minVal = parseInt(elements.priceMinRange.value);
+        const maxVal = parseInt(elements.priceMaxRange.value);
+        
+        // Ensure min <= max
+        if (minVal > maxVal) {
+          elements.priceMinRange.value = maxVal;
+          elements.priceMaxRange.value = minVal;
+        }
+        
+        elements.priceMinDisplay.textContent = utils.formatPrice(parseInt(elements.priceMinRange.value));
+        elements.priceMaxDisplay.textContent = utils.formatPrice(parseInt(elements.priceMaxRange.value));
+        
+        applyFilters();
+      }
+      
+      elements.priceMinRange.addEventListener('input', updatePriceDisplay);
+      elements.priceMaxRange.addEventListener('input', updatePriceDisplay);
+    }
+
+    // ==================== Voting & Reviews ====================
     async function promptVote(productId){
       if(!currentUser){ showNotification("Veuillez vous connecter pour voter",'error'); return; }
       const input=prompt("Note (1-5) :"); if(!input) return;
@@ -238,8 +531,22 @@
       try{
         const res=await fetch(`${BACKEND_URL}/vote`,{method:"POST",headers:getAuthHeaders(),body:JSON.stringify({product_id:productId,stars})});
         if(!res.ok) throw new Error(await res.text());
-        await res.json(); showNotification(`Vote enregistré: ${stars}/5 étoiles`,'success');
-        const q=elements.searchInput.value.trim(); if(q) searchProducts(q); else loadInitialProducts();
+        const data = await res.json(); 
+        showNotification(`Vote enregistré: ${stars}/5 étoiles`,'success');
+        
+        // Update the rating display locally
+        const productCard = document.querySelector(`[data-id="${productId}"]`);
+        if (productCard && data.user_rating) {
+          const ratingSpan = productCard.querySelector('.rating');
+          if (ratingSpan) {
+            ratingSpan.textContent = `(${Number(data.user_rating).toFixed(1)})`;
+          }
+          const starsContainer = productCard.querySelector('.stars');
+          if (starsContainer) {
+            const starsHTML = renderStarsHTML(Number(data.user_rating));
+            starsContainer.innerHTML = `Vote: ${starsHTML} <span class="rating">(${Number(data.user_rating).toFixed(1)})</span>`;
+          }
+        }
       }catch(err){ console.error(err); showNotification("Erreur lors du vote",'error'); if(err.message.includes('401')){ removeToken(); displayUserDisconnected(); } }
     }
 
@@ -252,25 +559,102 @@
         if(!res.ok) throw new Error(await res.text());
         const data=await res.json();
         showNotification("Avis publié avec succès",'success');
-        if(data && Array.isArray(data.reviews)){ const list=document.getElementById(`reviews-list-${productId}`); if(list) list.innerHTML=renderReviewsList(data.reviews); }
-        else{ const q=elements.searchInput.value.trim(); if(q) searchProducts(q); else loadInitialProducts(); }
+        if(data && Array.isArray(data.reviews)){ 
+          const list=document.getElementById(`reviews-list-${productId}`); 
+          if(list) list.innerHTML=renderReviewsList(data.reviews); 
+        }
         ta.value="";
       }catch(err){ console.error(err); showNotification("Erreur lors de l'envoi de l'avis",'error'); if(err.message.includes('401')){ removeToken(); displayUserDisconnected(); } }
     }
 
-    // ==================== Events ====================
-    elements.searchBtn.addEventListener("click",()=>{ searchProducts(elements.searchInput.value.trim()); });
-    elements.searchInput.addEventListener("keypress",(e)=>{ if(e.key==="Enter") searchProducts(elements.searchInput.value.trim()); });
-    elements.logoutBtn.addEventListener("click",logout);
+    // ==================== Event Listeners ====================
+    function initEventListeners() {
+      // Search buttons
+      elements.textSearchBtn.addEventListener("click", () => {
+        performTextSearch(elements.searchInput.value.trim());
+      });
+      
+      elements.aiSearchBtn.addEventListener("click", () => {
+        performAISearch(elements.searchInput.value.trim());
+      });
+      
+      // Search input
+      elements.searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          // Default to text search on Enter
+          performTextSearch(elements.searchInput.value.trim());
+        }
+      });
+      
+      // Category buttons
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const searchTerm = btn.dataset.search;
+          elements.searchInput.value = searchTerm;
+          performAISearch(searchTerm); // Use AI search for categories
+        });
+      });
+      
+      // Filters
+      elements.sourceFilter.addEventListener('change', applyFilters);
+      elements.sortBy.addEventListener('change', applyFilters);
+      elements.clearFiltersBtn.addEventListener('click', clearAllFilters);
+      
+      // Pagination
+      elements.prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          displayProducts(filteredProducts);
+        }
+      });
+      
+      elements.nextPageBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+        if (currentPage < totalPages) {
+          currentPage++;
+          displayProducts(filteredProducts);
+        }
+      });
+      
+      // Auth
+      elements.logoutBtn.addEventListener("click", logout);
+      
+      // Initialize price sliders
+      initPriceRangeSliders();
+    }
 
-    // ==================== Init ====================
-    checkUser().then(()=>{ loadInitialProducts(); });
+    // ==================== Load Initial Products ====================
+    async function loadInitialProducts(){
+      elements.productsContainer.innerHTML = '<div class="loading">⏳ Chargement des produits...</div>';
+      try{
+        const res = await fetch(`${BACKEND_URL}/products`, { headers: getAuthHeaders() });
+        if(!res.ok) throw new Error(await res.text());
+        const products = await res.json();
+        currentProducts = products;
+        applyFilters();
+      }catch(err){
+        console.error('Initial load error:', err);
+        elements.productsContainer.innerHTML = `<div class="error">❌ Erreur: ${utils.escapeHtml(err.message)}</div>`;
+      }
+    }
 
-    // Expose functions for inline onclick
-    window.promptVote=promptVote;
-    window.submitReview=submitReview;
+    // ==================== Initialize App ====================
+    async function initApp() {
+      await checkUser();
+      initEventListeners();
+      loadInitialProducts();
+    }
+
+    // Expose functions for inline onclick handlers
+    window.promptVote = promptVote;
+    window.submitReview = submitReview;
+
+    // Start the application
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   </script>
 </body>
 </html>
-
-
