@@ -27,6 +27,9 @@ body {
   color: white;
   align-items: center;
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-left {
@@ -731,5 +734,6 @@ button:disabled:hover {
 .product-grid { contain: layout style paint; }
 .product-card { will-change: transform; contain: layout style paint; }
 .product-card img { content-visibility: auto; contain-intrinsic-size: 250px 200px; }
+
 
 
