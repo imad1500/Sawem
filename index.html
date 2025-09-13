@@ -52,21 +52,17 @@
       <h2 class="section-title">Recherche & Filtres</h2>
 
       <!-- Barre de recherche principale -->
-      <div class="search-container">
-        <div class="search-input-group">
-          <input type="text" id="searchInput" placeholder="Rechercher un produit..." autocomplete="off" />
-          <div class="search-buttons">
-            <button id="textSearchBtn" type="button" class="search-btn text-search">
-              <span class="search-icon">🔍</span>
-              <span class="search-text">Recherche Textuelle</span>
-            </button>
-            <button id="aiSearchBtn" type="button" class="search-btn ai-search">
-              <span class="search-icon">🤖</span>
-              <span class="search-text">Recherche IA</span>
-            </button>
-          </div>
-        </div>
-      </div>
+       <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Rechercher des produits..." class="search-input">
+    <div class="search-buttons">
+      <button id="textSearchBtn" class="search-btn text-search" title="Recherche textuelle rapide">
+        🔍 Recherche
+      </button>
+      <button id="aiSearchBtn" class="search-btn ai-search" title="Recherche IA intelligente">
+        🤖 Recherche IA
+      </button>
+    </div>
+  </div>
 
       <!-- Catégories rapides -->
       <div class="quick-categories">
@@ -132,12 +128,12 @@
     </div>
 
     <!-- ===== STATISTIQUES ===== -->
-    <div id="searchStats" class="search-stats" style="display:none;">
-      <div class="stats-content">
-        <span id="resultsCount">0 résultats</span>
-        <span id="searchQuery"></span>
-        <span id="searchMethod"></span>
-      </div>
+    <!-- Remplacer la section des statistiques de recherche dans index.html -->
+    <div id="searchStats" class="search-stats" style="display: none;">
+       <div class="search-results-info">
+           <span id="resultsCount">0 résultats</span>
+           <span id="searchQuery"></span>
+       </div>
     </div>
 
     <!-- ===== PRODUITS ===== -->
@@ -382,69 +378,160 @@
     }
 
     // ==================== Search Functions ====================
-    async function performTextSearch(query) {
-      isAISearch = false;
-      lastSearchQuery = query;
-      elements.productsContainer.innerHTML = '<div class="loading">⏳ Recherche en cours...</div>';
-      
-      try {
-        let url, body;
-        if (query && query.trim()) {
-          url = `${BACKEND_URL}/search`;
-          body = JSON.stringify({ query: query.trim(), type: 'text' });
-        } else {
-          url = `${BACKEND_URL}/products`;
-          body = null;
-        }
-        
-        const res = await fetch(url, {
-          method: body ? 'POST' : 'GET',
-          headers: getAuthHeaders(),
-          ...(body && { body })
-        });
-        
-        if (!res.ok) throw new Error(await res.text());
-        const products = await res.json();
-        
-        currentProducts = products;
-        applyFilters();
-        
-      } catch (err) {
-        console.error('Text search error:', err);
-        elements.productsContainer.innerHTML = `<div class="error">❌ Erreur: ${utils.escapeHtml(err.message)}</div>`;
-        elements.searchStats.style.display = "none";
-      }
+   // ==================== FONCTIONS DE RECHERCHE AMÉLIORÉES ====================
+async function performTextSearch(query) {
+  isAISearch = false;
+  lastSearchQuery = query;
+  elements.productsContainer.innerHTML = '<div class="loading">⏳ Recherche en cours...</div>';
+  
+  try {
+    let url, body;
+    if (query && query.trim()) {
+      url = `${BACKEND_URL}/search`;
+      body = JSON.stringify({ query: query.trim(), type: 'text' });
+    } else {
+      url = `${BACKEND_URL}/products`;
+      body = null;
     }
+    
+    const res = await fetch(url, {
+      method: body ? 'POST' : 'GET',
+      headers: getAuthHeaders(),
+      ...(body && { body })
+    });
+    
+    if (!res.ok) throw new Error(await res.text());
+    const products = await res.json();
+    
+    currentProducts = products;
+    applyFilters();
+    
+  } catch (err) {
+    console.error('Text search error:', err);
+    elements.productsContainer.innerHTML = `<div class="error">❌ Erreur: ${utils.escapeHtml(err.message)}</div>`;
+    elements.searchStats.style.display = "none";
+  }
+}
 
-    async function performAISearch(query) {
-      if (!query || !query.trim()) {
-        showNotification('Veuillez saisir un terme de recherche pour la recherche IA', 'error');
-        return;
-      }
-      
-      isAISearch = true;
-      lastSearchQuery = query;
-      elements.productsContainer.innerHTML = '<div class="loading">🤖 Recherche IA en cours...</div>';
-      
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'ai' })
-        });
-        
-        if (!res.ok) throw new Error(await res.text());
-        const products = await res.json();
-        
-        currentProducts = products;
-        applyFilters();
-        
-      } catch (err) {
-        console.error('AI search error:', err);
-        elements.productsContainer.innerHTML = `<div class="error">❌ Erreur recherche IA: ${utils.escapeHtml(err.message)}</div>`;
-        elements.searchStats.style.display = "none";
-      }
+async function performAISearch(query) {
+  if (!query || !query.trim()) {
+    showNotification('Veuillez saisir un terme de recherche pour la recherche IA', 'error');
+    return;
+  }
+  
+  isAISearch = true;
+  lastSearchQuery = query;
+  elements.productsContainer.innerHTML = '<div class="loading">🤖 Recherche IA en cours...</div>';
+  
+  try {
+    const res = await fetch(`${BACKEND_URL}/search`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ query: query.trim(), type: 'ai' })
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Erreur de recherche IA');
     }
+    const products = await res.json();
+    
+    currentProducts = products;
+    applyFilters();
+    
+  } catch (err) {
+    console.error('AI search error:', err);
+    // Fallback automatique vers la recherche textuelle si l'IA échoue
+    showNotification('Recherche IA indisponible, basculement vers recherche textuelle', 'warning');
+    performTextSearch(query);
+  }
+}
+
+// ==================== FONCTION DE MISE À JOUR DES STATS ==================
+function updateSearchStats(count) {
+  elements.resultsCount.textContent = `${count} résultat${count > 1 ? 's' : ''}`;
+  elements.searchQuery.textContent = lastSearchQuery ? `pour "${lastSearchQuery}"` : '';
+  elements.searchStats.style.display = "block";
+}
+
+// ==================== GESTION DES CATÉGORIES ==================
+function initCategoryButtons() {
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const searchTerm = btn.dataset.search;
+      const category = btn.dataset.category;
+      elements.searchInput.value = searchTerm;
+      
+      // Utiliser la recherche textuelle améliorée pour les catégories
+      performTextSearch(searchTerm);
+      
+      // Animation du bouton cliqué
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        btn.style.transform = 'scale(1)';
+      }, 150);
+    });
+  });
+}
+
+// ==================== MISE À JOUR DE L'INITIALISATION ==================
+function initEventListeners() {
+  // Search buttons
+  elements.textSearchBtn.addEventListener("click", () => {
+    performTextSearch(elements.searchInput.value.trim());
+  });
+  
+  elements.aiSearchBtn.addEventListener("click", () => {
+    performAISearch(elements.searchInput.value.trim());
+  });
+  
+  // Search input
+  elements.searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      // Par défaut, utiliser la recherche textuelle
+      performTextSearch(elements.searchInput.value.trim());
+    }
+  });
+  
+  // Initialiser les boutons de catégorie
+  initCategoryButtons();
+  
+  // ... (garder le reste des event listeners existants)
+}
+
+// ==================== MISE À JOUR DE LA FONCTION displayProducts ==================
+function displayProducts(products){
+  if(!products||!products.length){ 
+    elements.productsContainer.innerHTML="<div class='no-products'>❌ Aucun produit trouvé.</div>"; 
+    elements.pagination.style.display = "none";
+    elements.searchStats.style.display = "none";
+    return; 
+  }
+
+  // Pagination
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const productsToShow = products.slice(startIndex, endIndex);
+
+  // Grouper par sources
+  const ali=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("aliexpress"));
+  const amazon=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("amazon"));
+  const others=productsToShow.filter(p=>{ const s=(p.source||"").toLowerCase(); return !s.includes("aliexpress")&&!s.includes("amazon"); });
+  
+  let html="";
+  if(ali.length){ html+=`<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">${ali.map(productCardHTML).join("")}</div></div>`; }
+  if(amazon.length){ html+=`<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">${amazon.map(productCardHTML).join("")}</div></div>`; }
+  if(others.length){ html+=`<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">${others.map(productCardHTML).join("")}</div></div>`; }
+  
+  elements.productsContainer.innerHTML=html;
+
+  // Update pagination
+  updatePagination(totalPages);
+  
+  // Update stats
+  updateSearchStats(products.length);
+}
 
     // ==================== Filters ====================
     function applyFilters() {
@@ -673,6 +760,5 @@
   </script>
 </body>
 </html>
-
 
 
