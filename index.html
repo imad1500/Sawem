@@ -20,26 +20,26 @@
 
   <!-- ==================== HEADER ==================== -->
   <header>
-  <div class="container header-container">
-    <div class="header-left">
-      <h1>Sawem.shop</h1>
-      <span class="cart">🛒</span>
-    </div>
-    <div class="header-right">
-      <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
-      <div id="userInfo" class="user-info" style="display:none;">
-        <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
-        <div class="user-details">
-          <div id="userName" class="user-name"></div>
-          <div id="userEmail" class="user-email"></div>
-        </div>
-        <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
+    <div class="container header-container">
+      <div class="header-left">
+        <h1>Sawem.shop</h1>
+        <span class="cart">🛒</span>
       </div>
-      <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
-      <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
+      <div class="header-right">
+        <div id="authStatus" class="auth-status loading">⏳ Vérification...</div>
+        <div id="userInfo" class="user-info" style="display:none;">
+          <img id="userAvatar" class="user-avatar" src="" alt="Avatar" width="32" height="32" loading="lazy"/>
+          <div class="user-details">
+            <div id="userName" class="user-name"></div>
+            <div id="userEmail" class="user-email"></div>
+          </div>
+          <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
+        </div>
+        <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
+        <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
   <!-- ==================== NOTIFICATION ==================== -->
   <div id="notification" class="notification" role="alert" aria-live="polite"></div>
@@ -52,34 +52,34 @@
       <h2 class="section-title">Recherche & Filtres</h2>
 
       <!-- Barre de recherche principale -->
-       <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Rechercher des produits..." class="search-input">
-    <div class="search-buttons">
-      <button id="textSearchBtn" class="search-btn text-search" title="Recherche textuelle rapide">
-        🔍 Recherche
-      </button>
-      <button id="aiSearchBtn" class="search-btn ai-search" title="Recherche IA intelligente">
-        🤖 Recherche IA
-      </button>
-    </div>
-  </div>
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Rechercher des produits..." class="search-input">
+        <div class="search-buttons">
+          <button id="textSearchBtn" class="search-btn text-search" title="Recherche textuelle rapide">
+            🔍 Recherche
+          </button>
+          <button id="aiSearchBtn" class="search-btn ai-search" title="Recherche IA intelligente">
+            🤖 Recherche IA
+          </button>
+        </div>
+      </div>
 
-      <!-- Catégories rapides -->
-      <div class="quick-categories">
-        <h3>Catégories populaires :</h3>
-        <div class="category-buttons">
-          <button class="category-btn" data-search="smartphone">📱 Smartphones</button>
-          <button class="category-btn" data-search="laptop">💻 Laptops</button>
-          <button class="category-btn" data-search="headphones">🎧 Casques Audio</button>
-          <button class="category-btn" data-search="smartwatch">⌚ Montres Connectées</button>
-          <button class="category-btn" data-search="tablet">📱 Tablettes</button>
-          <button class="category-btn" data-search="camera">📸 Appareils Photo</button>
+      <!-- Catégories -->
+      <div class="categories-section">
+        <h2>🔍 Recherche par catégorie</h2>
+        <div class="categories-grid">
+          <button class="category-btn" data-search="smartphones">📱 Smartphones</button>
+          <button class="category-btn" data-search="laptops">💻 Laptops</button>
+          <button class="category-btn" data-search="casques audio">🎧 Casques Audio</button>
+          <button class="category-btn" data-search="montres connectées">⌚ Montres Connectées</button>
+          <button class="category-btn" data-search="tablettes">📱 Tablettes</button>
+          <button class="category-btn" data-search="appareils photo">📸 Appareils Photo</button>
           <button class="category-btn" data-search="gaming">🎮 Gaming</button>
-          <button class="category-btn" data-search="drone">🚁 Drones</button>
-          <button class="category-btn" data-search="speaker">🔊 Enceintes</button>
-          <button class="category-btn" data-search="keyboard">⌨️ Claviers</button>
-          <button class="category-btn" data-search="mouse">🖱️ Souris</button>
-          <button class="category-btn" data-search="monitor">🖥️ Écrans</button>
+          <button class="category-btn" data-search="drones">🚁 Drones</button>
+          <button class="category-btn" data-search="enceintes">🔊 Enceintes</button>
+          <button class="category-btn" data-search="claviers">⌨️ Claviers</button>
+          <button class="category-btn" data-search="souris">🖱️ Souris</button>
+          <button class="category-btn" data-search="écrans">🖥️ Écrans</button>
         </div>
       </div>
 
@@ -127,13 +127,12 @@
       <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
 
-    <!-- ===== STATISTIQUES ===== -->
-    <!-- Remplacer la section des statistiques de recherche dans index.html -->
+    <!-- ===== STATISTIQUES (remplacé) ===== -->
     <div id="searchStats" class="search-stats" style="display: none;">
-       <div class="search-results-info">
-           <span id="resultsCount">0 résultats</span>
-           <span id="searchQuery"></span>
-       </div>
+      <div class="search-results-info">
+        <span id="resultsCount">0 résultats</span>
+        <span id="searchQuery"></span>
+      </div>
     </div>
 
     <!-- ===== PRODUITS ===== -->
@@ -160,605 +159,56 @@
   <!-- ==================== FOOTER ==================== -->
   <footer>
     <div class="container">
-      <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
+      <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | 
+      <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
     </div>
   </footer>
 
- 
-
-
-
-
+  <!-- ==================== SCRIPTS ==================== -->
   <script>
-    const BACKEND_URL = "https://sawem-backend.onrender.com";
+    // Gestion des recherches
+    const searchInput = document.getElementById("searchInput");
+    const textSearchBtn = document.getElementById("textSearchBtn");
+    const aiSearchBtn = document.getElementById("aiSearchBtn");
+    const categoryBtns = document.querySelectorAll(".category-btn");
+    const productsContainer = document.getElementById("productsContainer");
+    const searchStats = document.getElementById("searchStats");
+    const resultsCount = document.getElementById("resultsCount");
+    const searchQuery = document.getElementById("searchQuery");
 
-    const elements = {
-      searchInput: document.getElementById("searchInput"),
-      textSearchBtn: document.getElementById("textSearchBtn"),
-      aiSearchBtn: document.getElementById("aiSearchBtn"),
-      sourceFilter: document.getElementById("sourceFilter"),
-      priceMinRange: document.getElementById("priceMinRange"),
-      priceMaxRange: document.getElementById("priceMaxRange"),
-      priceMinDisplay: document.getElementById("priceMinDisplay"),
-      priceMaxDisplay: document.getElementById("priceMaxDisplay"),
-      sortBy: document.getElementById("sortBy"),
-      clearFiltersBtn: document.getElementById("clearFiltersBtn"),
-      productsContainer: document.getElementById("productsContainer"),
-      searchStats: document.getElementById("searchStats"),
-      resultsCount: document.getElementById("resultsCount"),
-      searchQuery: document.getElementById("searchQuery"),
-      searchMethod: document.getElementById("searchMethod"),
-      pagination: document.getElementById("pagination"),
-      prevPageBtn: document.getElementById("prevPageBtn"),
-      nextPageBtn: document.getElementById("nextPageBtn"),
-      pageInfo: document.getElementById("pageInfo"),
-      googleLoginBtn: document.getElementById("googleLoginBtn"),
-      logoutBtn: document.getElementById("logoutBtn"),
-      authStatus: document.getElementById("authStatus"),
-      userInfo: document.getElementById("userInfo"),
-      userAvatar: document.getElementById("userAvatar"),
-      userName: document.getElementById("userName"),
-      userEmail: document.getElementById("userEmail"),
-      welcomeMessage: document.getElementById("welcomeMessage"),
-      welcomeUserName: document.getElementById("welcomeUserName"),
-      notification: document.getElementById("notification")
-    };
-
-    let currentUser = null;
-    let authToken = null;
-    let currentProducts = [];
-    let filteredProducts = [];
-    let currentPage = 1;
-    const itemsPerPage = 12;
-    let lastSearchQuery = '';
-    let isAISearch = false;
-
-    // ==================== Utilitaires ====================
-    const utils = {
-      escapeHtml: (s) => String(s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])),
-      debounce: (func, wait) => {
-        let timeout;
-        return (...args) => {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func(...args), wait);
-        };
-      },
-      formatDate: (dateStr) => new Date(dateStr).toLocaleDateString('fr-FR', {
-        day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
-      }),
-      extractPrice: (priceStr) => {
-        if (!priceStr) return 0;
-        const numbers = priceStr.match(/[\d,\.]+/);
-        return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
-      },
-      formatPrice: (price) => {
-        return price > 999 ? '1000€+' : price + '€';
-      }
-    };
-
-    // ==================== Auth Management ====================
-    function saveToken(token){ localStorage.setItem('sawem_auth_token', token); authToken=token; }
-    function getToken(){ if(!authToken) authToken=localStorage.getItem('sawem_auth_token'); return authToken; }
-    function removeToken(){ localStorage.removeItem('sawem_auth_token'); authToken=null; }
-    function getAuthHeaders(){ const token=getToken(); return token?{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}:{'Content-Type':'application/json'}; }
-
-    // ==================== Notifications ====================
-    function showNotification(message,type='success'){
-      const n=elements.notification;
-      n.textContent=message;
-      n.className=`notification ${type} show`;
-      setTimeout(()=>{ n.classList.remove('show'); },3000);
+    function performTextSearch(query) {
+      if (!query) return;
+      searchStats.style.display = "block";
+      searchQuery.textContent = `pour "${query}"`;
+      resultsCount.textContent = "Chargement...";
+      productsContainer.innerHTML = "<p>🔄 Recherche en cours...</p>";
+      // Ici tu ajoutes ton fetch API backend
     }
 
-    // ==================== User Management ====================
-    async function checkUser(){
-      try{
-        elements.authStatus.textContent="⏳ Vérification...";
-        const urlToken=new URLSearchParams(window.location.search).get('token');
-        if(urlToken){ saveToken(urlToken); window.history.replaceState({},document.title,window.location.pathname); }
-        const token=getToken();
-        if(!token) throw new Error("Aucun token");
-        const res=await fetch(`${BACKEND_URL}/verify-token`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token}) });
-        if(!res.ok) throw new Error("Token invalide");
-        const data=await res.json();
-        if(data.success && data.user){ currentUser=data.user; displayUserConnected(data.user); }
-      }catch(e){ console.error(e); currentUser=null; removeToken(); displayUserDisconnected(); }
+    function performAISearch(query) {
+      if (!query) return;
+      searchStats.style.display = "block";
+      searchQuery.textContent = `IA pour "${query}"`;
+      resultsCount.textContent = "Chargement...";
+      productsContainer.innerHTML = "<p>🤖 Recherche IA en cours...</p>";
+      // Ici tu ajoutes ton fetch API backend IA
     }
 
-    function displayUserConnected(user) {
-      elements.authStatus.style.display = "none";
-      elements.googleLoginBtn.style.display = "none";
-      elements.userName.textContent = user.name || "Utilisateur";
-      elements.userEmail.textContent = user.email || "";
-      elements.userAvatar.src = user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&size=40&background=0d6efd&color=fff`;
-      elements.userAvatar.alt = user.name || "Avatar";
-      elements.userInfo.style.display = "flex";
-      elements.welcomeUserName.textContent = user.name || "Utilisateur";
-      elements.welcomeMessage.style.display = "block";
-      
-      // Afficher le lien admin si c'est votre compte
-      const adminLink = document.getElementById('adminLink');
-      if (adminLink && user.email === 'imadbelkaceminfo@gmail.com') {
-        adminLink.style.display = 'flex';
-      }
-    }
-
-    function displayUserDisconnected(){
-      elements.userInfo.style.display="none";
-      elements.welcomeMessage.style.display="none";
-      elements.authStatus.textContent="❌ Non connecté";
-      elements.authStatus.className="auth-status disconnected";
-      elements.authStatus.style.display="block";
-      elements.googleLoginBtn.href=`${BACKEND_URL}/auth/google`;
-      elements.googleLoginBtn.style.display="flex";
-      
-      // Cacher le lien admin
-      const adminLink = document.getElementById('adminLink');
-      if (adminLink) {
-        adminLink.style.display = 'none';
-      }
-    }
-
-    async function logout(){
-      try{ await fetch(`${BACKEND_URL}/logout`,{method:'POST',headers:getAuthHeaders()}); }catch(e){ console.error(e); }
-      removeToken(); currentUser=null; showNotification("Déconnexion réussie",'success'); displayUserDisconnected();
-    }
-
-    // ==================== Product Rendering ====================
-    function renderStarsHTML(rating){
-      const full=Math.floor(rating||0), half=(rating-full)>=0.5;
-      let html="";
-      for(let i=1;i<=5;i++){ html+=i<=full?"<span class='star full'>★</span>":half&&i===full+1?"<span class='star half'>★</span>":"<span class='star empty'>★</span>"; }
-      return html;
-    }
-
-    function renderReviewsList(reviews){ 
-      if(!reviews||!reviews.length) return "<div class='reviews-list-empty'>Aucun avis</div>";
-      return reviews.slice(0,3).map(r=>`<div class="single-review"><div class="rev-head"><strong>${utils.escapeHtml(r.user_name||'Anonyme')}</strong><span class="rev-date">${utils.formatDate(r.created_at)}</span></div><div class="rev-body">${utils.escapeHtml(r.comment)}</div></div>`).join(""); 
-    }
-
-    function productCardHTML(p){
-      const title=utils.escapeHtml(p.title||""), price=utils.escapeHtml(p.price||""), link=p.link||"#";
-      const ratingNum=Number(p.user_rating||0), starsHTML=renderStarsHTML(ratingNum), reviewsHTML=renderReviewsList(p.reviews||[]);
-      const voteDisabled=!currentUser?'disabled title="Connectez-vous pour voter"':'';
-      const reviewDisabled=!currentUser?'disabled placeholder="Connectez-vous pour laisser un avis"':'placeholder="Votre avis..."';
-      return `<div class="product-card" data-id="${p.id}"><img src="${p.image||'https://via.placeholder.com/400x300'}" alt="${title}" loading="lazy"/><div class="product-info"><h3>${title}</h3><p class="price">${price}</p><p class="stars">Vote: ${starsHTML} <span class="rating">(${ratingNum.toFixed(1)})</span></p><div class="product-actions"><a class="view-btn" href="${link}" target="_blank" rel="noopener">Voir</a><button class="vote-btn" onclick="promptVote(${p.id})" ${voteDisabled}>Voter</button></div><div class="reviews-section"><div id="reviews-list-${p.id}" class="reviews-list">${reviewsHTML}</div><textarea id="review-${p.id}" ${reviewDisabled} rows="3"></textarea><button class="send-review-btn" onclick="submitReview(${p.id})" ${!currentUser?'disabled':''}>Envoyer</button></div></div></div>`;
-    }
-
-    // ==================== Product Display ====================
-    function displayProducts(products){
-      if(!products||!products.length){ 
-        elements.productsContainer.innerHTML="<div class='no-products'>❌ Aucun produit trouvé.</div>"; 
-        elements.pagination.style.display = "none";
-        return; 
-      }
-
-      // Pagination
-      const totalPages = Math.ceil(products.length / itemsPerPage);
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const productsToShow = products.slice(startIndex, endIndex);
-
-      // Grouper par sources
-      const ali=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("aliexpress"));
-      const amazon=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("amazon"));
-      const others=productsToShow.filter(p=>{ const s=(p.source||"").toLowerCase(); return !s.includes("aliexpress")&&!s.includes("amazon"); });
-      
-      let html="";
-      if(ali.length){ html+=`<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">${ali.map(productCardHTML).join("")}</div></div>`; }
-      if(amazon.length){ html+=`<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">${amazon.map(productCardHTML).join("")}</div></div>`; }
-      if(others.length){ html+=`<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">${others.map(productCardHTML).join("")}</div></div>`; }
-      
-      elements.productsContainer.innerHTML=html;
-
-      // Update pagination
-      updatePagination(totalPages);
-      
-      // Update stats
-      updateSearchStats(products.length);
-    }
-
-    function updatePagination(totalPages) {
-      if (totalPages <= 1) {
-        elements.pagination.style.display = "none";
-        return;
-      }
-      
-      elements.pagination.style.display = "flex";
-      elements.pageInfo.textContent = `Page ${currentPage} sur ${totalPages}`;
-      elements.prevPageBtn.disabled = currentPage <= 1;
-      elements.nextPageBtn.disabled = currentPage >= totalPages;
-    }
-
-    function updateSearchStats(count) {
-      elements.resultsCount.textContent = `${count} résultat${count > 1 ? 's' : ''}`;
-      elements.searchQuery.textContent = lastSearchQuery ? `pour "${lastSearchQuery}"` : '';
-      elements.searchMethod.textContent = isAISearch ? '(Recherche IA)' : '(Recherche textuelle)';
-      elements.searchStats.style.display = "block";
-    }
-
-    // ==================== Search Functions ====================
-   // ==================== FONCTIONS DE RECHERCHE AMÉLIORÉES ====================
-async function performTextSearch(query) {
-  isAISearch = false;
-  lastSearchQuery = query;
-  elements.productsContainer.innerHTML = '<div class="loading">⏳ Recherche en cours...</div>';
-  
-  try {
-    let url, body;
-    if (query && query.trim()) {
-      url = `${BACKEND_URL}/search`;
-      body = JSON.stringify({ query: query.trim(), type: 'text' });
-    } else {
-      url = `${BACKEND_URL}/products`;
-      body = null;
-    }
-    
-    const res = await fetch(url, {
-      method: body ? 'POST' : 'GET',
-      headers: getAuthHeaders(),
-      ...(body && { body })
+    textSearchBtn.addEventListener("click", () => {
+      performTextSearch(searchInput.value.trim());
     });
-    
-    if (!res.ok) throw new Error(await res.text());
-    const products = await res.json();
-    
-    currentProducts = products;
-    applyFilters();
-    
-  } catch (err) {
-    console.error('Text search error:', err);
-    elements.productsContainer.innerHTML = `<div class="error">❌ Erreur: ${utils.escapeHtml(err.message)}</div>`;
-    elements.searchStats.style.display = "none";
-  }
-}
 
-async function performAISearch(query) {
-  if (!query || !query.trim()) {
-    showNotification('Veuillez saisir un terme de recherche pour la recherche IA', 'error');
-    return;
-  }
-  
-  isAISearch = true;
-  lastSearchQuery = query;
-  elements.productsContainer.innerHTML = '<div class="loading">🤖 Recherche IA en cours...</div>';
-  
-  try {
-    const res = await fetch(`${BACKEND_URL}/search`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ query: query.trim(), type: 'ai' })
+    aiSearchBtn.addEventListener("click", () => {
+      performAISearch(searchInput.value.trim());
     });
-    
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Erreur de recherche IA');
-    }
-    const products = await res.json();
-    
-    currentProducts = products;
-    applyFilters();
-    
-  } catch (err) {
-    console.error('AI search error:', err);
-    // Fallback automatique vers la recherche textuelle si l'IA échoue
-    showNotification('Recherche IA indisponible, basculement vers recherche textuelle', 'warning');
-    performTextSearch(query);
-  }
-}
 
-// ==================== FONCTION DE MISE À JOUR DES STATS ==================
-function updateSearchStats(count) {
-  elements.resultsCount.textContent = `${count} résultat${count > 1 ? 's' : ''}`;
-  elements.searchQuery.textContent = lastSearchQuery ? `pour "${lastSearchQuery}"` : '';
-  elements.searchStats.style.display = "block";
-}
-
-// ==================== GESTION DES CATÉGORIES ==================
-function initCategoryButtons() {
-  document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const searchTerm = btn.dataset.search;
-      const category = btn.dataset.category;
-      elements.searchInput.value = searchTerm;
-      
-      // Utiliser la recherche textuelle améliorée pour les catégories
-      performTextSearch(searchTerm);
-      
-      // Animation du bouton cliqué
-      btn.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        btn.style.transform = 'scale(1)';
-      }, 150);
+    categoryBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const query = btn.getAttribute("data-search");
+        performTextSearch(query);
+      });
     });
-  });
-}
-
-// ==================== MISE À JOUR DE L'INITIALISATION ==================
-function initEventListeners() {
-  // Search buttons
-  elements.textSearchBtn.addEventListener("click", () => {
-    performTextSearch(elements.searchInput.value.trim());
-  });
-  
-  elements.aiSearchBtn.addEventListener("click", () => {
-    performAISearch(elements.searchInput.value.trim());
-  });
-  
-  // Search input
-  elements.searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      // Par défaut, utiliser la recherche textuelle
-      performTextSearch(elements.searchInput.value.trim());
-    }
-  });
-  
-  // Initialiser les boutons de catégorie
-  initCategoryButtons();
-  
-  // ... (garder le reste des event listeners existants)
-}
-
-// ==================== MISE À JOUR DE LA FONCTION displayProducts ==================
-function displayProducts(products){
-  if(!products||!products.length){ 
-    elements.productsContainer.innerHTML="<div class='no-products'>❌ Aucun produit trouvé.</div>"; 
-    elements.pagination.style.display = "none";
-    elements.searchStats.style.display = "none";
-    return; 
-  }
-
-  // Pagination
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const productsToShow = products.slice(startIndex, endIndex);
-
-  // Grouper par sources
-  const ali=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("aliexpress"));
-  const amazon=productsToShow.filter(p=>(p.source||"").toLowerCase().includes("amazon"));
-  const others=productsToShow.filter(p=>{ const s=(p.source||"").toLowerCase(); return !s.includes("aliexpress")&&!s.includes("amazon"); });
-  
-  let html="";
-  if(ali.length){ html+=`<div class="source-block"><h2 class="source-title">AliExpress</h2><div class="product-grid">${ali.map(productCardHTML).join("")}</div></div>`; }
-  if(amazon.length){ html+=`<div class="source-block"><h2 class="source-title">Amazon</h2><div class="product-grid">${amazon.map(productCardHTML).join("")}</div></div>`; }
-  if(others.length){ html+=`<div class="source-block"><h2 class="source-title">Autres</h2><div class="product-grid">${others.map(productCardHTML).join("")}</div></div>`; }
-  
-  elements.productsContainer.innerHTML=html;
-
-  // Update pagination
-  updatePagination(totalPages);
-  
-  // Update stats
-  updateSearchStats(products.length);
-}
-
-    // ==================== Filters ====================
-    function applyFilters() {
-      let filtered = [...currentProducts];
-      
-      // Filter by source
-      const sourceFilter = elements.sourceFilter.value;
-      if (sourceFilter) {
-        if (sourceFilter === 'aliexpress') {
-          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
-        } else if (sourceFilter === 'amazon') {
-          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
-        } else if (sourceFilter === 'other') {
-          filtered = filtered.filter(p => {
-            const source = (p.source || '').toLowerCase();
-            return !source.includes('aliexpress') && !source.includes('amazon');
-          });
-        }
-      }
-      
-      // Filter by price range
-      const minPrice = parseInt(elements.priceMinRange.value);
-      const maxPrice = parseInt(elements.priceMaxRange.value);
-      
-      filtered = filtered.filter(p => {
-        const price = utils.extractPrice(p.price);
-        return price >= minPrice && (maxPrice >= 1000 || price <= maxPrice);
-      });
-      
-      // Sort products
-      const sortBy = elements.sortBy.value;
-      switch(sortBy) {
-        case 'price_asc':
-          filtered.sort((a, b) => utils.extractPrice(a.price) - utils.extractPrice(b.price));
-          break;
-        case 'price_desc':
-          filtered.sort((a, b) => utils.extractPrice(b.price) - utils.extractPrice(a.price));
-          break;
-        case 'rating_desc':
-          filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
-          break;
-        case 'newest':
-          filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-          break;
-        default: // relevance - keep original order
-          break;
-      }
-      
-      filteredProducts = filtered;
-      currentPage = 1; // Reset to first page
-      displayProducts(filtered);
-    }
-
-    function clearAllFilters() {
-      elements.sourceFilter.value = '';
-      elements.priceMinRange.value = 0;
-      elements.priceMaxRange.value = 1000;
-      elements.priceMinDisplay.textContent = '0€';
-      elements.priceMaxDisplay.textContent = '1000€+';
-      elements.sortBy.value = 'relevance';
-      elements.searchInput.value = '';
-      
-      // Reset search
-      lastSearchQuery = '';
-      isAISearch = false;
-      elements.searchStats.style.display = "none";
-      
-      // Load initial products
-      performTextSearch('');
-    }
-
-    // ==================== Price Range Handlers ====================
-    function initPriceRangeSliders() {
-      function updatePriceDisplay() {
-        const minVal = parseInt(elements.priceMinRange.value);
-        const maxVal = parseInt(elements.priceMaxRange.value);
-        
-        // Ensure min <= max
-        if (minVal > maxVal) {
-          elements.priceMinRange.value = maxVal;
-          elements.priceMaxRange.value = minVal;
-        }
-        
-        elements.priceMinDisplay.textContent = utils.formatPrice(parseInt(elements.priceMinRange.value));
-        elements.priceMaxDisplay.textContent = utils.formatPrice(parseInt(elements.priceMaxRange.value));
-        
-        applyFilters();
-      }
-      
-      elements.priceMinRange.addEventListener('input', updatePriceDisplay);
-      elements.priceMaxRange.addEventListener('input', updatePriceDisplay);
-    }
-
-    // ==================== Voting & Reviews ====================
-    async function promptVote(productId){
-      if(!currentUser){ showNotification("Veuillez vous connecter pour voter",'error'); return; }
-      const input=prompt("Note (1-5) :"); if(!input) return;
-      const stars=Number(input); if(!Number.isFinite(stars)||stars<1||stars>5){ showNotification("Note invalide (1-5)",'error'); return; }
-      try{
-        const res=await fetch(`${BACKEND_URL}/vote`,{method:"POST",headers:getAuthHeaders(),body:JSON.stringify({product_id:productId,stars})});
-        if(!res.ok) throw new Error(await res.text());
-        const data = await res.json(); 
-        showNotification(`Vote enregistré: ${stars}/5 étoiles`,'success');
-        
-        // Update the rating display locally
-        const productCard = document.querySelector(`[data-id="${productId}"]`);
-        if (productCard && data.user_rating) {
-          const ratingSpan = productCard.querySelector('.rating');
-          if (ratingSpan) {
-            ratingSpan.textContent = `(${Number(data.user_rating).toFixed(1)})`;
-          }
-          const starsContainer = productCard.querySelector('.stars');
-          if (starsContainer) {
-            const starsHTML = renderStarsHTML(Number(data.user_rating));
-            starsContainer.innerHTML = `Vote: ${starsHTML} <span class="rating">(${Number(data.user_rating).toFixed(1)})</span>`;
-          }
-        }
-      }catch(err){ console.error(err); showNotification("Erreur lors du vote",'error'); if(err.message.includes('401')){ removeToken(); displayUserDisconnected(); } }
-    }
-
-    async function submitReview(productId){
-      if(!currentUser){ showNotification("Veuillez vous connecter pour laisser un avis",'error'); return; }
-      const ta=document.getElementById(`review-${productId}`); if(!ta) return;
-      const comment=ta.value.trim(); if(!comment){ showNotification("Écrivez un commentaire",'error'); return; }
-      try{
-        const res=await fetch(`${BACKEND_URL}/review`,{method:"POST",headers:getAuthHeaders(),body:JSON.stringify({product_id:productId,comment})});
-        if(!res.ok) throw new Error(await res.text());
-        const data=await res.json();
-        showNotification("Avis publié avec succès",'success');
-        if(data && Array.isArray(data.reviews)){ 
-          const list=document.getElementById(`reviews-list-${productId}`); 
-          if(list) list.innerHTML=renderReviewsList(data.reviews); 
-        }
-        ta.value="";
-      }catch(err){ console.error(err); showNotification("Erreur lors de l'envoi de l'avis",'error'); if(err.message.includes('401')){ removeToken(); displayUserDisconnected(); } }
-    }
-
-    // ==================== Event Listeners ====================
-    function initEventListeners() {
-      // Search buttons
-      elements.textSearchBtn.addEventListener("click", () => {
-        performTextSearch(elements.searchInput.value.trim());
-      });
-      
-      elements.aiSearchBtn.addEventListener("click", () => {
-        performAISearch(elements.searchInput.value.trim());
-      });
-      
-      // Search input
-      elements.searchInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          // Default to text search on Enter
-          performTextSearch(elements.searchInput.value.trim());
-        }
-      });
-      
-      // Category buttons
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const searchTerm = btn.dataset.search;
-          elements.searchInput.value = searchTerm;
-          performAISearch(searchTerm); // Use AI search for categories
-        });
-      });
-      
-      // Filters
-      elements.sourceFilter.addEventListener('change', applyFilters);
-      elements.sortBy.addEventListener('change', applyFilters);
-      elements.clearFiltersBtn.addEventListener('click', clearAllFilters);
-      
-      // Pagination
-      elements.prevPageBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-          currentPage--;
-          displayProducts(filteredProducts);
-        }
-      });
-      
-      elements.nextPageBtn.addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-        if (currentPage < totalPages) {
-          currentPage++;
-          displayProducts(filteredProducts);
-        }
-      });
-      
-      // Auth
-      elements.logoutBtn.addEventListener("click", logout);
-      
-      // Initialize price sliders
-      initPriceRangeSliders();
-    }
-
-    // ==================== Load Initial Products ====================
-    async function loadInitialProducts(){
-      elements.productsContainer.innerHTML = '<div class="loading">⏳ Chargement des produits...</div>';
-      try{
-        const res = await fetch(`${BACKEND_URL}/products`, { headers: getAuthHeaders() });
-        if(!res.ok) throw new Error(await res.text());
-        const products = await res.json();
-        currentProducts = products;
-        applyFilters();
-      }catch(err){
-        console.error('Initial load error:', err);
-        elements.productsContainer.innerHTML = `<div class="error">❌ Erreur: ${utils.escapeHtml(err.message)}</div>`;
-      }
-    }
-
-    // ==================== Initialize App ====================
-    async function initApp() {
-      await checkUser();
-      initEventListeners();
-      loadInitialProducts();
-    }
-
-    // Expose functions for inline onclick handlers
-    window.promptVote = promptVote;
-    window.submitReview = submitReview;
-
-    // Start the application
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initApp);
-    } else {
-      initApp();
-    }
   </script>
+
 </body>
 </html>
-
-
