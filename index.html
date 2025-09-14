@@ -148,13 +148,13 @@
     const BACKEND_URL = "https://sawem-backend.onrender.com";
     let currentUser = null;
     let authToken = null;
-
+    let currentProducts = [];
+    let filteredProducts = [];
     // Fonction pour rendre les étoiles proportionnelles
     function renderStars(rating) {
       const fullStars = Math.floor(rating);
       const hasHalfStar = (rating - fullStars) >= 0.1;
-      let html = '<div class="stars">';
-
+      let html = '';
       for (let i = 1; i <= 5; i++) {
         if (i <= fullStars) {
           html += '<span class="star full">★</span>';
@@ -164,11 +164,8 @@
           html += '<span class="star empty">★</span>';
         }
       }
-
-      html += ` <span>(${rating.toFixed(1)}/5)</span></div>`;
-      return html;
+      return `<div class="stars">${html}</div> <span>(${rating.toFixed(1)}/5)</span>`;
     }
-
     // Auth functions
     function getToken() {
       if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
@@ -178,7 +175,6 @@
       const token = getToken();
       return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
     }
-
     // Display products function
     function displayProducts(products) {
       const container = document.getElementById('productsContainer');
@@ -191,7 +187,6 @@
         // Vérifier si l'utilisateur est connecté
         const token = localStorage.getItem('sawem_auth_token');
         const isLoggedIn = !!token;
-
         // Déterminer la classe CSS et le nom pour la source
         let sourceClass = 'source-other';
         let sourceName = 'Autre';
@@ -202,9 +197,7 @@
           sourceClass = 'source-amazon';
           sourceName = 'Amazon';
         }
-
         const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
-
         // Afficher les commentaires existants
         const reviewsHTML = product.reviews && product.reviews.length > 0 ?
           product.reviews.map(review => `
@@ -213,7 +206,6 @@
               <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
             </div>
           `).join('') : '<p>Aucun avis pour le moment</p>';
-
         html += `
           <div class="product-card">
             <img src="${product.image}" alt="${product.title}" />
@@ -243,7 +235,6 @@
       });
       container.innerHTML = `<div class="product-grid">${html}</div>`;
     }
-
     // Load products
     async function loadProducts() {
       try {
@@ -263,7 +254,6 @@
         document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
       }
     }
-
     // Search functions
     async function performTextSearch(query) {
       if (!query) {
@@ -288,7 +278,6 @@
         document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
       }
     }
-
     async function performAISearch(query) {
       if (!query) return;
       try {
@@ -306,32 +295,23 @@
         performTextSearch(query);
       }
     }
-
-    // Variables pour les filtres
-    let currentProducts = [];
-    let filteredProducts = [];
-
     // Fonction utilitaire pour extraire le prix numérique
     function extractPrice(priceStr) {
       if (!priceStr) return 0;
       const numbers = priceStr.match(/[\d,\.]+/);
       return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
     }
-
     // Initialisation des sliders de prix
     function initPriceSliders() {
       const priceSlider = document.getElementById('priceRange');
       const priceDisplay = document.getElementById('priceDisplay');
-
       function updatePriceDisplay() {
         const maxVal = parseInt(priceSlider.value);
         priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
         applyFilters();
       }
-
       priceSlider.addEventListener('input', updatePriceDisplay);
     }
-
     // Fonction pour appliquer tous les filtres
     function applyFilters() {
       if (!currentProducts.length) return;
@@ -375,7 +355,6 @@
       filteredProducts = filtered;
       displayProducts(filtered);
     }
-
     // Fonction pour réinitialiser les filtres
     function clearAllFilters() {
       document.getElementById('sourceFilter').value = '';
@@ -388,7 +367,6 @@
       // Recharger tous les produits
       loadProducts();
     }
-
     // Fonction d'authentification améliorée
     async function checkUser() {
       const authStatus = document.getElementById('authStatus');
@@ -428,7 +406,6 @@
         displayUserDisconnected();
       }
     }
-
     function displayUserConnected(user) {
       const authStatus = document.getElementById('authStatus');
       const googleLoginBtn = document.getElementById('googleLoginBtn');
@@ -440,40 +417,33 @@
       const welcomeUserName = document.getElementById('welcomeUserName');
       const adminLink = document.getElementById('adminLink');
       const logoutBtn = document.getElementById('logoutBtn');
-
       if (authStatus) authStatus.style.display = "none";
       if (googleLoginBtn) googleLoginBtn.style.display = "none";
       if (userName) userName.textContent = user.name || "Utilisateur";
       if (userEmail) userEmail.textContent = user.email || "";
-
       if (userAvatar) {
         userAvatar.src = user.photo ||
           `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
         userAvatar.alt = user.name || "Avatar";
       }
-
       if (userInfo) userInfo.style.display = "flex";
       if (welcomeUserName) welcomeUserName.textContent = user.name || "Utilisateur";
       if (welcomeMessage) welcomeMessage.style.display = "block";
-
       // Afficher le lien admin si admin
       if (adminLink && user.role === 'admin') {
         adminLink.style.display = 'inline-flex';
       }
-
       // Ajouter événement au bouton de déconnexion
       logoutBtn.onclick = () => {
         localStorage.removeItem('sawem_auth_token');
         window.location.reload();
       };
     }
-
     function displayUserDisconnected() {
       const authStatus = document.getElementById('authStatus');
       const googleLoginBtn = document.getElementById('googleLoginBtn');
       const welcomeMessage = document.getElementById('welcomeMessage');
       const adminLink = document.getElementById('adminLink');
-
       if (authStatus) {
         authStatus.textContent = "❌ Non connecté";
         authStatus.className = "auth-status disconnected";
@@ -486,7 +456,6 @@
       if (welcomeMessage) welcomeMessage.style.display = 'none';
       if (adminLink) adminLink.style.display = 'none';
     }
-
     // Fonction pour voter
     function promptVote(productId) {
       const token = localStorage.getItem('sawem_auth_token');
@@ -494,7 +463,6 @@
         alert("Veuillez vous connecter pour voter");
         return;
       }
-
       const rating = prompt("Notez ce produit de 1 à 5 étoiles:");
       if (rating && rating >= 1 && rating <= 5) {
         // Appeler l'API de vote ici
@@ -520,7 +488,6 @@
         });
       }
     }
-
     // Fonction pour envoyer un commentaire
     function submitReview(productId) {
       const token = localStorage.getItem('sawem_auth_token');
@@ -528,15 +495,12 @@
         alert("Veuillez vous connecter pour laisser un avis");
         return;
       }
-
       const textarea = document.getElementById(`review-${productId}`);
       const comment = textarea.value.trim();
-
       if (!comment) {
         alert("Veuillez écrire un commentaire");
         return;
       }
-
       fetch(`${BACKEND_URL}/review`, {
         method: 'POST',
         headers: {
@@ -559,7 +523,6 @@
         alert("Erreur lors de l'envoi du commentaire");
       });
     }
-
     // Event listeners
     document.addEventListener('DOMContentLoaded', () => {
       checkUser();
