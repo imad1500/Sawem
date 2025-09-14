@@ -153,23 +153,22 @@
     let filteredProducts = []; // Déclaration déplacée ici
     // Fonction pour rendre les étoiles proportionnelles
     function renderStars(rating) {
-      const fullStars = Math.floor(rating || 0);
-      const decimal = (rating || 0) - fullStars;
-      const hasHalfStar = decimal >= 0.1;
-
-      let starsHTML = '';
-      for (let i = 1; i <= 5; i++) {
-        if (i <= fullStars) {
-          starsHTML += '<span class="star full">★</span>';
-        } else if (hasHalfStar && i === fullStars + 1) {
-          starsHTML += '<span class="star half">★</span>';
-        } else {
-          starsHTML += '<span class="star empty">★</span>';
-        }
-      }
-
-      return `<div class="stars">${starsHTML}</div><span class="rating-text">(${(rating || 0).toFixed(1)}/5)</span>`;
+     const fullStars = Math.floor(rating || 0);
+     const hasHalfStar = ((rating || 0) - fullStars) >= 0.5;
+  
+    let starsHTML = '';
+    for (let i = 1; i <= 5; i++) {
+    if (i <= fullStars) {
+      starsHTML += '<span class="star full">★</span>';
+    } else if (hasHalfStar && i === fullStars + 1) {
+      starsHTML += '<span class="star half">☆</span>'; // Utiliser ☆ pour les demi-étoiles
+    } else {
+      starsHTML += '<span class="star empty">☆</span>';
     }
+  }
+  
+  return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${(rating || 0).toFixed(1)}/5)</span>`;
+}
     // Auth functions
     function getToken() {
       if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
