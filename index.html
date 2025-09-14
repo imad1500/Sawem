@@ -1,4 +1,4 @@
-
+Dernière version Claude
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -169,15 +169,28 @@
   
   return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${(rating || 0).toFixed(1)}/5)</span>`;
 }
-    // Auth functions
-    function getToken() {
-      if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
-      return authToken;
-    }
-    function getAuthHeaders() {
-      const token = getToken();
-      return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
-    }
+    // Récupération du token stocké
+function getToken() {
+  if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
+  return authToken;
+}
+
+// Fonction corrigée : accepte un paramètre isPost pour ajuster les headers
+function getAuthHeaders(isPost = false) {
+  const token = getToken();
+  if (isPost) {
+    return token
+      ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      : { 'Content-Type': 'application/json' };
+  } else {
+    // Pour GET, ne pas ajouter Content-Type
+    return token
+      ? { 'Authorization': `Bearer ${token}` }
+      : {};
+  }
+}
+
+
     // Display products function
     function displayProducts(products) {
       const container = document.getElementById('productsContainer');
@@ -239,65 +252,69 @@
       container.innerHTML = `<div class="product-grid">${html}</div>`;
     }
     // Load products
-    async function loadProducts() {
-      try {
-        console.log('Chargement des produits...'); // Log pour vérifier que la fonction est appelée
-        const res = await fetch(`${BACKEND_URL}/products`, {
-          headers: getAuthHeaders()
-        });
-        console.log('Réponse reçue:', res); // Log de la réponse brute
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const products = await res.json();
-        console.log('Produits reçus:', products); // Log des données des produits
-        currentProducts = products; // Sauvegarder pour les filtres
-        filteredProducts = products;
-        displayProducts(products);
-      } catch (err) {
-        console.error('Load products error:', err);
-        document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
-      }
-    }
+   // Chargement des produits (requête GET sans Content-Type)
+async function loadProducts() {
+  try {
+    console.log('Chargement des produits...');
+    const res = await fetch(`${BACKEND_URL}/products`, {
+      headers: getAuthHeaders(false)  // false = GET
+    });
+    console.log('Réponse reçue:', res);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const products = await res.json();
+    console.log('Produits reçus:', products);
+    currentProducts = products;
+    filteredProducts = products;
+    displayProducts(products);
+  } catch (err) {
+    console.error('Load products error:', err);
+    document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
+  }
+}
+   
     // Search functions
-    async function performTextSearch(query) {
-      if (!query) {
-        loadProducts();
-        return;
-      }
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'text' })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const products = await res.json();
-        displayProducts(products);
-        // Update stats
-        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
-        document.getElementById('searchQuery').textContent = `pour "${query}"`;
-        document.getElementById('searchStats').style.display = 'block';
-      } catch (err) {
-        console.error('Text search error:', err);
-        document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
-      }
-    }
-    async function performAISearch(query) {
-      if (!query) return;
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'ai' })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const products = await res.json();
-        displayProducts(products);
-      } catch (err) {
-        console.error('AI search error:', err);
-        // Fallback to text search
-        performTextSearch(query);
-      }
-    }
+   // Recherche textuelle (requête POST avec Content-Type)
+async function performTextSearch(query) {
+  if (!query) {
+    loadProducts();
+    return;
+  }
+  try {
+    const res = await fetch(`${BACKEND_URL}/search`, {
+      method: 'POST',
+      headers: getAuthHeaders(true), // true = POST
+      body: JSON.stringify({ query: query.trim(), type: 'text' })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const products = await res.json();
+    displayProducts(products);
+    document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+    document.getElementById('searchQuery').textContent = `pour "${query}"`;
+    document.getElementById('searchStats').style.display = 'block';
+  } catch (err) {
+    console.error('Text search error:', err);
+    document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
+  }
+}
+   
+   // Recherche IA (requête POST avec Content-Type)
+async function performAISearch(query) {
+  if (!query) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/search`, {
+      method: 'POST',
+      headers: getAuthHeaders(true), // true = POST
+      body: JSON.stringify({ query: query.trim(), type: 'ai' })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const products = await res.json();
+    displayProducts(products);
+  } catch (err) {
+    console.error('AI search error:', err);
+    performTextSearch(query);
+  }
+}
+   
     // Fonction utilitaire pour extraire le prix numérique
     function extractPrice(priceStr) {
       if (!priceStr) return 0;
