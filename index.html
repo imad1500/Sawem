@@ -166,10 +166,13 @@ function displayProducts(products) {
   }
   let html = '';
   products.forEach(product => {
-    const isLoggedIn = !!currentUser;
+    // Vérifier si l'utilisateur est connecté
+    const token = localStorage.getItem('sawem_auth_token');
+    const isLoggedIn = !!token;
+
     // Déterminer la classe CSS et le nom pour la source
     let sourceClass = 'source-other';
-    let sourceName = product.source ? product.source : 'Autre';
+    let sourceName = 'Autre';
     if (product.source && product.source.toLowerCase().includes('aliexpress')) {
       sourceClass = 'source-aliexpress';
       sourceName = 'AliExpress';
@@ -179,6 +182,15 @@ function displayProducts(products) {
     }
 
     const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
+
+    // Afficher les commentaires existants
+    const reviewsHTML = product.reviews && product.reviews.length > 0 ?
+      product.reviews.map(review => `
+        <div class="review-item">
+          <strong>${review.user_name}</strong>: ${review.comment}
+          <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+        </div>
+      `).join('') : '<p>Aucun avis pour le moment</p>';
 
     html += `
       <div class="product-card">
@@ -194,12 +206,15 @@ function displayProducts(products) {
               Voter
             </button>
           </div>
-          ${isLoggedIn ? `
-            <div class="review-section">
-              <textarea id="review-${product.id}" placeholder="Votre avis..."></textarea>
-              <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
-            </div>
-          ` : ''}
+          <div class="reviews-section">
+            <div class="reviews-list">${reviewsHTML}</div>
+            ${isLoggedIn ? `
+              <div class="review-form">
+                <textarea id="review-${product.id}" placeholder="Votre avis..." rows="2"></textarea>
+                <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
+              </div>
+            ` : '<p class="login-prompt">Connectez-vous pour laisser un avis</p>'}
+          </div>
         </div>
       </div>
     `;
@@ -435,6 +450,77 @@ function displayUserDisconnected() {
   }
   if (welcomeMessage) welcomeMessage.style.display = 'none';
   if (adminLink) adminLink.style.display = 'none';
+}
+// Fonction pour voter
+function promptVote(productId) {
+  const token = localStorage.getItem('sawem_auth_token');
+  if (!token) {
+    alert("Veuillez vous connecter pour voter");
+    return;
+  }
+
+  const rating = prompt("Notez ce produit de 1 à 5 étoiles:");
+  if (rating && rating >= 1 && rating <= 5) {
+    // Appeler l'API de vote ici
+    fetch(`${BACKEND_URL}/vote`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        stars: parseInt(rating)
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(`Vote enregistré: ${rating}/5 étoiles`);
+      loadProducts(); // Recharger les produits
+    })
+    .catch(error => {
+      console.error('Erreur vote:', error);
+      alert("Erreur lors du vote");
+    });
+  }
+}
+// Fonction pour envoyer un commentaire
+function submitReview(productId) {
+  const token = localStorage.getItem('sawem_auth_token');
+  if (!token) {
+    alert("Veuillez vous connecter pour laisser un avis");
+    return;
+  }
+
+  const textarea = document.getElementById(`review-${productId}`);
+  const comment = textarea.value.trim();
+
+  if (!comment) {
+    alert("Veuillez écrire un commentaire");
+    return;
+  }
+
+  fetch(`${BACKEND_URL}/review`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      product_id: productId,
+      comment: comment
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert("Avis publié avec succès");
+    textarea.value = '';
+    loadProducts(); // Recharger les produits
+  })
+  .catch(error => {
+    console.error('Erreur commentaire:', error);
+    alert("Erreur lors de l'envoi du commentaire");
+  });
 }
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
