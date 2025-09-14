@@ -148,23 +148,26 @@
     const BACKEND_URL = "https://sawem-backend.onrender.com";
     let currentUser = null;
     let authToken = null;
-    let currentProducts = [];
-    let filteredProducts = [];
+    let currentProducts = []; // Déclaration déplacée ici
+    let filteredProducts = []; // Déclaration déplacée ici
     // Fonction pour rendre les étoiles proportionnelles
     function renderStars(rating) {
-      const fullStars = Math.floor(rating);
-      const hasHalfStar = (rating - fullStars) >= 0.1;
-      let html = '';
+      const fullStars = Math.floor(rating || 0);
+      const decimal = (rating || 0) - fullStars;
+      const hasHalfStar = decimal >= 0.1;
+
+      let starsHTML = '';
       for (let i = 1; i <= 5; i++) {
         if (i <= fullStars) {
-          html += '<span class="star full">★</span>';
+          starsHTML += '<span class="star full">★</span>';
         } else if (hasHalfStar && i === fullStars + 1) {
-          html += '<span class="star half">★</span>';
+          starsHTML += '<span class="star half">★</span>';
         } else {
-          html += '<span class="star empty">★</span>';
+          starsHTML += '<span class="star empty">★</span>';
         }
       }
-      return `<div class="stars">${html}</div> <span>(${rating.toFixed(1)}/5)</span>`;
+
+      return `<div class="stars">${starsHTML}</div><span class="rating-text">(${(rating || 0).toFixed(1)}/5)</span>`;
     }
     // Auth functions
     function getToken() {
@@ -213,7 +216,7 @@
             <div class="product-info">
               <h3>${product.title}</h3>
               <p class="price">${product.price}</p>
-              <div class="rating">${renderStars(product.user_rating || 0)}</div>
+              <div class="rating">${renderStars(product.user_rating)}</div>
               <div class="product-actions">
                 <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
                 <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
