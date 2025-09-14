@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,18 +6,15 @@
   <title>Sawem Shop</title>
   <meta name="description" content="Sawem Shop - Produits tech et électroniques">
   <meta name="verify-admitad" content="5ae23ad5f3" />
-
   <!-- Preconnect -->
   <link rel="preconnect" href="https://sawem-backend.onrender.com">
   <link rel="preconnect" href="https://api.jina.ai">
   <link rel="dns-prefetch" href="//ui-avatars.com">
   <link rel="icon" type="image/png" href="Images/icone_Sawem.shop.png" />
-
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <!-- ==================== HEADER ==================== -->
   <header>
     <div class="container header-container">
@@ -41,17 +37,13 @@
       </div>
     </div>
   </header>
-
   <!-- ==================== NOTIFICATION ==================== -->
   <div id="notification" class="notification" role="alert" aria-live="polite"></div>
-
   <!-- ==================== MAIN ==================== -->
   <main class="container">
-
     <!-- ===== RECHERCHE & FILTRES ===== -->
     <section class="search-section">
       <h2 class="section-title">Recherche & Filtres</h2>
-
       <!-- Barre de recherche principale -->
       <div class="search-container">
         <input type="text" id="searchInput" placeholder="Rechercher des produits..." class="search-input">
@@ -64,7 +56,6 @@
           </button>
         </div>
       </div>
-
       <!-- Catégories -->
       <div class="categories-section">
         <h2>🔍 Recherche par catégorie</h2>
@@ -83,7 +74,6 @@
           <button class="category-btn" data-search="écrans">🖥️ Écrans</button>
         </div>
       </div>
-
       <!-- Filtres avancés -->
       <div class="filters-container">
         <div class="filter-group">
@@ -95,7 +85,6 @@
             <option value="other">Autres</option>
           </select>
         </div>
-
         <div class="filter-group price-filter-group">
           <label for="priceRange">Gamme de prix :</label>
           <div class="price-range-container">
@@ -106,7 +95,6 @@
             </div>
           </div>
         </div>
-
         <div class="filter-group">
           <label for="sortBy">Trier par :</label>
           <select id="sortBy" class="filter-select">
@@ -117,17 +105,14 @@
             <option value="newest">Plus récents</option>
           </select>
         </div>
-
         <button id="clearFiltersBtn" class="clear-filters-btn">🗑️ Réinitialiser les filtres</button>
       </div>
     </section>
-
     <!-- ===== MESSAGE DE BIENVENUE ===== -->
     <div id="welcomeMessage" class="welcome-message" style="display:none;">
       <h3>Bienvenue <span id="welcomeUserName"></span> ! 👋</h3>
       <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
     </div>
-
     <!-- ===== STATISTIQUES (remplacé) ===== -->
     <div id="searchStats" class="search-stats" style="display: none;">
       <div class="search-results-info">
@@ -135,7 +120,6 @@
         <span id="searchQuery"></span>
       </div>
     </div>
-
     <!-- ===== PRODUITS ===== -->
     <div id="productsContainer" class="products-container">
       <div class="loading-skeleton">
@@ -147,41 +131,33 @@
         <div class="skeleton-card"></div>
       </div>
     </div>
-
     <!-- ===== PAGINATION ===== -->
     <div id="pagination" class="pagination" style="display:none;">
       <button id="prevPageBtn" class="page-btn">← Précédent</button>
       <span id="pageInfo" class="page-info">Page 1</span>
       <button id="nextPageBtn" class="page-btn">Suivant →</button>
     </div>
-
   </main>
-
   <!-- ==================== FOOTER ==================== -->
   <footer>
     <div class="container">
-      <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | 
-      <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
+      <p>&copy; 2025 Sawem.shop - Tous droits réservés. | +33 7 45 43 87 28 | <a href="mailto:imadbelkaceminfo@gmail.com">imadbelkaceminfo@gmail.com</a></p>
     </div>
   </footer>
-
   <!-- ==================== SCRIPTS ==================== -->
   <script>
 const BACKEND_URL = "https://sawem-backend.onrender.com";
 let currentUser = null;
 let authToken = null;
-
 // Auth functions
-function getToken() { 
+function getToken() {
   if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
-  return authToken; 
+  return authToken;
 }
-
-function getAuthHeaders() { 
-  const token = getToken(); 
-  return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'}; 
+function getAuthHeaders() {
+  const token = getToken();
+  return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
 }
-
 // Display products function
 function displayProducts(products) {
   const container = document.getElementById('productsContainer');
@@ -189,7 +165,7 @@ function displayProducts(products) {
     container.innerHTML = '<div class="no-products">Aucun produit trouvé</div>';
     return;
   }
-  
+
   let html = '';
   products.forEach(product => {
     html += `
@@ -206,43 +182,43 @@ function displayProducts(products) {
   });
   container.innerHTML = `<div class="product-grid">${html}</div>`;
 }
-
 // Load products
 async function loadProducts() {
   try {
-    const res = await fetch(`${BACKEND_URL}/products`, { 
-      headers: getAuthHeaders() 
+    const res = await fetch(`${BACKEND_URL}/products`, {
+      headers: getAuthHeaders()
     });
-    
+
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    
+
     const products = await res.json();
+    currentProducts = products; // Sauvegarder pour les filtres
+    filteredProducts = products;
     displayProducts(products);
   } catch (err) {
     console.error('Load products error:', err);
     document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
   }
 }
-
-// Search functions  
+// Search functions
 async function performTextSearch(query) {
-  if (!query) { 
-    loadProducts(); 
-    return; 
+  if (!query) {
+    loadProducts();
+    return;
   }
-  
+
   try {
     const res = await fetch(`${BACKEND_URL}/search`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ query: query.trim(), type: 'text' })
     });
-    
+
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    
+
     const products = await res.json();
     displayProducts(products);
-    
+
     // Update stats
     document.getElementById('resultsCount').textContent = `${products.length} résultats`;
     document.getElementById('searchQuery').textContent = `pour "${query}"`;
@@ -252,19 +228,18 @@ async function performTextSearch(query) {
     document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
   }
 }
-
 async function performAISearch(query) {
   if (!query) return;
-  
+
   try {
     const res = await fetch(`${BACKEND_URL}/search`, {
-      method: 'POST', 
+      method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ query: query.trim(), type: 'ai' })
     });
-    
+
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    
+
     const products = await res.json();
     displayProducts(products);
   } catch (err) {
@@ -273,122 +248,45 @@ async function performAISearch(query) {
     performTextSearch(query);
   }
 }
-
-// Check user auth
-async function checkUser() {
-  try {
-    // Check URL for token
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get('token');
-    if (urlToken) {
-      localStorage.setItem('sawem_auth_token', urlToken);
-      authToken = urlToken;
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    
-    const token = getToken();
-    if (!token) return;
-    
-    const res = await fetch(`${BACKEND_URL}/verify-token`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({token})
-    });
-    
-    if (!res.ok) throw new Error('Token invalid');
-    
-    const data = await res.json();
-    if (data.success && data.user) {
-      currentUser = data.user;
-      
-      // Update UI
-      document.getElementById('authStatus').style.display = 'none';
-      document.getElementById('googleLoginBtn').style.display = 'none';
-      document.getElementById('welcomeUserName').textContent = data.user.name;
-      document.getElementById('welcomeMessage').style.display = 'block';
-      
-      // Show admin link if admin
-      if (data.user.role === 'admin') {
-        document.getElementById('adminLink').style.display = 'flex';
-      }
-    }
-  } catch (err) {
-    console.error('Auth error:', err);
-    authToken = null;
-    localStorage.removeItem('sawem_auth_token');
-  }
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  checkUser();
-  loadProducts();
-  
-  // Search buttons
-  document.getElementById('textSearchBtn').addEventListener('click', () => {
-    const query = document.getElementById('searchInput').value.trim();
-    performTextSearch(query);
-  });
-  
-  document.getElementById('aiSearchBtn').addEventListener('click', () => {
-    const query = document.getElementById('searchInput').value.trim();
-    performAISearch(query);
-  });
-  
-  // Category buttons
-  document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const query = btn.dataset.search;
-      document.getElementById('searchInput').value = query;
-      performTextSearch(query);
-    });
-  });
-});
-
 // Variables pour les filtres
 let currentProducts = [];
 let filteredProducts = [];
-
 // Fonction utilitaire pour extraire le prix numérique
 function extractPrice(priceStr) {
   if (!priceStr) return 0;
   const numbers = priceStr.match(/[\d,\.]+/);
   return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
 }
-
 // Initialisation des sliders de prix
 function initPriceSliders() {
   const minSlider = document.getElementById('priceMinRange');
   const maxSlider = document.getElementById('priceMaxRange');
   const minDisplay = document.getElementById('priceMinDisplay');
   const maxDisplay = document.getElementById('priceMaxDisplay');
-
   function updatePriceDisplay() {
     const minVal = parseInt(minSlider.value);
     const maxVal = parseInt(maxSlider.value);
-    
+
     // S'assurer que min <= max
     if (minVal > maxVal) {
       minSlider.value = maxVal;
       maxSlider.value = minVal;
     }
-    
+
     minDisplay.textContent = minVal > 999 ? '1000€+' : minVal + '€';
     maxDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
-    
+
     applyFilters();
   }
-
   minSlider.addEventListener('input', updatePriceDisplay);
   maxSlider.addEventListener('input', updatePriceDisplay);
 }
-
 // Fonction pour appliquer tous les filtres
 function applyFilters() {
   if (!currentProducts.length) return;
-  
+
   let filtered = [...currentProducts];
-  
+
   // Filtre par source
   const sourceFilter = document.getElementById('sourceFilter').value;
   if (sourceFilter) {
@@ -403,16 +301,16 @@ function applyFilters() {
       });
     }
   }
-  
+
   // Filtre par prix
   const minPrice = parseInt(document.getElementById('priceMinRange').value);
   const maxPrice = parseInt(document.getElementById('priceMaxRange').value);
-  
+
   filtered = filtered.filter(p => {
     const price = extractPrice(p.price);
     return price >= minPrice && (maxPrice >= 1000 || price <= maxPrice);
   });
-  
+
   // Tri
   const sortBy = document.getElementById('sortBy').value;
   switch(sortBy) {
@@ -429,11 +327,10 @@ function applyFilters() {
       filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
       break;
   }
-  
+
   filteredProducts = filtered;
   displayProducts(filtered);
 }
-
 // Fonction pour réinitialiser les filtres
 function clearAllFilters() {
   document.getElementById('sourceFilter').value = '';
@@ -443,35 +340,125 @@ function clearAllFilters() {
   document.getElementById('priceMaxDisplay').textContent = '1000€+';
   document.getElementById('sortBy').value = 'relevance';
   document.getElementById('searchInput').value = '';
-  
+
   // Cacher les stats de recherche
   document.getElementById('searchStats').style.display = 'none';
-  
+
   // Recharger tous les produits
   loadProducts();
 }
+// Fonction d'authentification améliorée
+async function checkUser() {
+  const authStatus = document.getElementById('authStatus');
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
 
-// Modifier la fonction loadProducts pour sauvegarder les produits
-async function loadProducts() {
   try {
-    const res = await fetch(`${BACKEND_URL}/products`, { 
-      headers: getAuthHeaders() 
+    authStatus.textContent = "⏳ Vérification...";
+    authStatus.className = "auth-status loading";
+
+    // Vérifier le token dans l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+
+    if (urlToken) {
+      localStorage.setItem('sawem_auth_token', urlToken);
+      authToken = urlToken;
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const token = getToken();
+    if (!token) {
+      throw new Error("Aucun token");
+    }
+
+    const res = await fetch(`${BACKEND_URL}/verify-token`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({token})
     });
-    
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    
-    const products = await res.json();
-    currentProducts = products; // Sauvegarder pour les filtres
-    filteredProducts = products;
-    displayProducts(products);
+
+    if (!res.ok) throw new Error('Token invalide');
+
+    const data = await res.json();
+    if (data.success && data.user) {
+      currentUser = data.user;
+      displayUserConnected(data.user);
+    } else {
+      throw new Error('Données utilisateur invalides');
+    }
   } catch (err) {
-    console.error('Load products error:', err);
-    document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
+    console.error('Auth error:', err);
+    authToken = null;
+    localStorage.removeItem('sawem_auth_token');
+    displayUserDisconnected();
   }
 }
-</script>
+function displayUserConnected(user) {
+  const authStatus = document.getElementById('authStatus');
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  const welcomeUserName = document.getElementById('welcomeUserName');
+  const adminLink = document.getElementById('adminLink');
 
+  authStatus.style.display = 'none';
+  googleLoginBtn.style.display = 'none';
+
+  if (welcomeUserName) welcomeUserName.textContent = user.name;
+  if (welcomeMessage) welcomeMessage.style.display = 'block';
+
+  if (adminLink && user.role === 'admin') {
+    adminLink.style.display = 'flex';
+  }
+}
+function displayUserDisconnected() {
+  const authStatus = document.getElementById('authStatus');
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  const adminLink = document.getElementById('adminLink');
+
+  authStatus.textContent = "❌ Non connecté";
+  authStatus.className = "auth-status disconnected";
+  authStatus.style.display = "block";
+
+  googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+  googleLoginBtn.style.display = "flex";
+
+  if (welcomeMessage) welcomeMessage.style.display = 'none';
+  if (adminLink) adminLink.style.display = 'none';
+}
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  checkUser();
+  loadProducts();
+
+  // Initialiser les sliders de prix
+  initPriceSliders();
+
+  // Event listeners pour les filtres
+  document.getElementById('sourceFilter').addEventListener('change', applyFilters);
+  document.getElementById('sortBy').addEventListener('change', applyFilters);
+  document.getElementById('clearFiltersBtn').addEventListener('click', clearAllFilters);
+
+  // Search buttons
+  document.getElementById('textSearchBtn').addEventListener('click', () => {
+    const query = document.getElementById('searchInput').value.trim();
+    performTextSearch(query);
+  });
+
+  document.getElementById('aiSearchBtn').addEventListener('click', () => {
+    const query = document.getElementById('searchInput').value.trim();
+    performAISearch(query);
+  });
+
+  // Category buttons
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const query = btn.dataset.search;
+      document.getElementById('searchInput').value = query;
+      performTextSearch(query);
+    });
+  });
+});
+</script>
 </body>
 </html>
-
-
