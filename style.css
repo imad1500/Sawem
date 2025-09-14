@@ -19,6 +19,22 @@ body {
   min-height: 100vh;
 }
 /* ==================== Header ==================== */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 header {
   display: flex;
   justify-content: space-between;
@@ -32,11 +48,6 @@ header {
 }
 header h1 {
   font-size: 1.5rem;
-}
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
 }
 .section-title {
   text-align: center; /* centre le texte */
@@ -122,26 +133,63 @@ header h1 {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
+/* ==================== Filtres basiques ==================== */
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.filter-select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.price-range-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.price-slider {
+  width: 200px;
+}
+.clear-filters-btn {
+  padding: 0.5rem 1rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 /* ==================== Catégories grid ==================== */
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+  margin: 1.5rem 0;
 }
 .category-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 15px;
-  padding: 1.2rem 1rem;
-  font-weight: 600;
+  background: #f8f9fa;
+  color: #495057;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 .category-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  background: #e9ecef;
+  border-color: #0d6efd;
+  color: #0d6efd;
 }
 /* ==================== Main / Produits ==================== */
 main {
@@ -367,43 +415,35 @@ button.send-review:hover {
   header {
     padding: 1rem;
   }
-
   .header-right {
     flex-direction: row;
     gap: 0.5rem;
     align-items: center;
     flex-wrap: wrap;
   }
-
   .auth-status {
     margin-right: 0;
     font-size: 0.7rem;
     padding: 0.2rem 0.5rem;
   }
-
   .user-info {
     max-width: 250px;
     padding: 0.3rem 0.6rem;
   }
-
   .user-name {
     font-size: 0.8rem;
   }
-
   .user-email {
     font-size: 0.6rem;
   }
-
   .logout-btn {
     padding: 0.2rem 0.4rem;
     font-size: 0.7rem;
   }
-
   .google-btn {
     padding: 0.3rem 0.6rem;
     font-size: 0.8rem;
   }
-
   .notification {
     top: 70px;
     right: 10px;
@@ -413,31 +453,25 @@ button.send-review:hover {
     font-size: 0.9rem;
     padding: 0.8rem 1rem;
   }
-
   .notification.show {
     transform: translateX(0);
   }
-
   .welcome-message {
     margin: 1rem 0;
     padding: 1rem;
   }
-
   .welcome-message h3 {
     font-size: 1.2rem;
   }
 }
-
 @media (max-width: 480px) {
   .header-right {
     justify-content: flex-end;
     width: 100%;
   }
-
   .user-info {
     max-width: 200px;
   }
-
   .user-details {
     min-width: 0;
   }
@@ -464,34 +498,6 @@ button:disabled:hover {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-/* ==================== Welcome Message ==================== */
-.welcome-message {
-  background: linear-gradient(135deg, #0d6efd, #28a745);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-.welcome-message h2 {
-  margin-bottom: 0.5rem;
-}
-/* ==================== Notifications ==================== */
-.notification {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  padding: 1rem 1.5rem;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  z-index: 1001;
-  transform: translateX(400px);
-  transition: transform 0.3s ease;
-}
-.notification.success { background-color: #28a745; }
-.notification.error { background-color: #dc3545; }
-.notification.show { transform: translateX(0); }
 /* ==================== Footer ==================== */
 footer {
   background-color: #0d6efd;
