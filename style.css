@@ -1,6 +1,4 @@
-
 /* style.css - version finale adaptée */
-
 /* ==================== Reset / Base ==================== */
 * {
   box-sizing: border-box;
@@ -8,20 +6,18 @@
   padding: 0;
   font-family: 'Arial', sans-serif;
 }
-
 html, body {
   height: 100%;
 }
-
 body {
-  background-color: #f9f9f9;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-attachment: fixed;
   color: #333;
   line-height: 1.6;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
-
 /* ==================== Header ==================== */
 header {
   display: flex;
@@ -34,28 +30,23 @@ header {
   top: 0;
   z-index: 1000;
 }
-
 header h1 {
   font-size: 1.5rem;
 }
-
 .header-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-
 .section-title {
   text-align: center; /* centre le texte */
   margin: 20px 0;     /* espace autour du titre */
 }
-
 /* Chariot à droite */
 .header-right .cart {
   font-size: 1.5rem;
   cursor: pointer;
 }
-
 /* ==================== Bouton Google ==================== */
 .google-btn {
   display: flex;
@@ -70,99 +61,132 @@ header h1 {
   text-decoration: none;
   transition: 0.3s;
 }
-
 .google-btn:hover {
   background-color: #0d6efd;
   color: #fff;
 }
-
 .google-btn .user-avatar {
   width: 24px;
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
 }
-
 /* ==================== Zone de recherche ==================== */
+.search-section {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
 .search-container {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin: 2rem auto;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
-
 .search-container input {
-  padding: 0.5rem 1rem;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 1rem 1.5rem;
+  width: 400px;
+  border: 2px solid #e2e8f0;
+  border-radius: 25px;
   outline: none;
-  font-size: 15px; /* ✅ Taille du texte dans l'input */
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
-
-.search-container button {
-  background-color: #0d6efd;
+.search-container input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+.search-buttons {
+  display: flex;
+  gap: 1rem;
+}
+.search-btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.text-search {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+.ai-search {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+.search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+/* ==================== Catégories grid ==================== */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.category-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border-radius: 15px;
+  padding: 1.2rem 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
-  font-size: 15px; /* ✅ Taille du texte dans l'input */
+  transition: all 0.3s ease;
 }
-
-.search-container button:hover {
-  background-color: #084298;
+.category-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
 }
-
 /* ==================== Main / Produits ==================== */
 main {
   padding: 2rem;
   flex: 1;
 }
-
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
 }
-
+/* ==================== Produits avec fond blanc ==================== */
 .product-card {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  transition: all 0.3s ease;
 }
-
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
 .product-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
 }
-
 .product-info {
   padding: 1rem;
 }
-
 .product-info h3 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
-
 .product-info .price {
   color: #0d6efd;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
-
 .product-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 0.5rem;
 }
-
 .product-actions a.view-btn,
 .product-actions button.vote-btn {
   padding: 0.3rem 0.6rem;
@@ -172,55 +196,45 @@ main {
   font-size: 0.9rem;
   text-decoration: none;
 }
-
 .product-actions a.view-btn {
   background-color: #0d6efd;
   color: white;
 }
-
 .product-actions button.vote-btn {
   background-color: #ffc107;
   color: #333;
 }
-
 /* ==================== Stars ==================== */
 .stars {
   display: flex;
   gap: 2px;
 }
-
 .star.full { color: #ffc107; }
 .star.half { color: #ffc107; opacity: 0.5; }
 .star.empty { color: #ddd; }
-
 /* ==================== Reviews ==================== */
 .reviews-section {
   margin-top: 1rem;
 }
-
 .reviews-list {
   max-height: 150px;
   overflow-y: auto;
   margin-bottom: 0.5rem;
 }
-
 .single-review {
   border-bottom: 1px solid #eee;
   padding: 0.3rem 0;
 }
-
 .rev-head {
   font-weight: bold;
   font-size: 0.9rem;
   display: flex;
   justify-content: space-between;
 }
-
 .rev-body {
   font-size: 0.85rem;
   margin-top: 0.2rem;
 }
-
 textarea {
   width: 100%;
   resize: none;
@@ -229,7 +243,6 @@ textarea {
   border-radius: 5px;
   border: 1px solid #ccc;
 }
-
 /* Bouton Envoyer (reviews) */
 button.send-review {
   background-color: #0d6efd;
@@ -240,75 +253,9 @@ button.send-review {
   cursor: pointer;
   transition: 0.3s;
 }
-
 button.send-review:hover {
   background-color: #084298;
 }
-
-/* Ajouter à votre style.css existant */
-
-/* ==================== Auth Status ==================== */
-.auth-status {
-  background-color: rgba(255,255,255,0.1);
-  padding: 0.3rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  margin-right: 1rem;
-}
-
-.auth-status.loading { color: #ffc107; }
-.auth-status.connected { color: #28a745; }
-.auth-status.disconnected { color: #dc3545; }
-
-/* ==================== User Info ==================== */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background-color: rgba(255,255,255,0.1);
-  padding: 0.4rem 0.8rem;
-  border-radius: 25px;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name {
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-
-.user-email {
-  font-size: 0.7rem;
-  opacity: 0.8;
-}
-
-.logout-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: 0.3s;
-}
-
-.logout-btn:hover {
-  background-color: #c82333;
-}
-
-/* Ajoutez ces styles à votre style.css existant */
-
 /* ==================== Auth Status ==================== */
 .auth-status {
   background-color: rgba(255,255,255,0.1);
@@ -318,11 +265,9 @@ button.send-review:hover {
   margin-right: 1rem;
   white-space: nowrap;
 }
-
 .auth-status.loading { color: #ffc107; }
 .auth-status.connected { color: #28a745; }
 .auth-status.disconnected { color: #dc3545; }
-
 /* ==================== User Info ==================== */
 .user-info {
   display: flex;
@@ -333,7 +278,6 @@ button.send-review:hover {
   border-radius: 25px;
   max-width: 300px;
 }
-
 .user-avatar {
   width: 32px;
   height: 32px;
@@ -341,14 +285,12 @@ button.send-review:hover {
   object-fit: cover;
   border: 2px solid rgba(255,255,255,0.3);
 }
-
 .user-details {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex: 1;
 }
-
 .user-name {
   font-weight: bold;
   font-size: 0.9rem;
@@ -357,7 +299,6 @@ button.send-review:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .user-email {
   font-size: 0.7rem;
   opacity: 0.8;
@@ -366,7 +307,6 @@ button.send-review:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .logout-btn {
   background-color: #dc3545;
   color: white;
@@ -378,11 +318,9 @@ button.send-review:hover {
   transition: 0.3s;
   white-space: nowrap;
 }
-
 .logout-btn:hover {
   background-color: #c82333;
 }
-
 /* ==================== Welcome Message ==================== */
 .welcome-message {
   background: linear-gradient(135deg, #0d6efd, #28a745);
@@ -391,19 +329,14 @@ button.send-review:hover {
   border-radius: 10px;
   text-align: center;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-
 .welcome-message h2 {
   margin-bottom: 0.5rem;
-  font-size: 1.5rem;
 }
-
 .welcome-message p {
   opacity: 0.9;
   font-size: 1rem;
 }
-
 /* ==================== Notifications ==================== */
 .notification {
   position: fixed;
@@ -420,64 +353,104 @@ button.send-review:hover {
   max-width: 300px;
   word-wrap: break-word;
 }
-
-.notification.success { 
+.notification.success {
   background-color: #28a745;
 }
-
-.notification.error { 
+.notification.error {
   background-color: #dc3545;
 }
-
-.notification.show { 
+.notification.show {
   transform: translateX(0);
 }
-
 /* ==================== Responsive Auth ==================== */
 @media (max-width: 768px) {
-  .header-right {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: stretch;
+  header {
+    padding: 1rem;
   }
-  
+
+  .header-right {
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   .auth-status {
     margin-right: 0;
-    text-align: center;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
   }
-  
+
   .user-info {
-    max-width: none;
-    justify-content: center;
+    max-width: 250px;
+    padding: 0.3rem 0.6rem;
   }
-  
-  .user-details {
-    text-align: center;
+
+  .user-name {
+    font-size: 0.8rem;
   }
-  
+
+  .user-email {
+    font-size: 0.6rem;
+  }
+
+  .logout-btn {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .google-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
   .notification {
+    top: 70px;
     right: 10px;
     left: 10px;
     max-width: none;
-    transform: translateY(-100px);
+    transform: translateX(100%);
+    font-size: 0.9rem;
+    padding: 0.8rem 1rem;
   }
-  
+
   .notification.show {
-    transform: translateY(0);
+    transform: translateX(0);
+  }
+
+  .welcome-message {
+    margin: 1rem 0;
+    padding: 1rem;
+  }
+
+  .welcome-message h3 {
+    font-size: 1.2rem;
   }
 }
 
+@media (max-width: 480px) {
+  .header-right {
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .user-info {
+    max-width: 200px;
+  }
+
+  .user-details {
+    min-width: 0;
+  }
+}
 /* ==================== Disabled Buttons ==================== */
 button:disabled, textarea:disabled {
   opacity: 0.5;
   cursor: not-allowed !important;
   background-color: #6c757d !important;
 }
-
 button:disabled:hover {
   background-color: #6c757d !important;
 }
-
 /* ==================== Loading States ==================== */
 .loading-spinner {
   display: inline-block;
@@ -488,11 +461,9 @@ button:disabled:hover {
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
 /* ==================== Welcome Message ==================== */
 .welcome-message {
   background: linear-gradient(135deg, #0d6efd, #28a745);
@@ -502,11 +473,9 @@ button:disabled:hover {
   text-align: center;
   margin-bottom: 2rem;
 }
-
 .welcome-message h2 {
   margin-bottom: 0.5rem;
 }
-
 /* ==================== Notifications ==================== */
 .notification {
   position: fixed;
@@ -520,11 +489,9 @@ button:disabled:hover {
   transform: translateX(400px);
   transition: transform 0.3s ease;
 }
-
 .notification.success { background-color: #28a745; }
 .notification.error { background-color: #dc3545; }
 .notification.show { transform: translateX(0); }
-
 /* ==================== Footer ==================== */
 footer {
   background-color: #0d6efd;
@@ -533,110 +500,18 @@ footer {
   padding: 1rem;
   margin-top: auto;
 }
-
-/* ==================== Responsive Auth CORRIGÉ ==================== */
-@media (max-width: 768px) {
-  header {
-    padding: 1rem;
-  }
-  
-  .header-right {
-    /* GARDER EN LIGNE même sur mobile */
-    flex-direction: row;
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  
-  .auth-status {
-    margin-right: 0;
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-  }
-  
-  .user-info {
-    max-width: 250px;
-    padding: 0.3rem 0.6rem;
-  }
-  
-  .user-name {
-    font-size: 0.8rem;
-  }
-  
-  .user-email {
-    font-size: 0.6rem;
-  }
-  
-  .logout-btn {
-    padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
-  }
-  
-  .google-btn {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-  }
-  
-  /* Notification corrigée pour mobile */
-  .notification {
-    top: 70px;
-    right: 10px;
-    left: 10px;
-    max-width: none;
-    transform: translateX(100%);
-    font-size: 0.9rem;
-    padding: 0.8rem 1rem;
-  }
-  
-  .notification.show {
-    transform: translateX(0);
-  }
-  
-  /* Message de bienvenue responsive */
-  .welcome-message {
-    margin: 1rem 0;
-    padding: 1rem;
-  }
-  
-  .welcome-message h3 {
-    font-size: 1.2rem;
-  }
-}
-
-/* Pour très petits écrans */
-@media (max-width: 480px) {
-  .header-right {
-    justify-content: flex-end;
-    width: 100%;
-  }
-  
-  .user-info {
-    max-width: 200px;
-  }
-  
-  .user-details {
-    min-width: 0; /* Permet la troncature */
-  }
-}
-
-
-/* Ajoutez à la fin de style.css */
-
 /* ==================== Optimisations Performance ==================== */
 .product-grid {
   contain: layout style paint;
 }
-
 .product-card {
   will-change: transform;
   contain: layout style paint;
 }
-
 .product-card img {
   content-visibility: auto;
   contain-intrinsic-size: 250px 200px;
 }
-
 /* Skeleton plus léger */
 .skeleton-card {
   background: #f0f0f0;
@@ -644,33 +519,26 @@ footer {
   height: 400px;
   animation: pulse 1.5s ease-in-out infinite alternate;
 }
-
 @keyframes pulse {
   0% { opacity: 1; }
   100% { opacity: 0.7; }
 }
-
 .skeleton-image {
   height: 200px;
   background: #e0e0e0;
   border-radius: 10px 10px 0 0;
 }
-
 .skeleton-content {
   padding: 1rem;
 }
-
 .skeleton-line {
   height: 20px;
   background: #e0e0e0;
   margin-bottom: 10px;
   border-radius: 4px;
 }
-
 .skeleton-line.short { width: 60%; }
 .skeleton-line.medium { width: 80%; }
-
-
 .admin-link {
   display: flex;
   align-items: center;
@@ -684,7 +552,6 @@ footer {
   transition: all 0.3s ease;
   font-size: 0.875rem;
 }
-
 .admin-link:hover {
   background: linear-gradient(135deg, #c82333, #a71e2a);
   transform: translateY(-1px);
