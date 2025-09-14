@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -19,17 +18,14 @@
       </div>
     </div>
   </header>
-
   <div id="notification" class="notification" role="alert"></div>
-
   <div id="accessDenied" class="access-denied" style="display:none;">
     <h2>❌ Accès refusé</h2>
     <p>Vous devez être administrateur pour accéder à cette page.</p>
     <button onclick="window.location.href='/'">Retour au site</button>
   </div>
-
   <main id="adminMain" class="admin-main" style="display:none;">
-    
+
     <!-- Navigation -->
     <nav class="admin-nav">
       <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
@@ -38,7 +34,6 @@
       <button class="nav-btn" data-section="reviews">💬 Avis</button>
       <button class="nav-btn" data-section="settings">⚙️ Paramètres</button>
     </nav>
-
     <!-- Dashboard Section -->
     <section id="dashboard" class="admin-section active">
       <h2>📊 Tableau de bord</h2>
@@ -60,20 +55,17 @@
           <div id="totalReviews" class="stat-number">-</div>
         </div>
       </div>
-
       <div class="recent-activity">
         <h3>Activité récente</h3>
         <div id="recentActivity" class="activity-list">⏳ Chargement...</div>
       </div>
     </section>
-
     <!-- Products Section -->
     <section id="products" class="admin-section">
       <div class="section-header">
         <h2>📦 Gestion des produits</h2>
         <button id="addProductBtn" class="btn-primary">➕ Ajouter un produit</button>
       </div>
-
       <div class="filters">
         <input type="text" id="productSearch" placeholder="Rechercher un produit...">
         <select id="statusFilter">
@@ -105,7 +97,6 @@
           <option value="autres">Autres</option>
         </select>
       </div>
-
       <div class="products-table-container">
         <table id="productsTable" class="admin-table">
           <thead>
@@ -127,36 +118,31 @@
           </tbody>
         </table>
       </div>
-
       <div class="pagination">
         <button id="prevPage" disabled>← Précédent</button>
         <span id="pageInfo">Page 1</span>
         <button id="nextPage">Suivant →</button>
       </div>
     </section>
-
     <!-- Settings Section -->
     <section id="settings" class="admin-section">
       <h2>⚙️ Paramètres du site</h2>
-      
+
       <div class="settings-grid">
         <div class="setting-card">
           <h3>🗄️ Base de données</h3>
           <button id="backupBtn" class="btn-secondary">Créer une sauvegarde</button>
           <div id="backupStatus"></div>
         </div>
-
         <div class="setting-card">
           <h3>🧹 Maintenance</h3>
           <button id="cacheBtn" class="btn-secondary">Vider le cache</button>
           <button id="reindexBtn" class="btn-secondary">Réindexer les embeddings</button>
         </div>
-
         <div class="setting-card">
           <h3>📊 Statistiques</h3>
           <button id="exportStatsBtn" class="btn-secondary">Exporter les stats</button>
         </div>
-
         <!-- Nouveau bouton Migration -->
         <div class="setting-card">
           <h3>🔄 Migration des données</h3>
@@ -166,7 +152,6 @@
       </div>
     </section>
   </main>
-
   <!-- Modal pour ajouter/modifier un produit -->
   <div id="productModal" class="modal" style="display:none;">
     <div class="modal-content">
@@ -174,21 +159,20 @@
         <h3 id="modalTitle">Ajouter un produit</h3>
         <button id="closeModal" class="close-btn">×</button>
       </div>
-      
+
       <form id="productForm" class="product-form">
         <input type="hidden" id="productId">
-        
+
         <div class="form-group">
           <label for="productTitle">Titre *</label>
           <input type="text" id="productTitle" required>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label for="productPrice">Prix *</label>
             <input type="text" id="productPrice" required placeholder="ex: 29.99€">
           </div>
-          
+
           <div class="form-group">
             <label for="productSource">Source *</label>
             <select id="productSource" required>
@@ -199,18 +183,15 @@
             </select>
           </div>
         </div>
-
         <div class="form-group">
           <label for="productLink">Lien d'affiliation *</label>
           <input type="url" id="productLink" required>
         </div>
-
         <div class="form-group">
           <label for="productImage">URL de l'image *</label>
           <input type="text" id="productImage" required>
           <div id="imagePreview" class="image-preview"></div>
         </div>
-
         <div class="form-group">
           <label for="productStatus">Statut</label>
           <select id="productStatus">
@@ -218,7 +199,6 @@
             <option value="inactive">Inactif</option>
           </select>
         </div>
-
         <!-- Nouveau champ Catégorie -->
         <div class="form-group">
           <label for="productCategory">Catégorie</label>
@@ -238,7 +218,6 @@
             <option value="ecrans">Écrans</option>
           </select>
         </div>
-
         <div class="modal-actions">
           <button type="button" id="cancelBtn" class="btn-secondary">Annuler</button>
           <button type="submit" class="btn-primary">
@@ -248,65 +227,93 @@
       </form>
     </div>
   </div>
-
 <script>
   const BACKEND_URL = "https://sawem-backend.onrender.com";
-document.addEventListener("DOMContentLoaded", () => {
-  const productsTable = document.querySelector("#productsTable tbody");
-  const productForm = document.querySelector("#productForm");
-  const productModal = document.querySelector("#productModal");
-  const addProductBtn = document.getElementById("addProductBtn");
-  const closeModal = document.getElementById("closeModal");
-  const cancelBtn = document.getElementById("cancelBtn");
-  const migrateBtn = document.getElementById("migrateBtn");
-  const migrateStatus = document.getElementById("migrateStatus");
-
+  let currentUser = null;
   let products = [];
   let currentPage = 1;
   const perPage = 10;
 
-  // ========================
+  // Fonctions d'authentification
+  function getToken() {
+    return localStorage.getItem('sawem_auth_token');
+  }
+
+  function getAuthHeaders() {
+    const token = getToken();
+    return token ? {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    } : {
+      'Content-Type': 'application/json'
+    };
+  }
+
+  async function checkAuth() {
+    try {
+      const token = getToken();
+      if (!token) throw new Error('No token');
+
+      const res = await fetch(`${BACKEND_URL}/verify-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+
+      const data = await res.json();
+      if (data.success && data.user && data.user.role === 'admin') {
+        currentUser = data.user;
+        document.getElementById('adminInfo').textContent = `Connecté: ${data.user.name}`;
+        document.getElementById('adminMain').style.display = 'block';
+        loadDashboard();
+      } else {
+        throw new Error('Not admin');
+      }
+    } catch (error) {
+      document.getElementById('accessDenied').style.display = 'block';
+    }
+  }
+
   // Charger les produits
-  // ========================
   async function loadProducts() {
-    const search = document.getElementById("productSearch").value.toLowerCase();
+    const search = document.getElementById("productSearch").value;
     const status = document.getElementById("statusFilter").value;
     const source = document.getElementById("sourceFilter").value;
     const category = document.getElementById("categoryFilter").value;
-
     try {
-     // CORRECT  
-     const res = await fetch(`${BACKEND_URL}/admin/products?page=${currentPage}&limit=${perPage}`, {
-  headers: getAuthHeaders()
-});
-      const data = await res.json();
-      products = data.products || [];
+      let url = `${BACKEND_URL}/admin/products?page=${currentPage}&limit=${perPage}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      if (status) url += `&status=${status}`;
+      if (source) url += `&source=${source}`;
+      if (category) url += `&category=${category}`;
 
-      let filtered = products.filter(p => {
-        return (
-          (!search || p.title.toLowerCase().includes(search)) &&
-          (!status || p.status === status) &&
-          (!source || p.source === source) &&
-          (!category || p.category === category)
-        );
+      const res = await fetch(url, {
+        headers: getAuthHeaders()
       });
 
-      displayProducts(filtered);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      products = data.products || [];
+      displayProducts(products);
+
+      // Mettre à jour la pagination
+      document.getElementById('pageInfo').textContent = `Page ${data.page} sur ${data.totalPages}`;
+      document.getElementById('prevPage').disabled = data.page <= 1;
+      document.getElementById('nextPage').disabled = data.page >= data.totalPages;
     } catch (err) {
       console.error("Erreur chargement produits:", err);
       productsTable.innerHTML = "<tr><td colspan='10'>⚠️ Erreur lors du chargement</td></tr>";
     }
   }
 
-  // ========================
   // Afficher les produits
-  // ========================
   function displayProducts(list) {
+    const productsTable = document.querySelector("#productsTable tbody");
     if (!list.length) {
       productsTable.innerHTML = "<tr><td colspan='10'>Aucun produit trouvé</td></tr>";
       return;
     }
-
     productsTable.innerHTML = list.map(p => `
       <tr>
         <td>${p.id}</td>
@@ -334,13 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ========================
   // Ouvrir modal en édition
-  // ========================
   function openEditModal(id) {
     const p = products.find(x => x.id == id);
     if (!p) return;
-
     document.getElementById("productId").value = p.id;
     document.getElementById("productTitle").value = p.title;
     document.getElementById("productPrice").value = p.price;
@@ -349,17 +353,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("productImage").value = p.image || "";
     document.getElementById("productStatus").value = p.status;
     document.getElementById("productCategory").value = p.category || "";
-
-    productModal.style.display = "block";
+    document.getElementById("productModal").style.display = "block";
   }
 
-  // ========================
   // Supprimer produit
-  // ========================
   async function deleteProduct(id) {
     if (!confirm("Supprimer ce produit ?")) return;
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      const res = await fetch(`${BACKEND_URL}/admin/products/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         loadProducts();
       } else {
@@ -370,14 +374,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ========================
   // Soumission produit
-  // ========================
-  productForm.addEventListener("submit", async (e) => {
+  document.getElementById("productForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    const id = document.getElementById("productId").value;
     const payload = {
-      id: document.getElementById("productId").value,
       title: document.getElementById("productTitle").value,
       price: document.getElementById("productPrice").value,
       source: document.getElementById("productSource").value,
@@ -386,17 +387,17 @@ document.addEventListener("DOMContentLoaded", () => {
       status: document.getElementById("productStatus").value,
       category: document.getElementById("productCategory").value
     };
-
     try {
-      const method = payload.id ? "PUT" : "POST";
-      const res = await fetch("/api/admin/products", {
+      const url = id ? `${BACKEND_URL}/admin/products/${id}` : `${BACKEND_URL}/admin/products`;
+      const method = id ? "PUT" : "POST";
+
+      const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload)
       });
-
       if (res.ok) {
-        productModal.style.display = "none";
+        document.getElementById("productModal").style.display = "none";
         loadProducts();
       } else {
         alert("❌ Erreur lors de l'enregistrement");
@@ -406,13 +407,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ========================
   // Migration des données
-  // ========================
-  migrateBtn.addEventListener("click", async () => {
+  document.getElementById("migrateBtn").addEventListener("click", async () => {
+    const migrateStatus = document.getElementById("migrateStatus");
     migrateStatus.innerText = "⏳ Migration en cours...";
     try {
-      const res = await fetch("/api/admin/migrate", { method: "POST" });
+      const res = await fetch(`${BACKEND_URL}/admin/migrate`, {
+        method: "POST",
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         migrateStatus.innerText = "✅ Migration terminée";
         loadProducts();
@@ -425,31 +428,68 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ========================
   // Gestion du modal
-  // ========================
-  addProductBtn.addEventListener("click", () => {
-    productForm.reset();
+  document.getElementById("addProductBtn").addEventListener("click", () => {
+    document.getElementById("productForm").reset();
     document.getElementById("productId").value = "";
-    productModal.style.display = "block";
+    document.getElementById("productModal").style.display = "block";
   });
-  closeModal.addEventListener("click", () => productModal.style.display = "none");
-  cancelBtn.addEventListener("click", () => productModal.style.display = "none");
+  document.getElementById("closeModal").addEventListener("click", () => {
+    document.getElementById("productModal").style.display = "none";
+  });
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    document.getElementById("productModal").style.display = "none";
+  });
 
-  // ========================
   // Filtres
-  // ========================
   document.getElementById("productSearch").addEventListener("input", loadProducts);
   document.getElementById("statusFilter").addEventListener("change", loadProducts);
   document.getElementById("sourceFilter").addEventListener("change", loadProducts);
   document.getElementById("categoryFilter").addEventListener("change", loadProducts);
 
-  // ========================
+  // Charger le tableau de bord
+  async function loadDashboard() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/stats`, {
+        headers: getAuthHeaders()
+      });
+      const stats = await res.json();
+
+      document.getElementById('activeProducts').textContent = stats.active_products;
+      document.getElementById('totalUsers').textContent = stats.total_users;
+      document.getElementById('totalRatings').textContent = stats.total_ratings;
+      document.getElementById('totalReviews').textContent = stats.total_reviews;
+    } catch (error) {
+      console.error('Load dashboard error:', error);
+    }
+  }
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('sawem_auth_token');
+    window.location.href = '/';
+  });
+
+  // Navigation entre sections
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Retirer active de tous
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+
+      // Activer le bouton et section cliqués
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.section).classList.add('active');
+
+      // Charger les données si nécessaire
+      if (btn.dataset.section === 'products') {
+        loadProducts();
+      }
+    });
+  });
+
   // Initialisation
-  // ========================
-  loadProducts();
-});
+  checkAuth();
 </script>
-
-
 </body>
+</html>
