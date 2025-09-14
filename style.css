@@ -308,14 +308,15 @@ main {
   color: #ffc107;
 }
 .star.half {
-  background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
+  color: #ffeb3b; /* Couleur plus claire pour les demi-étoiles */
 }
 .star.empty {
   color: #ddd;
+}
+.rating-text {
+  margin-left: 0.3rem;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 /* ==================== Reviews ==================== */
 .review-section {
