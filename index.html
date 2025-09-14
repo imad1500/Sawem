@@ -167,15 +167,18 @@ function displayProducts(products) {
   let html = '';
   products.forEach(product => {
     const isLoggedIn = !!currentUser;
+    // Déterminer la classe CSS et le nom pour la source
     let sourceClass = 'source-other';
+    let sourceName = product.source ? product.source : 'Autre';
     if (product.source && product.source.toLowerCase().includes('aliexpress')) {
       sourceClass = 'source-aliexpress';
+      sourceName = 'AliExpress';
     } else if (product.source && product.source.toLowerCase().includes('amazon')) {
       sourceClass = 'source-amazon';
+      sourceName = 'Amazon';
     }
 
-    const sourceInfo = product.source ?
-      `<div class="product-source ${sourceClass}">${product.source}</div>` : '';
+    const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
 
     html += `
       <div class="product-card">
@@ -188,7 +191,7 @@ function displayProducts(products) {
           <div class="product-actions">
             <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
             <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
-              Noter
+              Voter
             </button>
           </div>
           ${isLoggedIn ? `
