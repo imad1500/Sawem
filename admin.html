@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -273,7 +274,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const category = document.getElementById("categoryFilter").value;
 
     try {
-      const res = await fetch(`/api/admin/products?page=${currentPage}&limit=${perPage}`);
+     // CORRECT  
+     const res = await fetch(`${BACKEND_URL}/admin/products?page=${currentPage}&limit=${perPage}`, {
+  headers: getAuthHeaders()
+});
       const data = await res.json();
       products = data.products || [];
 
