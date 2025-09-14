@@ -172,6 +172,12 @@ header h1 {
   gap: 0.6rem;
   margin: 1rem 0;
 }
+.categories-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: #495057;
+  font-weight: 500;
+}
 .category-btn {
   background: #f8f9fa;
   color: #495057;
@@ -291,10 +297,26 @@ main {
 .stars {
   display: flex;
   gap: 2px;
+  align-items: center;
 }
-.star.full { color: #ffc107; }
-.star.half { color: #ffc107; opacity: 0.5; }
-.star.empty { color: #ddd; }
+.star {
+  position: relative;
+  font-size: 1rem;
+  color: #ddd;
+}
+.star.full {
+  color: #ffc107;
+}
+.star.half {
+  background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+.star.empty {
+  color: #ddd;
+}
 /* ==================== Reviews ==================== */
 .review-section {
   margin-top: 1rem;
@@ -320,40 +342,34 @@ main {
   overflow-y: auto;
   margin-bottom: 0.5rem;
 }
-.single-review {
-  border-bottom: 1px solid #eee;
-  padding: 0.3rem 0;
-}
-.rev-head {
-  font-weight: bold;
+.review-item {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
   font-size: 0.9rem;
+}
+.review-item strong {
+  color: #0d6efd;
+}
+.review-date {
+  font-size: 0.75rem;
+  color: #6c757d;
+  float: right;
+}
+.review-form {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-.rev-body {
-  font-size: 0.85rem;
-  margin-top: 0.2rem;
+.review-form textarea {
+  resize: vertical;
+  min-height: 50px;
 }
-textarea {
-  width: 100%;
-  resize: none;
-  padding: 0.4rem;
-  margin-bottom: 0.3rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-/* Bouton Envoyer (reviews) */
-button.send-review {
-  background-color: #0d6efd;
-  color: white;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-button.send-review:hover {
-  background-color: #084298;
+.login-prompt {
+  font-style: italic;
+  color: #6c757d;
+  font-size: 0.9rem;
 }
 /* ==================== Auth Status ==================== */
 .auth-status {
@@ -597,6 +613,7 @@ footer {
 .skeleton-line.short { width: 60%; }
 .skeleton-line.medium { width: 80%; }
 }
+/* ================ Admin Button ================ */
 .admin-link {
   display: inline-flex;
   align-items: center;
@@ -604,55 +621,20 @@ footer {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
   text-decoration: none;
+  border: none;
   border-radius: 4px;
   font-weight: 500;
   transition: all 0.3s ease;
   font-size: 0.8rem;
   gap: 0.2rem;
   white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
 }
 .admin-link:hover {
   background: linear-gradient(135deg, #218838, #1e7e34);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-}
-/* Styles pour les sections de commentaires */
-.reviews-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e9ecef;
-}
-.reviews-list {
-  margin-bottom: 1rem;
-  max-height: 120px;
-  overflow-y: auto;
-}
-.review-item {
-  background: #f8f9fa;
-  padding: 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-.review-item strong {
-  color: #0d6efd;
-}
-.review-date {
-  font-size: 0.75rem;
-  color: #6c757d;
-  float: right;
-}
-.review-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.review-form textarea {
-  resize: vertical;
-  min-height: 50px;
-}
-.login-prompt {
-  font-style: italic;
-  color: #6c757d;
-  font-size: 0.9rem;
+  text-decoration: none;
+  color: white;
 }
