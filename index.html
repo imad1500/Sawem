@@ -247,11 +247,14 @@
     // Load products
     async function loadProducts() {
       try {
+        console.log('Chargement des produits...'); // Log pour vérifier que la fonction est appelée
         const res = await fetch(`${BACKEND_URL}/products`, {
           headers: getAuthHeaders()
         });
+        console.log('Réponse reçue:', res); // Log de la réponse brute
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const products = await res.json();
+        console.log('Produits reçus:', products); // Log des données des produits
         currentProducts = products; // Sauvegarder pour les filtres
         filteredProducts = products;
         displayProducts(products);
