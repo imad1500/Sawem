@@ -32,7 +32,7 @@
           </div>
           <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
         </div>
-        <a id="adminLink" class="admin-link" href="/admin.html" style="display:none;">🔧 Administration</a>
+        <button id="adminLink" class="admin-link" style="display:none;">🔧 Administration</button>
         <a id="googleLoginBtn" class="google-btn" href="#" style="display:none;">Se connecter avec Google</a>
       </div>
     </div>
@@ -145,411 +145,446 @@
   </footer>
   <!-- ==================== SCRIPTS ==================== -->
   <script>
-const BACKEND_URL = "https://sawem-backend.onrender.com";
-let currentUser = null;
-let authToken = null;
-// Auth functions
-function getToken() {
-  if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
-  return authToken;
-}
-function getAuthHeaders() {
-  const token = getToken();
-  return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
-}
-// Display products function
-function displayProducts(products) {
-  const container = document.getElementById('productsContainer');
-  if (!products || products.length === 0) {
-    container.innerHTML = '<div class="no-products">Aucun produit trouvé</div>';
-    return;
-  }
-  let html = '';
-  products.forEach(product => {
-    // Vérifier si l'utilisateur est connecté
-    const token = localStorage.getItem('sawem_auth_token');
-    const isLoggedIn = !!token;
+    const BACKEND_URL = "https://sawem-backend.onrender.com";
+    let currentUser = null;
+    let authToken = null;
 
-    // Déterminer la classe CSS et le nom pour la source
-    let sourceClass = 'source-other';
-    let sourceName = 'Autre';
-    if (product.source && product.source.toLowerCase().includes('aliexpress')) {
-      sourceClass = 'source-aliexpress';
-      sourceName = 'AliExpress';
-    } else if (product.source && product.source.toLowerCase().includes('amazon')) {
-      sourceClass = 'source-amazon';
-      sourceName = 'Amazon';
+    // Fonction pour rendre les étoiles proportionnelles
+    function renderStars(rating) {
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = (rating - fullStars) >= 0.1;
+      let html = '<div class="stars">';
+
+      for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+          html += '<span class="star full">★</span>';
+        } else if (hasHalfStar && i === fullStars + 1) {
+          html += '<span class="star half">★</span>';
+        } else {
+          html += '<span class="star empty">★</span>';
+        }
+      }
+
+      html += ` <span>(${rating.toFixed(1)}/5)</span></div>`;
+      return html;
     }
 
-    const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
+    // Auth functions
+    function getToken() {
+      if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
+      return authToken;
+    }
+    function getAuthHeaders() {
+      const token = getToken();
+      return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
+    }
 
-    // Afficher les commentaires existants
-    const reviewsHTML = product.reviews && product.reviews.length > 0 ?
-      product.reviews.map(review => `
-        <div class="review-item">
-          <strong>${review.user_name}</strong>: ${review.comment}
-          <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-        </div>
-      `).join('') : '<p>Aucun avis pour le moment</p>';
+    // Display products function
+    function displayProducts(products) {
+      const container = document.getElementById('productsContainer');
+      if (!products || products.length === 0) {
+        container.innerHTML = '<div class="no-products">Aucun produit trouvé</div>';
+        return;
+      }
+      let html = '';
+      products.forEach(product => {
+        // Vérifier si l'utilisateur est connecté
+        const token = localStorage.getItem('sawem_auth_token');
+        const isLoggedIn = !!token;
 
-    html += `
-      <div class="product-card">
-        <img src="${product.image}" alt="${product.title}" />
-        ${sourceInfo}
-        <div class="product-info">
-          <h3>${product.title}</h3>
-          <p class="price">${product.price}</p>
-          <p class="rating">⭐ ${product.user_rating || 0}/5</p>
-          <div class="product-actions">
-            <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
-            <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
-              Voter
-            </button>
-          </div>
-          <div class="reviews-section">
-            <div class="reviews-list">${reviewsHTML}</div>
-            ${isLoggedIn ? `
-              <div class="review-form">
-                <textarea id="review-${product.id}" placeholder="Votre avis..." rows="2"></textarea>
-                <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
+        // Déterminer la classe CSS et le nom pour la source
+        let sourceClass = 'source-other';
+        let sourceName = 'Autre';
+        if (product.source && product.source.toLowerCase().includes('aliexpress')) {
+          sourceClass = 'source-aliexpress';
+          sourceName = 'AliExpress';
+        } else if (product.source && product.source.toLowerCase().includes('amazon')) {
+          sourceClass = 'source-amazon';
+          sourceName = 'Amazon';
+        }
+
+        const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
+
+        // Afficher les commentaires existants
+        const reviewsHTML = product.reviews && product.reviews.length > 0 ?
+          product.reviews.map(review => `
+            <div class="review-item">
+              <strong>${review.user_name}</strong>: ${review.comment}
+              <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+            </div>
+          `).join('') : '<p>Aucun avis pour le moment</p>';
+
+        html += `
+          <div class="product-card">
+            <img src="${product.image}" alt="${product.title}" />
+            ${sourceInfo}
+            <div class="product-info">
+              <h3>${product.title}</h3>
+              <p class="price">${product.price}</p>
+              <div class="rating">${renderStars(product.user_rating || 0)}</div>
+              <div class="product-actions">
+                <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
+                <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
+                  Voter
+                </button>
               </div>
-            ` : '<p class="login-prompt">Connectez-vous pour laisser un avis</p>'}
+              <div class="reviews-section">
+                <div class="reviews-list">${reviewsHTML}</div>
+                ${isLoggedIn ? `
+                  <div class="review-form">
+                    <textarea id="review-${product.id}" placeholder="Votre avis..." rows="2"></textarea>
+                    <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
+                  </div>
+                ` : '<p class="login-prompt">Connectez-vous pour laisser un avis</p>'}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    `;
-  });
-  container.innerHTML = `<div class="product-grid">${html}</div>`;
-}
-// Load products
-async function loadProducts() {
-  try {
-    const res = await fetch(`${BACKEND_URL}/products`, {
-      headers: getAuthHeaders()
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const products = await res.json();
-    currentProducts = products; // Sauvegarder pour les filtres
-    filteredProducts = products;
-    displayProducts(products);
-  } catch (err) {
-    console.error('Load products error:', err);
-    document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
-  }
-}
-// Search functions
-async function performTextSearch(query) {
-  if (!query) {
-    loadProducts();
-    return;
-  }
-  try {
-    const res = await fetch(`${BACKEND_URL}/search`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ query: query.trim(), type: 'text' })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const products = await res.json();
-    displayProducts(products);
-    // Update stats
-    document.getElementById('resultsCount').textContent = `${products.length} résultats`;
-    document.getElementById('searchQuery').textContent = `pour "${query}"`;
-    document.getElementById('searchStats').style.display = 'block';
-  } catch (err) {
-    console.error('Text search error:', err);
-    document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
-  }
-}
-async function performAISearch(query) {
-  if (!query) return;
-  try {
-    const res = await fetch(`${BACKEND_URL}/search`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ query: query.trim(), type: 'ai' })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const products = await res.json();
-    displayProducts(products);
-  } catch (err) {
-    console.error('AI search error:', err);
-    // Fallback to text search
-    performTextSearch(query);
-  }
-}
-// Variables pour les filtres
-let currentProducts = [];
-let filteredProducts = [];
-// Fonction utilitaire pour extraire le prix numérique
-function extractPrice(priceStr) {
-  if (!priceStr) return 0;
-  const numbers = priceStr.match(/[\d,\.]+/);
-  return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
-}
-// Initialisation des sliders de prix
-function initPriceSliders() {
-  const priceSlider = document.getElementById('priceRange');
-  const priceDisplay = document.getElementById('priceDisplay');
+        `;
+      });
+      container.innerHTML = `<div class="product-grid">${html}</div>`;
+    }
 
-  function updatePriceDisplay() {
-    const maxVal = parseInt(priceSlider.value);
-    priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
-    applyFilters();
-  }
+    // Load products
+    async function loadProducts() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/products`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        currentProducts = products; // Sauvegarder pour les filtres
+        filteredProducts = products;
+        displayProducts(products);
+      } catch (err) {
+        console.error('Load products error:', err);
+        document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
+      }
+    }
 
-  priceSlider.addEventListener('input', updatePriceDisplay);
-}
-// Fonction pour appliquer tous les filtres
-function applyFilters() {
-  if (!currentProducts.length) return;
-  let filtered = [...currentProducts];
-  // Filtre par source
-  const sourceFilter = document.getElementById('sourceFilter').value;
-  if (sourceFilter) {
-    if (sourceFilter === 'aliexpress') {
-      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
-    } else if (sourceFilter === 'amazon') {
-      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
-    } else if (sourceFilter === 'other') {
+    // Search functions
+    async function performTextSearch(query) {
+      if (!query) {
+        loadProducts();
+        return;
+      }
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'text' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        displayProducts(products);
+        // Update stats
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "${query}"`;
+        document.getElementById('searchStats').style.display = 'block';
+      } catch (err) {
+        console.error('Text search error:', err);
+        document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
+      }
+    }
+
+    async function performAISearch(query) {
+      if (!query) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'ai' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        displayProducts(products);
+      } catch (err) {
+        console.error('AI search error:', err);
+        // Fallback to text search
+        performTextSearch(query);
+      }
+    }
+
+    // Variables pour les filtres
+    let currentProducts = [];
+    let filteredProducts = [];
+
+    // Fonction utilitaire pour extraire le prix numérique
+    function extractPrice(priceStr) {
+      if (!priceStr) return 0;
+      const numbers = priceStr.match(/[\d,\.]+/);
+      return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
+    }
+
+    // Initialisation des sliders de prix
+    function initPriceSliders() {
+      const priceSlider = document.getElementById('priceRange');
+      const priceDisplay = document.getElementById('priceDisplay');
+
+      function updatePriceDisplay() {
+        const maxVal = parseInt(priceSlider.value);
+        priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
+        applyFilters();
+      }
+
+      priceSlider.addEventListener('input', updatePriceDisplay);
+    }
+
+    // Fonction pour appliquer tous les filtres
+    function applyFilters() {
+      if (!currentProducts.length) return;
+      let filtered = [...currentProducts];
+      // Filtre par source
+      const sourceFilter = document.getElementById('sourceFilter').value;
+      if (sourceFilter) {
+        if (sourceFilter === 'aliexpress') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
+        } else if (sourceFilter === 'amazon') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
+        } else if (sourceFilter === 'other') {
+          filtered = filtered.filter(p => {
+            const source = (p.source || '').toLowerCase();
+            return !source.includes('aliexpress') && !source.includes('amazon');
+          });
+        }
+      }
+      // Filtre par prix
+      const maxPrice = parseInt(document.getElementById('priceRange').value);
       filtered = filtered.filter(p => {
-        const source = (p.source || '').toLowerCase();
-        return !source.includes('aliexpress') && !source.includes('amazon');
+        const price = extractPrice(p.price);
+        return price <= maxPrice;
+      });
+      // Tri
+      const sortBy = document.getElementById('sortBy').value;
+      switch(sortBy) {
+        case 'price_asc':
+          filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+          break;
+        case 'price_desc':
+          filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+          break;
+        case 'rating_desc':
+          filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
+          break;
+        case 'newest':
+          filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          break;
+      }
+      filteredProducts = filtered;
+      displayProducts(filtered);
+    }
+
+    // Fonction pour réinitialiser les filtres
+    function clearAllFilters() {
+      document.getElementById('sourceFilter').value = '';
+      document.getElementById('priceRange').value = 1000;
+      document.getElementById('priceDisplay').textContent = '1000€+';
+      document.getElementById('sortBy').value = 'relevance';
+      document.getElementById('searchInput').value = '';
+      // Cacher les stats de recherche
+      document.getElementById('searchStats').style.display = 'none';
+      // Recharger tous les produits
+      loadProducts();
+    }
+
+    // Fonction d'authentification améliorée
+    async function checkUser() {
+      const authStatus = document.getElementById('authStatus');
+      const googleLoginBtn = document.getElementById('googleLoginBtn');
+      try {
+        authStatus.textContent = "⏳ Vérification...";
+        authStatus.className = "auth-status loading";
+        // Vérifier le token dans l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        if (urlToken) {
+          localStorage.setItem('sawem_auth_token', urlToken);
+          authToken = urlToken;
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        const token = getToken();
+        if (!token) {
+          throw new Error("Aucun token");
+        }
+        const res = await fetch(`${BACKEND_URL}/verify-token`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({token})
+        });
+        if (!res.ok) throw new Error('Token invalide');
+        const data = await res.json();
+        if (data.success && data.user) {
+          currentUser = data.user;
+          displayUserConnected(data.user);
+        } else {
+          throw new Error('Données utilisateur invalides');
+        }
+      } catch (err) {
+        console.error('Auth error:', err);
+        authToken = null;
+        localStorage.removeItem('sawem_auth_token');
+        displayUserDisconnected();
+      }
+    }
+
+    function displayUserConnected(user) {
+      const authStatus = document.getElementById('authStatus');
+      const googleLoginBtn = document.getElementById('googleLoginBtn');
+      const userInfo = document.getElementById('userInfo');
+      const userName = document.getElementById('userName');
+      const userEmail = document.getElementById('userEmail');
+      const userAvatar = document.getElementById('userAvatar');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const welcomeUserName = document.getElementById('welcomeUserName');
+      const adminLink = document.getElementById('adminLink');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      if (authStatus) authStatus.style.display = "none";
+      if (googleLoginBtn) googleLoginBtn.style.display = "none";
+      if (userName) userName.textContent = user.name || "Utilisateur";
+      if (userEmail) userEmail.textContent = user.email || "";
+
+      if (userAvatar) {
+        userAvatar.src = user.photo ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
+        userAvatar.alt = user.name || "Avatar";
+      }
+
+      if (userInfo) userInfo.style.display = "flex";
+      if (welcomeUserName) welcomeUserName.textContent = user.name || "Utilisateur";
+      if (welcomeMessage) welcomeMessage.style.display = "block";
+
+      // Afficher le lien admin si admin
+      if (adminLink && user.role === 'admin') {
+        adminLink.style.display = 'inline-flex';
+      }
+
+      // Ajouter événement au bouton de déconnexion
+      logoutBtn.onclick = () => {
+        localStorage.removeItem('sawem_auth_token');
+        window.location.reload();
+      };
+    }
+
+    function displayUserDisconnected() {
+      const authStatus = document.getElementById('authStatus');
+      const googleLoginBtn = document.getElementById('googleLoginBtn');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const adminLink = document.getElementById('adminLink');
+
+      if (authStatus) {
+        authStatus.textContent = "❌ Non connecté";
+        authStatus.className = "auth-status disconnected";
+        authStatus.style.display = "block";
+      }
+      if (googleLoginBtn) {
+        googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+        googleLoginBtn.style.display = "flex";
+      }
+      if (welcomeMessage) welcomeMessage.style.display = 'none';
+      if (adminLink) adminLink.style.display = 'none';
+    }
+
+    // Fonction pour voter
+    function promptVote(productId) {
+      const token = localStorage.getItem('sawem_auth_token');
+      if (!token) {
+        alert("Veuillez vous connecter pour voter");
+        return;
+      }
+
+      const rating = prompt("Notez ce produit de 1 à 5 étoiles:");
+      if (rating && rating >= 1 && rating <= 5) {
+        // Appeler l'API de vote ici
+        fetch(`${BACKEND_URL}/vote`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId,
+            stars: parseInt(rating)
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(`Vote enregistré: ${rating}/5 étoiles`);
+          loadProducts(); // Recharger les produits
+        })
+        .catch(error => {
+          console.error('Erreur vote:', error);
+          alert("Erreur lors du vote");
+        });
+      }
+    }
+
+    // Fonction pour envoyer un commentaire
+    function submitReview(productId) {
+      const token = localStorage.getItem('sawem_auth_token');
+      if (!token) {
+        alert("Veuillez vous connecter pour laisser un avis");
+        return;
+      }
+
+      const textarea = document.getElementById(`review-${productId}`);
+      const comment = textarea.value.trim();
+
+      if (!comment) {
+        alert("Veuillez écrire un commentaire");
+        return;
+      }
+
+      fetch(`${BACKEND_URL}/review`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          comment: comment
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Avis publié avec succès");
+        textarea.value = '';
+        loadProducts(); // Recharger les produits
+      })
+      .catch(error => {
+        console.error('Erreur commentaire:', error);
+        alert("Erreur lors de l'envoi du commentaire");
       });
     }
-  }
-  // Filtre par prix
-  const maxPrice = parseInt(document.getElementById('priceRange').value);
-  filtered = filtered.filter(p => {
-    const price = extractPrice(p.price);
-    return price <= maxPrice;
-  });
-  // Tri
-  const sortBy = document.getElementById('sortBy').value;
-  switch(sortBy) {
-    case 'price_asc':
-      filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
-      break;
-    case 'price_desc':
-      filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
-      break;
-    case 'rating_desc':
-      filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
-      break;
-    case 'newest':
-      filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-      break;
-  }
-  filteredProducts = filtered;
-  displayProducts(filtered);
-}
-// Fonction pour réinitialiser les filtres
-function clearAllFilters() {
-  document.getElementById('sourceFilter').value = '';
-  document.getElementById('priceRange').value = 1000;
-  document.getElementById('priceDisplay').textContent = '1000€+';
-  document.getElementById('sortBy').value = 'relevance';
-  document.getElementById('searchInput').value = '';
-  // Cacher les stats de recherche
-  document.getElementById('searchStats').style.display = 'none';
-  // Recharger tous les produits
-  loadProducts();
-}
-// Fonction d'authentification améliorée
-async function checkUser() {
-  const authStatus = document.getElementById('authStatus');
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  try {
-    authStatus.textContent = "⏳ Vérification...";
-    authStatus.className = "auth-status loading";
-    // Vérifier le token dans l'URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get('token');
-    if (urlToken) {
-      localStorage.setItem('sawem_auth_token', urlToken);
-      authToken = urlToken;
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    const token = getToken();
-    if (!token) {
-      throw new Error("Aucun token");
-    }
-    const res = await fetch(`${BACKEND_URL}/verify-token`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({token})
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      checkUser();
+      loadProducts();
+      // Initialiser les sliders de prix
+      initPriceSliders();
+      // Event listeners pour les filtres
+      document.getElementById('sourceFilter').addEventListener('change', applyFilters);
+      document.getElementById('sortBy').addEventListener('change', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearAllFilters);
+      // Search buttons
+      document.getElementById('textSearchBtn').addEventListener('click', () => {
+        const query = document.getElementById('searchInput').value.trim();
+        performTextSearch(query);
+      });
+      document.getElementById('aiSearchBtn').addEventListener('click', () => {
+        const query = document.getElementById('searchInput').value.trim();
+        performAISearch(query);
+      });
+      // Category buttons
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const query = btn.dataset.search;
+          document.getElementById('searchInput').value = query;
+          performTextSearch(query);
+        });
+      });
     });
-    if (!res.ok) throw new Error('Token invalide');
-    const data = await res.json();
-    if (data.success && data.user) {
-      currentUser = data.user;
-      displayUserConnected(data.user);
-    } else {
-      throw new Error('Données utilisateur invalides');
-    }
-  } catch (err) {
-    console.error('Auth error:', err);
-    authToken = null;
-    localStorage.removeItem('sawem_auth_token');
-    displayUserDisconnected();
-  }
-}
-function displayUserConnected(user) {
-  const authStatus = document.getElementById('authStatus');
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const userInfo = document.getElementById('userInfo');
-  const userName = document.getElementById('userName');
-  const userEmail = document.getElementById('userEmail');
-  const userAvatar = document.getElementById('userAvatar');
-  const welcomeMessage = document.getElementById('welcomeMessage');
-  const welcomeUserName = document.getElementById('welcomeUserName');
-  const adminLink = document.getElementById('adminLink');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  if (authStatus) authStatus.style.display = "none";
-  if (googleLoginBtn) googleLoginBtn.style.display = "none";
-  if (userName) userName.textContent = user.name || "Utilisateur";
-  if (userEmail) userEmail.textContent = user.email || "";
-
-  if (userAvatar) {
-    userAvatar.src = user.photo ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
-    userAvatar.alt = user.name || "Avatar";
-  }
-
-  if (userInfo) userInfo.style.display = "flex";
-  if (welcomeUserName) welcomeUserName.textContent = user.name || "Utilisateur";
-  if (welcomeMessage) welcomeMessage.style.display = "block";
-
-  // Afficher le lien admin si admin
-  if (adminLink && user.role === 'admin') {
-    adminLink.style.display = 'inline-flex';
-  }
-
-  // Ajouter événement au bouton de déconnexion
-  logoutBtn.onclick = () => {
-    localStorage.removeItem('sawem_auth_token');
-    window.location.reload();
-  };
-}
-
-function displayUserDisconnected() {
-  const authStatus = document.getElementById('authStatus');
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const welcomeMessage = document.getElementById('welcomeMessage');
-  const adminLink = document.getElementById('adminLink');
-
-  if (authStatus) {
-    authStatus.textContent = "❌ Non connecté";
-    authStatus.className = "auth-status disconnected";
-    authStatus.style.display = "block";
-  }
-  if (googleLoginBtn) {
-    googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
-    googleLoginBtn.style.display = "flex";
-  }
-  if (welcomeMessage) welcomeMessage.style.display = 'none';
-  if (adminLink) adminLink.style.display = 'none';
-}
-// Fonction pour voter
-function promptVote(productId) {
-  const token = localStorage.getItem('sawem_auth_token');
-  if (!token) {
-    alert("Veuillez vous connecter pour voter");
-    return;
-  }
-
-  const rating = prompt("Notez ce produit de 1 à 5 étoiles:");
-  if (rating && rating >= 1 && rating <= 5) {
-    // Appeler l'API de vote ici
-    fetch(`${BACKEND_URL}/vote`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        product_id: productId,
-        stars: parseInt(rating)
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      alert(`Vote enregistré: ${rating}/5 étoiles`);
-      loadProducts(); // Recharger les produits
-    })
-    .catch(error => {
-      console.error('Erreur vote:', error);
-      alert("Erreur lors du vote");
-    });
-  }
-}
-// Fonction pour envoyer un commentaire
-function submitReview(productId) {
-  const token = localStorage.getItem('sawem_auth_token');
-  if (!token) {
-    alert("Veuillez vous connecter pour laisser un avis");
-    return;
-  }
-
-  const textarea = document.getElementById(`review-${productId}`);
-  const comment = textarea.value.trim();
-
-  if (!comment) {
-    alert("Veuillez écrire un commentaire");
-    return;
-  }
-
-  fetch(`${BACKEND_URL}/review`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      product_id: productId,
-      comment: comment
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    alert("Avis publié avec succès");
-    textarea.value = '';
-    loadProducts(); // Recharger les produits
-  })
-  .catch(error => {
-    console.error('Erreur commentaire:', error);
-    alert("Erreur lors de l'envoi du commentaire");
-  });
-}
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  checkUser();
-  loadProducts();
-  // Initialiser les sliders de prix
-  initPriceSliders();
-  // Event listeners pour les filtres
-  document.getElementById('sourceFilter').addEventListener('change', applyFilters);
-  document.getElementById('sortBy').addEventListener('change', applyFilters);
-  document.getElementById('clearFiltersBtn').addEventListener('click', clearAllFilters);
-  // Search buttons
-  document.getElementById('textSearchBtn').addEventListener('click', () => {
-    const query = document.getElementById('searchInput').value.trim();
-    performTextSearch(query);
-  });
-  document.getElementById('aiSearchBtn').addEventListener('click', () => {
-    const query = document.getElementById('searchInput').value.trim();
-    performAISearch(query);
-  });
-  // Category buttons
-  document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const query = btn.dataset.search;
-      document.getElementById('searchInput').value = query;
-      performTextSearch(query);
-    });
-  });
-});
-</script>
+  </script>
 </body>
 </html>
