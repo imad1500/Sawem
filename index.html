@@ -90,13 +90,12 @@
             <option value="other">Autres</option>
           </select>
         </div>
-        <div class="filter-group">
+        <div class="filter-group price-filter-group">
           <label for="priceRange">Gamme de prix :</label>
           <div class="price-range-container">
-            <input type="range" id="priceMinRange" class="price-slider" min="0" max="1000" value="0" step="10">
-            <input type="range" id="priceMaxRange" class="price-slider" min="0" max="1000" value="1000" step="10">
+            <input type="range" id="priceRange" class="price-slider" min="0" max="1000" value="1000" step="10">
             <div class="price-display">
-              <span id="priceMinDisplay">0€</span> - <span id="priceMaxDisplay">1000€+</span>
+              <span>0€ - <span id="priceDisplay">1000€+</span></span>
             </div>
           </div>
         </div>
@@ -168,7 +167,16 @@ function displayProducts(products) {
   let html = '';
   products.forEach(product => {
     const isLoggedIn = !!currentUser;
-    const sourceInfo = product.source ? `<div class="product-source">${product.source}</div>` : '';
+    let sourceClass = 'source-other';
+    if (product.source && product.source.toLowerCase().includes('aliexpress')) {
+      sourceClass = 'source-aliexpress';
+    } else if (product.source && product.source.toLowerCase().includes('amazon')) {
+      sourceClass = 'source-amazon';
+    }
+
+    const sourceInfo = product.source ?
+      `<div class="product-source ${sourceClass}">${product.source}</div>` : '';
+
     html += `
       <div class="product-card">
         <img src="${product.image}" alt="${product.title}" />
@@ -263,24 +271,16 @@ function extractPrice(priceStr) {
 }
 // Initialisation des sliders de prix
 function initPriceSliders() {
-  const minSlider = document.getElementById('priceMinRange');
-  const maxSlider = document.getElementById('priceMaxRange');
-  const minDisplay = document.getElementById('priceMinDisplay');
-  const maxDisplay = document.getElementById('priceMaxDisplay');
+  const priceSlider = document.getElementById('priceRange');
+  const priceDisplay = document.getElementById('priceDisplay');
+
   function updatePriceDisplay() {
-    const minVal = parseInt(minSlider.value);
-    const maxVal = parseInt(maxSlider.value);
-    // S'assurer que min <= max
-    if (minVal > maxVal) {
-      minSlider.value = maxVal;
-      maxSlider.value = minVal;
-    }
-    minDisplay.textContent = minVal > 999 ? '1000€+' : minVal + '€';
-    maxDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
+    const maxVal = parseInt(priceSlider.value);
+    priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
     applyFilters();
   }
-  minSlider.addEventListener('input', updatePriceDisplay);
-  maxSlider.addEventListener('input', updatePriceDisplay);
+
+  priceSlider.addEventListener('input', updatePriceDisplay);
 }
 // Fonction pour appliquer tous les filtres
 function applyFilters() {
@@ -301,11 +301,10 @@ function applyFilters() {
     }
   }
   // Filtre par prix
-  const minPrice = parseInt(document.getElementById('priceMinRange').value);
-  const maxPrice = parseInt(document.getElementById('priceMaxRange').value);
+  const maxPrice = parseInt(document.getElementById('priceRange').value);
   filtered = filtered.filter(p => {
     const price = extractPrice(p.price);
-    return price >= minPrice && (maxPrice >= 1000 || price <= maxPrice);
+    return price <= maxPrice;
   });
   // Tri
   const sortBy = document.getElementById('sortBy').value;
@@ -329,10 +328,8 @@ function applyFilters() {
 // Fonction pour réinitialiser les filtres
 function clearAllFilters() {
   document.getElementById('sourceFilter').value = '';
-  document.getElementById('priceMinRange').value = 0;
-  document.getElementById('priceMaxRange').value = 1000;
-  document.getElementById('priceMinDisplay').textContent = '0€';
-  document.getElementById('priceMaxDisplay').textContent = '1000€+';
+  document.getElementById('priceRange').value = 1000;
+  document.getElementById('priceDisplay').textContent = '1000€+';
   document.getElementById('sortBy').value = 'relevance';
   document.getElementById('searchInput').value = '';
   // Cacher les stats de recherche
@@ -382,27 +379,57 @@ async function checkUser() {
 function displayUserConnected(user) {
   const authStatus = document.getElementById('authStatus');
   const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const userInfo = document.getElementById('userInfo');
+  const userName = document.getElementById('userName');
+  const userEmail = document.getElementById('userEmail');
+  const userAvatar = document.getElementById('userAvatar');
   const welcomeMessage = document.getElementById('welcomeMessage');
   const welcomeUserName = document.getElementById('welcomeUserName');
   const adminLink = document.getElementById('adminLink');
-  authStatus.style.display = 'none';
-  googleLoginBtn.style.display = 'none';
-  if (welcomeUserName) welcomeUserName.textContent = user.name;
-  if (welcomeMessage) welcomeMessage.style.display = 'block';
-  if (adminLink && user.role === 'admin') {
-    adminLink.style.display = 'flex';
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (authStatus) authStatus.style.display = "none";
+  if (googleLoginBtn) googleLoginBtn.style.display = "none";
+  if (userName) userName.textContent = user.name || "Utilisateur";
+  if (userEmail) userEmail.textContent = user.email || "";
+
+  if (userAvatar) {
+    userAvatar.src = user.photo ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40&background=0d6efd&color=fff`;
+    userAvatar.alt = user.name || "Avatar";
   }
+
+  if (userInfo) userInfo.style.display = "flex";
+  if (welcomeUserName) welcomeUserName.textContent = user.name || "Utilisateur";
+  if (welcomeMessage) welcomeMessage.style.display = "block";
+
+  // Afficher le lien admin si admin
+  if (adminLink && user.role === 'admin') {
+    adminLink.style.display = 'inline-flex';
+  }
+
+  // Ajouter événement au bouton de déconnexion
+  logoutBtn.onclick = () => {
+    localStorage.removeItem('sawem_auth_token');
+    window.location.reload();
+  };
 }
+
 function displayUserDisconnected() {
   const authStatus = document.getElementById('authStatus');
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const welcomeMessage = document.getElementById('welcomeMessage');
   const adminLink = document.getElementById('adminLink');
-  authStatus.textContent = "❌ Non connecté";
-  authStatus.className = "auth-status disconnected";
-  authStatus.style.display = "block";
-  googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
-  googleLoginBtn.style.display = "flex";
+
+  if (authStatus) {
+    authStatus.textContent = "❌ Non connecté";
+    authStatus.className = "auth-status disconnected";
+    authStatus.style.display = "block";
+  }
+  if (googleLoginBtn) {
+    googleLoginBtn.href = `${BACKEND_URL}/auth/google`;
+    googleLoginBtn.style.display = "flex";
+  }
   if (welcomeMessage) welcomeMessage.style.display = 'none';
   if (adminLink) adminLink.style.display = 'none';
 }
