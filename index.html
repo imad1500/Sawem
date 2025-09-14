@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -166,48 +167,92 @@
 
   <!-- ==================== SCRIPTS ==================== -->
   <script>
-    // Gestion des recherches
-    const searchInput = document.getElementById("searchInput");
-    const textSearchBtn = document.getElementById("textSearchBtn");
-    const aiSearchBtn = document.getElementById("aiSearchBtn");
-    const categoryBtns = document.querySelectorAll(".category-btn");
-    const productsContainer = document.getElementById("productsContainer");
-    const searchStats = document.getElementById("searchStats");
-    const resultsCount = document.getElementById("resultsCount");
-    const searchQuery = document.getElementById("searchQuery");
+    const BACKEND_URL = "https://sawem-backend.onrender.com";
 
-    function performTextSearch(query) {
-      if (!query) return;
-      searchStats.style.display = "block";
-      searchQuery.textContent = `pour "${query}"`;
-      resultsCount.textContent = "Chargement...";
-      productsContainer.innerHTML = "<p>🔄 Recherche en cours...</p>";
-      // Ici tu ajoutes ton fetch API backend
+let currentUser = null;
+let authToken = null;
+
+// Auth functions
+function getToken() { return authToken || localStorage.getItem('sawem_auth_token'); }
+function getAuthHeaders() { 
+  const token = getToken(); 
+  return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'}; 
+}
+
+// Load products
+async function loadProducts() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/products`, { headers: getAuthHeaders() });
+    const products = await res.json();
+    displayProducts(products);
+  } catch (err) {
+    document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement</p>';
+  }
+}
+
+// Search functions
+async function performTextSearch(query) {
+  if (!query) { loadProducts(); return; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/search`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ query: query.trim(), type: 'text' })
+    });
+    const products = await res.json();
+    displayProducts(products);
+    document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+    document.getElementById('searchQuery').textContent = `pour "${query}"`;
+    document.getElementById('searchStats').style.display = 'block';
+  } catch (err) {
+    document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
+  }
+}
+
+async function performAISearch(query) {
+  if (!query) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/search`, {
+      method: 'POST', 
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ query: query.trim(), type: 'ai' })
+    });
+    const products = await res.json();
+    displayProducts(products);
+  } catch (err) {
+    performTextSearch(query); // Fallback
+  }
+}
+
+// Check user auth
+async function checkUser() {
+  try {
+    const token = getToken();
+    if (!token) throw new Error("No token");
+    const res = await fetch(`${BACKEND_URL}/verify-token`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({token})
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentUser = data.user;
+      document.getElementById('welcomeUserName').textContent = data.user.name;
+      document.getElementById('welcomeMessage').style.display = 'block';
+      if (data.user.email === 'imadbelkaceminfo@gmail.com') {
+        document.getElementById('adminLink').style.display = 'flex';
+      }
     }
+  } catch (err) {
+    console.error('Auth error:', err);
+  }
+}
 
-    function performAISearch(query) {
-      if (!query) return;
-      searchStats.style.display = "block";
-      searchQuery.textContent = `IA pour "${query}"`;
-      resultsCount.textContent = "Chargement...";
-      productsContainer.innerHTML = "<p>🤖 Recherche IA en cours...</p>";
-      // Ici tu ajoutes ton fetch API backend IA
-    }
-
-    textSearchBtn.addEventListener("click", () => {
-      performTextSearch(searchInput.value.trim());
-    });
-
-    aiSearchBtn.addEventListener("click", () => {
-      performAISearch(searchInput.value.trim());
-    });
-
-    categoryBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const query = btn.getAttribute("data-search");
-        performTextSearch(query);
-      });
-    });
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  checkUser();
+  loadProducts();
+});
   </script>
 
 </body>
