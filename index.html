@@ -344,8 +344,134 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// Variables pour les filtres
+let currentProducts = [];
+let filteredProducts = [];
+
+// Fonction utilitaire pour extraire le prix numérique
+function extractPrice(priceStr) {
+  if (!priceStr) return 0;
+  const numbers = priceStr.match(/[\d,\.]+/);
+  return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
+}
+
+// Initialisation des sliders de prix
+function initPriceSliders() {
+  const minSlider = document.getElementById('priceMinRange');
+  const maxSlider = document.getElementById('priceMaxRange');
+  const minDisplay = document.getElementById('priceMinDisplay');
+  const maxDisplay = document.getElementById('priceMaxDisplay');
+
+  function updatePriceDisplay() {
+    const minVal = parseInt(minSlider.value);
+    const maxVal = parseInt(maxSlider.value);
+    
+    // S'assurer que min <= max
+    if (minVal > maxVal) {
+      minSlider.value = maxVal;
+      maxSlider.value = minVal;
+    }
+    
+    minDisplay.textContent = minVal > 999 ? '1000€+' : minVal + '€';
+    maxDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
+    
+    applyFilters();
+  }
+
+  minSlider.addEventListener('input', updatePriceDisplay);
+  maxSlider.addEventListener('input', updatePriceDisplay);
+}
+
+// Fonction pour appliquer tous les filtres
+function applyFilters() {
+  if (!currentProducts.length) return;
+  
+  let filtered = [...currentProducts];
+  
+  // Filtre par source
+  const sourceFilter = document.getElementById('sourceFilter').value;
+  if (sourceFilter) {
+    if (sourceFilter === 'aliexpress') {
+      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
+    } else if (sourceFilter === 'amazon') {
+      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
+    } else if (sourceFilter === 'other') {
+      filtered = filtered.filter(p => {
+        const source = (p.source || '').toLowerCase();
+        return !source.includes('aliexpress') && !source.includes('amazon');
+      });
+    }
+  }
+  
+  // Filtre par prix
+  const minPrice = parseInt(document.getElementById('priceMinRange').value);
+  const maxPrice = parseInt(document.getElementById('priceMaxRange').value);
+  
+  filtered = filtered.filter(p => {
+    const price = extractPrice(p.price);
+    return price >= minPrice && (maxPrice >= 1000 || price <= maxPrice);
+  });
+  
+  // Tri
+  const sortBy = document.getElementById('sortBy').value;
+  switch(sortBy) {
+    case 'price_asc':
+      filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+      break;
+    case 'price_desc':
+      filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+      break;
+    case 'rating_desc':
+      filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
+      break;
+    case 'newest':
+      filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      break;
+  }
+  
+  filteredProducts = filtered;
+  displayProducts(filtered);
+}
+
+// Fonction pour réinitialiser les filtres
+function clearAllFilters() {
+  document.getElementById('sourceFilter').value = '';
+  document.getElementById('priceMinRange').value = 0;
+  document.getElementById('priceMaxRange').value = 1000;
+  document.getElementById('priceMinDisplay').textContent = '0€';
+  document.getElementById('priceMaxDisplay').textContent = '1000€+';
+  document.getElementById('sortBy').value = 'relevance';
+  document.getElementById('searchInput').value = '';
+  
+  // Cacher les stats de recherche
+  document.getElementById('searchStats').style.display = 'none';
+  
+  // Recharger tous les produits
+  loadProducts();
+}
+
+// Modifier la fonction loadProducts pour sauvegarder les produits
+async function loadProducts() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/products`, { 
+      headers: getAuthHeaders() 
+    });
+    
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    
+    const products = await res.json();
+    currentProducts = products; // Sauvegarder pour les filtres
+    filteredProducts = products;
+    displayProducts(products);
+  } catch (err) {
+    console.error('Load products error:', err);
+    document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
+  }
+}
 </script>
 
 </body>
 </html>
+
 
