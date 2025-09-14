@@ -167,14 +167,29 @@ function displayProducts(products) {
   }
   let html = '';
   products.forEach(product => {
+    const isLoggedIn = !!currentUser;
+    const sourceInfo = product.source ? `<div class="product-source">${product.source}</div>` : '';
+
     html += `
       <div class="product-card">
         <img src="${product.image}" alt="${product.title}" />
+        ${sourceInfo}
         <div class="product-info">
           <h3>${product.title}</h3>
           <p class="price">${product.price}</p>
           <p class="rating">⭐ ${product.user_rating || 0}/5</p>
-          <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
+          <div class="product-actions">
+            <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
+            <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
+              Noter
+            </button>
+          </div>
+          ${isLoggedIn ? `
+            <div class="review-section">
+              <textarea id="review-${product.id}" placeholder="Votre avis..."></textarea>
+              <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
