@@ -1,3 +1,4 @@
+
 /* ==================== Reset / Base ==================== */
 * {
   box-sizing: border-box;
@@ -611,7 +612,7 @@ footer {
 }
 .skeleton-line.short { width: 60%; }
 .skeleton-line.medium { width: 80%; }
-}
+
 /* ================ Admin Button ================ */
 .admin-link {
   display: inline-flex;
@@ -636,4 +637,20 @@ footer {
   box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
   text-decoration: none;
   color: white;
+}
+
+/* Prix - un seul slider - CORRIGER DANS STYLE.CSS */
+.price-range-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.price-slider {
+  width: 180px;
+}
+
+.price-display {
+  font-size: 0.9rem;
+  color: #6c757d;
 }
