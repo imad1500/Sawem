@@ -41,6 +41,11 @@
   <div id="notification" class="notification" role="alert" aria-live="polite"></div>
   <!-- ==================== MAIN ==================== -->
   <main class="container">
+    <!-- ===== MESSAGE DE BIENVENUE ===== -->
+    <div id="welcomeMessage" class="welcome-message" style="display:none;">
+      <h3>Bienvenue <span id="welcomeUserName"></span> ! 👋</h3>
+      <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
+    </div>
     <!-- ===== RECHERCHE & FILTRES ===== -->
     <section class="search-section">
       <h2 class="section-title">Produits Tech et Electroniques</h2>
@@ -108,11 +113,6 @@
         <button id="clearFiltersBtn" class="clear-filters-btn">Réinitialiser les filtres</button>
       </div>
     </section>
-    <!-- ===== MESSAGE DE BIENVENUE ===== -->
-    <div id="welcomeMessage" class="welcome-message" style="display:none;">
-      <h3>Bienvenue <span id="welcomeUserName"></span> ! 👋</h3>
-      <p>Vous pouvez maintenant voter et laisser des avis sur les produits.</p>
-    </div>
     <!-- ===== STATISTIQUES (remplacé) ===== -->
     <div id="searchStats" class="search-stats" style="display: none;">
       <div class="search-results-info">
@@ -169,7 +169,6 @@ function displayProducts(products) {
   products.forEach(product => {
     const isLoggedIn = !!currentUser;
     const sourceInfo = product.source ? `<div class="product-source">${product.source}</div>` : '';
-
     html += `
       <div class="product-card">
         <img src="${product.image}" alt="${product.title}" />
