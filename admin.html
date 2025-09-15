@@ -273,23 +273,53 @@
       document.getElementById('accessDenied').style.display = 'block';
     }
   }
+  function cleanPrice(price, source) {
+    if (!price) return "Prix non disponible";
+    try {
+      let cleanedPrice = String(price).trim();
+
+      // Pour AliExpress, remplacer ? par € et ajouter € si absent
+      if (source && source.toLowerCase().includes('aliexpress')) {
+        cleanedPrice = cleanedPrice.replace(/\?/g, '€');
+        // Si pas de devise mais contient des chiffres, ajouter €
+        if (!/[€$£¥]/.test(cleanedPrice) && /[\d,.]/.test(cleanedPrice)) {
+          cleanedPrice = cleanedPrice + ' €';
+        }
+      }
+
+      // Pour Amazon, garder $ si présent, sinon ajouter $
+      if (source && source.toLowerCase().includes('amazon')) {
+        if (!/[€$£¥]/.test(cleanedPrice) && /[\d,.]/.test(cleanedPrice)) {
+          cleanedPrice = '$' + cleanedPrice;
+        }
+      }
+
+      // Pour autres sources, ajouter € par défaut si pas de devise
+      if (source && !source.toLowerCase().includes('amazon') && !source.toLowerCase().includes('aliexpress')) {
+        if (!/[€$£¥]/.test(cleanedPrice) && /[\d,.]/.test(cleanedPrice)) {
+          cleanedPrice = cleanedPrice + ' €';
+        }
+      }
+
+      return cleanedPrice;
+    } catch (error) {
+      console.error('cleanPrice error:', error);
+      return String(price) || "Prix non disponible";
+    }
+  }
   // CORRECTION 1: Activité récente
   async function loadRecentActivity() {
     try {
       const res = await fetch(`${BACKEND_URL}/admin/recent-activity`, {
         headers: getAuthHeaders()
       });
-
       if (!res.ok) throw new Error('Failed to load activity');
-
       const activities = await res.json();
       const container = document.getElementById('recentActivity');
-
       if (activities.length === 0) {
         container.innerHTML = '<p>Aucune activité récente</p>';
         return;
       }
-
       container.innerHTML = activities.map(activity => `
         <div class="activity-item">
           <div class="activity-icon">${getActivityIcon(activity.type)}</div>
@@ -316,7 +346,6 @@
     const status = document.getElementById("statusFilter")?.value || "";
     const source = document.getElementById("sourceFilter")?.value || "";
     const category = document.getElementById("categoryFilter")?.value || "";
-
     try {
       let url = `${BACKEND_URL}/admin/products?page=${currentPage}&limit=${perPage}`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -334,7 +363,6 @@
       }
       const data = await res.json();
       console.log('Products data:', data); // Debug
-
       products = data.products || [];
       displayProducts(products);
       updateProductsPagination(data);
@@ -359,7 +387,6 @@
       productsTable.innerHTML = "<tr><td colspan='10' class='text-center'>Aucun produit trouvé</td></tr>";
       return;
     }
-
     productsTable.innerHTML = list.map(p => `
       <tr>
         <td><strong>#${p.id}</strong></td>
@@ -370,7 +397,7 @@
         <td>
           <div class="product-title" title="${p.title}">${p.title}</div>
         </td>
-        <td><strong style="color: #0d6efd;">${p.price}</strong></td>
+        <td><strong style="color: #0d6efd;">${cleanPrice(p.price, p.source)}</strong></td>
         <td>
           <span class="source-badge source-${p.source && p.source.toLowerCase().includes('aliexpress') ? 'aliexpress' :  p.source && p.source.toLowerCase().includes('amazon') ? 'amazon' : 'other'}">
             ${p.source && p.source.toLowerCase().includes('aliexpress') ? 'AliExpress' : p.source && p.source.toLowerCase().includes('amazon') ? 'Amazon' : 'Autre'}
@@ -577,7 +604,6 @@
   document.getElementById('productImage').addEventListener('input', function() {
     const imageUrl = this.value;
     const preview = document.getElementById('imagePreview');
-
     if (imageUrl) {
       let fullImageUrl = imageUrl;
       if (imageUrl.startsWith('Images/')) {
@@ -599,7 +625,6 @@
     const productImage = document.getElementById('productImage').value;
     const productStatus = document.getElementById('productStatus').value;
     const productCategory = document.getElementById('productCategory').value;
-
     const productData = {
       title: productTitle,
       price: productPrice,
@@ -609,7 +634,6 @@
       status: productStatus,
       category: productCategory
     };
-
     try {
       let url = `${BACKEND_URL}/admin/products`;
       let method = 'POST';
@@ -617,17 +641,14 @@
         url += `/${productId}`;
         method = 'PUT';
       }
-
       const response = await fetch(url, {
         method: method,
         headers: getAuthHeaders(),
         body: JSON.stringify(productData)
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
       if (data.success) {
         showNotification('Produit enregistré avec succès!');
@@ -657,12 +678,10 @@
     const form = document.getElementById('productForm');
     const modalTitle = document.getElementById('modalTitle');
     const submitText = document.getElementById('submitText');
-
     // Réinitialiser le formulaire
     form.reset();
     document.getElementById('productId').value = '';
     document.getElementById('imagePreview').innerHTML = '<p>Aucune image sélectionnée</p>';
-
     if (product) {
       // Mode édition
       modalTitle.textContent = 'Modifier un produit';
@@ -675,7 +694,6 @@
       document.getElementById('productImage').value = product.image;
       document.getElementById('productStatus').value = product.status;
       document.getElementById('productCategory').value = product.category || 'autres';
-
       // Afficher l'image de prévisualisation si elle existe
       if (product.image) {
         const preview = document.getElementById('imagePreview');
@@ -690,7 +708,6 @@
       modalTitle.textContent = 'Ajouter un produit';
       submitText.textContent = 'Ajouter';
     }
-
     // Afficher le modal
     modal.style.display = 'flex';
   }
@@ -724,11 +741,9 @@
           method: 'DELETE',
           headers: getAuthHeaders()
         });
-
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
         if (data.success) {
           showNotification('Produit supprimé avec succès!');
@@ -750,11 +765,9 @@
         headers: getAuthHeaders(),
         body: JSON.stringify({ role: newRole })
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
       if (data.success) {
         showNotification('Rôle utilisateur mis à jour avec succès!');
@@ -774,11 +787,9 @@
           method: 'DELETE',
           headers: getAuthHeaders()
         });
-
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
         if (data.success) {
           showNotification('Avis supprimé avec succès!');
@@ -820,16 +831,12 @@
       const statsResponse = await fetch(`${BACKEND_URL}/admin/stats`, {
         headers: getAuthHeaders()
       });
-
       if (!statsResponse.ok) throw new Error('Failed to load stats');
-
       const stats = await statsResponse.json();
-
       document.getElementById('activeProducts').textContent = stats.activeProducts || 0;
       document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
       document.getElementById('totalRatings').textContent = stats.totalRatings || 0;
       document.getElementById('totalReviews').textContent = stats.totalReviews || 0;
-
       // Charger l'activité récente
       loadRecentActivity();
     } catch (error) {
