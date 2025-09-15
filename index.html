@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -152,37 +150,38 @@
     let authToken = null;
     let currentProducts = []; // Déclaration déplacée ici
     let filteredProducts = []; // Déclaration déplacée ici
+    let currentPage = 1;
+    const productsPerPage = 12; // 12 produits par page
+
     // Fonction pour rendre les étoiles proportionnelles
-    // Remplacer la fonction renderStars dans votre index.html
-
-function renderStars(rating) {
-  // CORRECTION : Convertir rating en nombre et gérer les cas invalides
-  const numRating = Number(rating) || 0;
-  const fullStars = Math.floor(numRating);
-  const hasHalfStar = (numRating - fullStars) >= 0.5;
-
-  let starsHTML = '';
-  for (let i = 1; i <= 5; i++) {
-    if (i <= fullStars) {
-      starsHTML += '<span class="star full">★</span>';
-    } else if (hasHalfStar && i === fullStars + 1) {
-      starsHTML += '<span class="star half">☆</span>';
-    } else {
-      starsHTML += '<span class="star empty">☆</span>';
+    function renderStars(rating) {
+      const numRating = Number(rating) || 0;
+      const fullStars = Math.floor(numRating);
+      const hasHalfStar = (numRating - fullStars) >= 0.5;
+      let starsHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+          starsHTML += '<span class="star full">★</span>';
+        } else if (hasHalfStar && i === fullStars + 1) {
+          starsHTML += '<span class="star half">☆</span>';
+        } else {
+          starsHTML += '<span class="star empty">☆</span>';
+        }
+      }
+      return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${numRating.toFixed(1)}/5)</span>`;
     }
-  }
 
-  return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${numRating.toFixed(1)}/5)</span>`;
-}
     // Auth functions
     function getToken() {
       if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
       return authToken;
     }
+
     function getAuthHeaders() {
       const token = getToken();
       return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
     }
+
     // Load products function - CORRIGÉE
     async function loadProducts() {
       try {
@@ -190,24 +189,18 @@ function renderStars(rating) {
         const res = await fetch(`${BACKEND_URL}/products`, {
           headers: getAuthHeaders()
         });
-
         console.log('Réponse reçue:', res.status);
-
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
-
         const products = await res.json();
         console.log('Produits reçus:', products.length);
-
         if (!Array.isArray(products)) {
           throw new Error('Format de données invalide');
         }
-
         currentProducts = products;
         filteredProducts = products;
         displayProducts(products);
-
       } catch (err) {
         console.error('Load products error:', err);
         const container = document.getElementById('productsContainer');
@@ -222,20 +215,28 @@ function renderStars(rating) {
         `;
       }
     }
+
     // Display products function - CORRIGÉE
     function displayProducts(products) {
       const container = document.getElementById('productsContainer');
       if (!products || products.length === 0) {
         container.innerHTML = '<div class="no-products">Aucun produit trouvé</div>';
+        document.getElementById('pagination').style.display = 'none';
         return;
       }
+      const totalProducts = products.length;
+      const totalPages = Math.ceil(totalProducts / productsPerPage);
+      const startIndex = (currentPage - 1) * productsPerPage;
+      const endIndex = startIndex + productsPerPage;
+      const currentProducts = products.slice(startIndex, endIndex);
+
       let html = '';
-      products.forEach(product => {
+      currentProducts.forEach(product => {
         const token = localStorage.getItem('sawem_auth_token');
         const isLoggedIn = !!token;
-
         let sourceClass = 'source-other';
         let sourceName = 'Autre';
+
         if (product.source && product.source.toLowerCase().includes('aliexpress')) {
           sourceClass = 'source-aliexpress';
           sourceName = 'AliExpress';
@@ -243,6 +244,7 @@ function renderStars(rating) {
           sourceClass = 'source-amazon';
           sourceName = 'Amazon';
         }
+
         const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
         const reviewsHTML = (product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0) ?
           product.reviews.map(review => `
@@ -251,6 +253,7 @@ function renderStars(rating) {
               <span class="review-date">${review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
             </div>
           `).join('') : '<p>Aucun avis pour le moment</p>';
+
         html += `
           <div class="product-card">
             <img src="${product.image || ''}" alt="${product.title || ''}"
@@ -280,158 +283,139 @@ function renderStars(rating) {
         `;
       });
       container.innerHTML = `<div class="product-grid">${html}</div>`;
+      // Mettre à jour les contrôles de pagination
+      updatePagination(currentPage, totalPages, totalProducts);
     }
-    // Search functions - CORRIGÉES
-    async function performTextSearch(query) {
-      if (!query) {
-        loadProducts();
+
+    // Nouvelle fonction pour mettre à jour la pagination
+    function updatePagination(page, totalPages, totalProducts) {
+      const pagination = document.getElementById('pagination');
+      const pageInfo = document.getElementById('pageInfo');
+      const prevBtn = document.getElementById('prevPageBtn');
+      const nextBtn = document.getElementById('nextPageBtn');
+      if (totalPages <= 1) {
+        pagination.style.display = 'none';
         return;
       }
+      pagination.style.display = 'flex';
+      pageInfo.textContent = `Page ${page} sur ${totalPages} (${totalProducts} produits)`;
+      prevBtn.disabled = page <= 1;
+      nextBtn.disabled = page >= totalPages;
+    }
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'text' })
+    // Fonctions de navigation
+    function goToPreviousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        displayProducts(filteredProducts);
+      }
+    }
+
+    function goToNextPage() {
+      const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        displayProducts(filteredProducts);
+      }
+    }
+
+    // Modifier le DOMContentLoaded pour ajouter les event listeners de pagination
+    document.addEventListener('DOMContentLoaded', () => {
+      checkUser();
+      loadProducts();
+      initPriceSliders();
+
+      const sourceFilter = document.getElementById('sourceFilter');
+      const sortBy = document.getElementById('sortBy');
+      const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+      if (sourceFilter) sourceFilter.addEventListener('change', applyFilters);
+      if (sortBy) sortBy.addEventListener('change', applyFilters);
+      if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
+
+      const textSearchBtn = document.getElementById('textSearchBtn');
+      const aiSearchBtn = document.getElementById('aiSearchBtn');
+      const searchInput = document.getElementById('searchInput');
+      if (textSearchBtn && searchInput) {
+        textSearchBtn.addEventListener('click', () => {
+          const query = searchInput.value.trim();
+          performTextSearch(query);
         });
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const products = await res.json();
-
-        // Vérifier que products est un tableau
-        if (!Array.isArray(products)) {
-          throw new Error('Format de réponse invalide');
-        }
-
-        displayProducts(products);
-
-        // Update stats
-        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
-        document.getElementById('searchQuery').textContent = `pour "${query}"`;
-        document.getElementById('searchStats').style.display = 'block';
-
-      } catch (err) {
-        console.error('Text search error:', err);
-        document.getElementById('productsContainer').innerHTML = `
-          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px;">
-            <p>Erreur de recherche: ${err.message}</p>
-            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
-              Retour aux produits
-            </button>
-          </div>
-        `;
       }
-    }
-    async function performAISearch(query) {
-      if (!query) return;
-
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'ai' })
+      if (aiSearchBtn && searchInput) {
+        aiSearchBtn.addEventListener('click', () => {
+          const query = searchInput.value.trim();
+          performAISearch(query);
         });
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const products = await res.json();
-
-        // Vérifier que products est un tableau
-        if (!Array.isArray(products)) {
-          throw new Error('Format de réponse invalide');
-        }
-
-        displayProducts(products);
-
-      } catch (err) {
-        console.error('AI search error:', err);
-        // Fallback to text search
-        performTextSearch(query);
       }
-    }
-    // Fonction utilitaire pour extraire le prix numérique
-    // Remplacer la fonction extractPrice dans votre index.html
-
-  function extractPrice(priceStr) {
-  if (!priceStr) return 0;
-  
-  // Nettoyer la chaîne et extraire les nombres
-  const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
-  const numbers = cleanStr.match(/[\d,\.]+/);
-  
-  if (!numbers) return 0;
-  
-  let price = parseFloat(numbers[0].replace(',', '.'));
-  
-  // Conversion approximative Dollar vers Euro (taux ~0.85)
-  // Si le prix original contient $, on le convertit en euros pour le filtre
-  if (priceStr.includes('$')) {
-    price = price * 0.85; // Conversion approximative
-  }
-  
-  return price || 0;
-}
-
-    // Initialisation des sliders de prix
-    function initPriceSliders() {
-      const priceSlider = document.getElementById('priceRange');
-      const priceDisplay = document.getElementById('priceDisplay');
-      function updatePriceDisplay() {
-        const maxVal = parseInt(priceSlider.value);
-        priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
-        applyFilters();
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const query = btn.dataset.search;
+          if (searchInput && query) {
+            searchInput.value = query;
+            performTextSearch(query);
+          }
+        });
+      });
+      if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            const query = searchInput.value.trim();
+            performTextSearch(query);
+          }
+        });
       }
-      priceSlider.addEventListener('input', updatePriceDisplay);
-    }
+
+      // Ajouter les event listeners pour la pagination
+      const prevBtn = document.getElementById('prevPageBtn');
+      const nextBtn = document.getElementById('nextPageBtn');
+
+      if (prevBtn) prevBtn.addEventListener('click', goToPreviousPage);
+      if (nextBtn) nextBtn.addEventListener('click', goToNextPage);
+    });
+
     // Fonction pour appliquer tous les filtres
     function applyFilters() {
-  if (!currentProducts.length) return;
+      if (!currentProducts.length) return;
+      currentPage = 1; // Remettre à la page 1 lors du filtrage
 
-  let filtered = [...currentProducts];
-
-  // Filtre par source
-  const sourceFilter = document.getElementById('sourceFilter').value;
-  if (sourceFilter) {
-    if (sourceFilter === 'aliexpress') {
-      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
-    } else if (sourceFilter === 'amazon') {
-      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
-    } else if (sourceFilter === 'other') {
+      let filtered = [...currentProducts];
+      const sourceFilter = document.getElementById('sourceFilter').value;
+      if (sourceFilter) {
+        if (sourceFilter === 'aliexpress') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
+        } else if (sourceFilter === 'amazon') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
+        } else if (sourceFilter === 'other') {
+          filtered = filtered.filter(p => {
+            const source = (p.source || '').toLowerCase();
+            return !source.includes('aliexpress') && !source.includes('amazon');
+          });
+        }
+      }
+      const maxPrice = parseInt(document.getElementById('priceRange').value);
       filtered = filtered.filter(p => {
-        const source = (p.source || '').toLowerCase();
-        return !source.includes('aliexpress') && !source.includes('amazon');
+        const price = extractPrice(p.price);
+        return price <= maxPrice;
       });
+      const sortBy = document.getElementById('sortBy').value;
+      switch(sortBy) {
+        case 'price_asc':
+          filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+          break;
+        case 'price_desc':
+          filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+          break;
+        case 'rating_desc':
+          filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
+          break;
+        case 'newest':
+          filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          break;
+      }
+      filteredProducts = filtered;
+      displayProducts(filtered);
     }
-  }
 
-  // Filtre par prix - CORRIGÉ
-  const maxPrice = parseInt(document.getElementById('priceRange').value);
-  filtered = filtered.filter(p => {
-    const price = extractPrice(p.price);
-    return price <= maxPrice;
-  });
-
-  // Tri
-  const sortBy = document.getElementById('sortBy').value;
-  switch(sortBy) {
-    case 'price_asc':
-      filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
-      break;
-    case 'price_desc':
-      filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
-      break;
-    case 'rating_desc':
-      filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
-      break;
-    case 'newest':
-      filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-      break;
-  }
-
-  filteredProducts = filtered;
-  displayProducts(filtered);
-}
     // Fonction pour réinitialiser les filtres
     function clearAllFilters() {
       document.getElementById('sourceFilter').value = '';
@@ -444,6 +428,7 @@ function renderStars(rating) {
       // Recharger tous les produits
       loadProducts();
     }
+
     // Fonction d'authentification améliorée
     async function checkUser() {
       const authStatus = document.getElementById('authStatus');
@@ -483,6 +468,7 @@ function renderStars(rating) {
         displayUserDisconnected();
       }
     }
+
     function displayUserConnected(user) {
       const authStatus = document.getElementById('authStatus');
       const googleLoginBtn = document.getElementById('googleLoginBtn');
@@ -516,6 +502,7 @@ function renderStars(rating) {
         window.location.reload();
       };
     }
+
     function displayUserDisconnected() {
       const authStatus = document.getElementById('authStatus');
       const googleLoginBtn = document.getElementById('googleLoginBtn');
@@ -533,6 +520,7 @@ function renderStars(rating) {
       if (welcomeMessage) welcomeMessage.style.display = 'none';
       if (adminLink) adminLink.style.display = 'none';
     }
+
     // Fonction pour voter - CORRIGÉE
     function promptVote(productId) {
       const token = localStorage.getItem('sawem_auth_token');
@@ -569,6 +557,7 @@ function renderStars(rating) {
         });
       }
     }
+
     // Fonction pour envoyer un commentaire - CORRIGÉE
     function submitReview(productId) {
       const token = localStorage.getItem('sawem_auth_token');
@@ -578,7 +567,6 @@ function renderStars(rating) {
       }
       const textarea = document.getElementById(`review-${productId}`);
       const comment = textarea.value.trim();
-
       if (!comment) {
         alert("Veuillez écrire un commentaire");
         return;
@@ -610,6 +598,7 @@ function renderStars(rating) {
         alert("Erreur lors de l'envoi du commentaire");
       });
     }
+
     // Event listeners - CORRIGÉ
     document.addEventListener('DOMContentLoaded', () => {
       checkUser();
@@ -654,6 +643,97 @@ function renderStars(rating) {
         });
       }
     });
+
+    // Fonction utilitaire pour extraire le prix numérique
+    function extractPrice(priceStr) {
+      if (!priceStr) return 0;
+
+      const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
+      const numbers = cleanStr.match(/[\d,\.]+/);
+
+      if (!numbers) return 0;
+
+      let price = parseFloat(numbers[0].replace(',', '.'));
+
+      // Conversion approximative Dollar vers Euro (taux ~0.85)
+      if (priceStr.includes('$')) {
+        price = price * 0.85; // Conversion approximative
+      }
+
+      return price || 0;
+    }
+
+    // Initialisation des sliders de prix
+    function initPriceSliders() {
+      const priceSlider = document.getElementById('priceRange');
+      const priceDisplay = document.getElementById('priceDisplay');
+      function updatePriceDisplay() {
+        const maxVal = parseInt(priceSlider.value);
+        priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
+        applyFilters();
+      }
+      priceSlider.addEventListener('input', updatePriceDisplay);
+    }
+
+    // Search functions - CORRIGÉES
+    async function performTextSearch(query) {
+      currentPage = 1; // Reset pagination
+      if (!query) {
+        loadProducts();
+        return;
+      }
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'text' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        // Vérifier que products est un tableau
+        if (!Array.isArray(products)) {
+          throw new Error('Format de réponse invalide');
+        }
+        displayProducts(products);
+        // Update stats
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "${query}"`;
+        document.getElementById('searchStats').style.display = 'block';
+      } catch (err) {
+        console.error('Text search error:', err);
+        document.getElementById('productsContainer').innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px;">
+            <p>Erreur de recherche: ${err.message}</p>
+            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
+              Retour aux produits
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    async function performAISearch(query) {
+      currentPage = 1; // Reset pagination
+      if (!query) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'ai' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        // Vérifier que products est un tableau
+        if (!Array.isArray(products)) {
+          throw new Error('Format de réponse invalide');
+        }
+        displayProducts(products);
+      } catch (err) {
+        console.error('AI search error:', err);
+        // Fallback to text search
+        performTextSearch(query);
+      }
+    }
   </script>
 </body>
 </html>
