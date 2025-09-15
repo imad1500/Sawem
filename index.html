@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -151,22 +152,26 @@
     let currentProducts = []; // Déclaration déplacée ici
     let filteredProducts = []; // Déclaration déplacée ici
     // Fonction pour rendre les étoiles proportionnelles
-    function renderStars(rating) {
-     const fullStars = Math.floor(rating || 0);
-     const hasHalfStar = ((rating || 0) - fullStars) >= 0.5;
+    // Remplacer la fonction renderStars dans votre index.html
 
-    let starsHTML = '';
-    for (let i = 1; i <= 5; i++) {
+function renderStars(rating) {
+  // CORRECTION : Convertir rating en nombre et gérer les cas invalides
+  const numRating = Number(rating) || 0;
+  const fullStars = Math.floor(numRating);
+  const hasHalfStar = (numRating - fullStars) >= 0.5;
+
+  let starsHTML = '';
+  for (let i = 1; i <= 5; i++) {
     if (i <= fullStars) {
       starsHTML += '<span class="star full">★</span>';
     } else if (hasHalfStar && i === fullStars + 1) {
-      starsHTML += '<span class="star half">☆</span>'; // Utiliser ☆ pour les demi-étoiles
+      starsHTML += '<span class="star half">☆</span>';
     } else {
       starsHTML += '<span class="star empty">☆</span>';
     }
   }
 
-  return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${(rating || 0).toFixed(1)}/5)</span>`;
+  return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${numRating.toFixed(1)}/5)</span>`;
 }
     // Auth functions
     function getToken() {
