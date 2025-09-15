@@ -312,10 +312,10 @@
   }
   // CORRECTION 2: Charger les produits avec pagination corrigée
   async function loadProducts() {
-    const search = document.getElementById("productSearch").value;
-    const status = document.getElementById("statusFilter").value;
-    const source = document.getElementById("sourceFilter").value;
-    const category = document.getElementById("categoryFilter").value;
+    const search = document.getElementById("productSearch")?.value || "";
+    const status = document.getElementById("statusFilter")?.value || "";
+    const source = document.getElementById("sourceFilter")?.value || "";
+    const category = document.getElementById("categoryFilter")?.value || "";
 
     try {
       let url = `${BACKEND_URL}/admin/products?page=${currentPage}&limit=${perPage}`;
@@ -323,11 +323,18 @@
       if (status) url += `&status=${status}`;
       if (source) url += `&source=${source}`;
       if (category) url += `&category=${category}`;
+      console.log('Loading products from:', url); // Debug
       const res = await fetch(url, {
         headers: getAuthHeaders()
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      console.log('Response status:', res.status); // Debug
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText}`);
+      }
       const data = await res.json();
+      console.log('Products data:', data); // Debug
+
       products = data.products || [];
       displayProducts(products);
       // CORRECTION: Pagination
@@ -335,7 +342,9 @@
     } catch (err) {
       console.error("Erreur chargement produits:", err);
       const tbody = document.querySelector("#productsTable tbody");
-      tbody.innerHTML = "<tr><td colspan='10'>⚠️ Erreur lors du chargement</td></tr>";
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan='10'>⚠️ Erreur: ${err.message}</td></tr>`;
+      }
     }
   }
   // CORRECTION 3: Pagination des produits
