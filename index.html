@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -155,7 +154,7 @@
     function renderStars(rating) {
      const fullStars = Math.floor(rating || 0);
      const hasHalfStar = ((rating || 0) - fullStars) >= 0.5;
-  
+
     let starsHTML = '';
     for (let i = 1; i <= 5; i++) {
     if (i <= fullStars) {
@@ -166,32 +165,58 @@
       starsHTML += '<span class="star empty">☆</span>';
     }
   }
-  
+
   return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${(rating || 0).toFixed(1)}/5)</span>`;
 }
-    // Récupération du token stocké
-function getToken() {
-  if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
-  return authToken;
-}
+    // Auth functions
+    function getToken() {
+      if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
+      return authToken;
+    }
+    function getAuthHeaders() {
+      const token = getToken();
+      return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
+    }
+    // Load products function - CORRIGÉE
+    async function loadProducts() {
+      try {
+        console.log('Chargement des produits...');
+        const res = await fetch(`${BACKEND_URL}/products`, {
+          headers: getAuthHeaders()
+        });
 
-// Fonction corrigée : accepte un paramètre isPost pour ajuster les headers
-function getAuthHeaders(isPost = false) {
-  const token = getToken();
-  if (isPost) {
-    return token
-      ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-      : { 'Content-Type': 'application/json' };
-  } else {
-    // Pour GET, ne pas ajouter Content-Type
-    return token
-      ? { 'Authorization': `Bearer ${token}` }
-      : {};
-  }
-}
+        console.log('Réponse reçue:', res.status);
 
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
 
-    // Display products function
+        const products = await res.json();
+        console.log('Produits reçus:', products.length);
+
+        if (!Array.isArray(products)) {
+          throw new Error('Format de données invalide');
+        }
+
+        currentProducts = products;
+        filteredProducts = products;
+        displayProducts(products);
+
+      } catch (err) {
+        console.error('Load products error:', err);
+        const container = document.getElementById('productsContainer');
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px; margin: 1rem 0;">
+            <h3>Erreur de chargement des produits</h3>
+            <p>Détails: ${err.message}</p>
+            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; margin-top: 1rem;">
+              Réessayer
+            </button>
+          </div>
+        `;
+      }
+    }
+    // Display products function - CORRIGÉE
     function displayProducts(products) {
       const container = document.getElementById('productsContainer');
       if (!products || products.length === 0) {
@@ -200,10 +225,9 @@ function getAuthHeaders(isPost = false) {
       }
       let html = '';
       products.forEach(product => {
-        // Vérifier si l'utilisateur est connecté
         const token = localStorage.getItem('sawem_auth_token');
         const isLoggedIn = !!token;
-        // Déterminer la classe CSS et le nom pour la source
+
         let sourceClass = 'source-other';
         let sourceName = 'Autre';
         if (product.source && product.source.toLowerCase().includes('aliexpress')) {
@@ -214,24 +238,24 @@ function getAuthHeaders(isPost = false) {
           sourceName = 'Amazon';
         }
         const sourceInfo = `<div class="product-source ${sourceClass}">${sourceName}</div>`;
-        // Afficher les commentaires existants
-        const reviewsHTML = product.reviews && product.reviews.length > 0 ?
+        const reviewsHTML = (product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0) ?
           product.reviews.map(review => `
             <div class="review-item">
-              <strong>${review.user_name}</strong>: ${review.comment}
-              <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+              <strong>${review.user_name || 'Anonyme'}</strong>: ${review.comment || ''}
+              <span class="review-date">${review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
             </div>
           `).join('') : '<p>Aucun avis pour le moment</p>';
         html += `
           <div class="product-card">
-            <img src="${product.image}" alt="${product.title}" />
+            <img src="${product.image || ''}" alt="${product.title || ''}"
+                 onerror="this.style.display='none'" />
             ${sourceInfo}
             <div class="product-info">
-              <h3>${product.title}</h3>
-              <p class="price">${product.price}</p>
-              <div class="rating">${renderStars(product.user_rating)}</div>
+              <h3>${product.title || 'Titre non disponible'}</h3>
+              <p class="price">${product.price || 'Prix non disponible'}</p>
+              <div class="rating">${renderStars(product.user_rating || 0)}</div>
               <div class="product-actions">
-                <a href="${product.link}" target="_blank" class="view-btn">Voir le produit</a>
+                <a href="${product.link || '#'}" target="_blank" class="view-btn">Voir le produit</a>
                 <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
                   Voter
                 </button>
@@ -251,70 +275,75 @@ function getAuthHeaders(isPost = false) {
       });
       container.innerHTML = `<div class="product-grid">${html}</div>`;
     }
-    // Load products
-   // Chargement des produits (requête GET sans Content-Type)
-async function loadProducts() {
-  try {
-    console.log('Chargement des produits...');
-    const res = await fetch(`${BACKEND_URL}/products`, {
-      headers: getAuthHeaders(false)  // false = GET
-    });
-    console.log('Réponse reçue:', res);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const products = await res.json();
-    console.log('Produits reçus:', products);
-    currentProducts = products;
-    filteredProducts = products;
-    displayProducts(products);
-  } catch (err) {
-    console.error('Load products error:', err);
-    document.getElementById('productsContainer').innerHTML = '<p>Erreur de chargement des produits</p>';
-  }
-}
-   
-    // Search functions
-   // Recherche textuelle (requête POST avec Content-Type)
-async function performTextSearch(query) {
-  if (!query) {
-    loadProducts();
-    return;
-  }
-  try {
-    const res = await fetch(`${BACKEND_URL}/search`, {
-      method: 'POST',
-      headers: getAuthHeaders(true), // true = POST
-      body: JSON.stringify({ query: query.trim(), type: 'text' })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const products = await res.json();
-    displayProducts(products);
-    document.getElementById('resultsCount').textContent = `${products.length} résultats`;
-    document.getElementById('searchQuery').textContent = `pour "${query}"`;
-    document.getElementById('searchStats').style.display = 'block';
-  } catch (err) {
-    console.error('Text search error:', err);
-    document.getElementById('productsContainer').innerHTML = '<p>Erreur de recherche</p>';
-  }
-}
-   
-   // Recherche IA (requête POST avec Content-Type)
-async function performAISearch(query) {
-  if (!query) return;
-  try {
-    const res = await fetch(`${BACKEND_URL}/search`, {
-      method: 'POST',
-      headers: getAuthHeaders(true), // true = POST
-      body: JSON.stringify({ query: query.trim(), type: 'ai' })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const products = await res.json();
-    displayProducts(products);
-  } catch (err) {
-    console.error('AI search error:', err);
-    performTextSearch(query);
-  }
-}
-   
+    // Search functions - CORRIGÉES
+    async function performTextSearch(query) {
+      if (!query) {
+        loadProducts();
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'text' })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const products = await res.json();
+
+        // Vérifier que products est un tableau
+        if (!Array.isArray(products)) {
+          throw new Error('Format de réponse invalide');
+        }
+
+        displayProducts(products);
+
+        // Update stats
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "${query}"`;
+        document.getElementById('searchStats').style.display = 'block';
+
+      } catch (err) {
+        console.error('Text search error:', err);
+        document.getElementById('productsContainer').innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px;">
+            <p>Erreur de recherche: ${err.message}</p>
+            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
+              Retour aux produits
+            </button>
+          </div>
+        `;
+      }
+    }
+    async function performAISearch(query) {
+      if (!query) return;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'ai' })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const products = await res.json();
+
+        // Vérifier que products est un tableau
+        if (!Array.isArray(products)) {
+          throw new Error('Format de réponse invalide');
+        }
+
+        displayProducts(products);
+
+      } catch (err) {
+        console.error('AI search error:', err);
+        // Fallback to text search
+        performTextSearch(query);
+      }
+    }
     // Fonction utilitaire pour extraire le prix numérique
     function extractPrice(priceStr) {
       if (!priceStr) return 0;
@@ -476,7 +505,7 @@ async function performAISearch(query) {
       if (welcomeMessage) welcomeMessage.style.display = 'none';
       if (adminLink) adminLink.style.display = 'none';
     }
-    // Fonction pour voter
+    // Fonction pour voter - CORRIGÉE
     function promptVote(productId) {
       const token = localStorage.getItem('sawem_auth_token');
       if (!token) {
@@ -485,7 +514,6 @@ async function performAISearch(query) {
       }
       const rating = prompt("Notez ce produit de 1 à 5 étoiles:");
       if (rating && rating >= 1 && rating <= 5) {
-        // Appeler l'API de vote ici
         fetch(`${BACKEND_URL}/vote`, {
           method: 'POST',
           headers: {
@@ -497,7 +525,12 @@ async function performAISearch(query) {
             stars: parseInt(rating)
           })
         })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erreur réseau');
+          }
+          return response.json();
+        })
         .then(data => {
           alert(`Vote enregistré: ${rating}/5 étoiles`);
           loadProducts(); // Recharger les produits
@@ -508,7 +541,7 @@ async function performAISearch(query) {
         });
       }
     }
-    // Fonction pour envoyer un commentaire
+    // Fonction pour envoyer un commentaire - CORRIGÉE
     function submitReview(productId) {
       const token = localStorage.getItem('sawem_auth_token');
       if (!token) {
@@ -517,6 +550,7 @@ async function performAISearch(query) {
       }
       const textarea = document.getElementById(`review-${productId}`);
       const comment = textarea.value.trim();
+
       if (!comment) {
         alert("Veuillez écrire un commentaire");
         return;
@@ -532,7 +566,12 @@ async function performAISearch(query) {
           comment: comment
         })
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur réseau');
+        }
+        return response.json();
+      })
       .then(data => {
         alert("Avis publié avec succès");
         textarea.value = '';
@@ -543,33 +582,49 @@ async function performAISearch(query) {
         alert("Erreur lors de l'envoi du commentaire");
       });
     }
-    // Event listeners
+    // Event listeners - CORRIGÉ
     document.addEventListener('DOMContentLoaded', () => {
       checkUser();
       loadProducts();
-      // Initialiser les sliders de prix
       initPriceSliders();
-      // Event listeners pour les filtres
-      document.getElementById('sourceFilter').addEventListener('change', applyFilters);
-      document.getElementById('sortBy').addEventListener('change', applyFilters);
-      document.getElementById('clearFiltersBtn').addEventListener('click', clearAllFilters);
-      // Search buttons
-      document.getElementById('textSearchBtn').addEventListener('click', () => {
-        const query = document.getElementById('searchInput').value.trim();
-        performTextSearch(query);
-      });
-      document.getElementById('aiSearchBtn').addEventListener('click', () => {
-        const query = document.getElementById('searchInput').value.trim();
-        performAISearch(query);
-      });
-      // Category buttons
+      const sourceFilter = document.getElementById('sourceFilter');
+      const sortBy = document.getElementById('sortBy');
+      const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+      if (sourceFilter) sourceFilter.addEventListener('change', applyFilters);
+      if (sortBy) sortBy.addEventListener('change', applyFilters);
+      if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
+      const textSearchBtn = document.getElementById('textSearchBtn');
+      const aiSearchBtn = document.getElementById('aiSearchBtn');
+      const searchInput = document.getElementById('searchInput');
+      if (textSearchBtn && searchInput) {
+        textSearchBtn.addEventListener('click', () => {
+          const query = searchInput.value.trim();
+          performTextSearch(query);
+        });
+      }
+      if (aiSearchBtn && searchInput) {
+        aiSearchBtn.addEventListener('click', () => {
+          const query = searchInput.value.trim();
+          performAISearch(query);
+        });
+      }
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const query = btn.dataset.search;
-          document.getElementById('searchInput').value = query;
-          performTextSearch(query);
+          if (searchInput && query) {
+            searchInput.value = query;
+            performTextSearch(query);
+          }
         });
       });
+      if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            const query = searchInput.value.trim();
+            performTextSearch(query);
+          }
+        });
+      }
     });
   </script>
 </body>
