@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -350,11 +351,28 @@ function renderStars(rating) {
       }
     }
     // Fonction utilitaire pour extraire le prix numérique
-    function extractPrice(priceStr) {
-      if (!priceStr) return 0;
-      const numbers = priceStr.match(/[\d,\.]+/);
-      return numbers ? parseFloat(numbers[0].replace(',', '.')) : 0;
-    }
+    // Remplacer la fonction extractPrice dans votre index.html
+
+  function extractPrice(priceStr) {
+  if (!priceStr) return 0;
+  
+  // Nettoyer la chaîne et extraire les nombres
+  const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
+  const numbers = cleanStr.match(/[\d,\.]+/);
+  
+  if (!numbers) return 0;
+  
+  let price = parseFloat(numbers[0].replace(',', '.'));
+  
+  // Conversion approximative Dollar vers Euro (taux ~0.85)
+  // Si le prix original contient $, on le convertit en euros pour le filtre
+  if (priceStr.includes('$')) {
+    price = price * 0.85; // Conversion approximative
+  }
+  
+  return price || 0;
+}
+
     // Initialisation des sliders de prix
     function initPriceSliders() {
       const priceSlider = document.getElementById('priceRange');
@@ -368,47 +386,52 @@ function renderStars(rating) {
     }
     // Fonction pour appliquer tous les filtres
     function applyFilters() {
-      if (!currentProducts.length) return;
-      let filtered = [...currentProducts];
-      // Filtre par source
-      const sourceFilter = document.getElementById('sourceFilter').value;
-      if (sourceFilter) {
-        if (sourceFilter === 'aliexpress') {
-          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
-        } else if (sourceFilter === 'amazon') {
-          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
-        } else if (sourceFilter === 'other') {
-          filtered = filtered.filter(p => {
-            const source = (p.source || '').toLowerCase();
-            return !source.includes('aliexpress') && !source.includes('amazon');
-          });
-        }
-      }
-      // Filtre par prix
-      const maxPrice = parseInt(document.getElementById('priceRange').value);
+  if (!currentProducts.length) return;
+
+  let filtered = [...currentProducts];
+
+  // Filtre par source
+  const sourceFilter = document.getElementById('sourceFilter').value;
+  if (sourceFilter) {
+    if (sourceFilter === 'aliexpress') {
+      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
+    } else if (sourceFilter === 'amazon') {
+      filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
+    } else if (sourceFilter === 'other') {
       filtered = filtered.filter(p => {
-        const price = extractPrice(p.price);
-        return price <= maxPrice;
+        const source = (p.source || '').toLowerCase();
+        return !source.includes('aliexpress') && !source.includes('amazon');
       });
-      // Tri
-      const sortBy = document.getElementById('sortBy').value;
-      switch(sortBy) {
-        case 'price_asc':
-          filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
-          break;
-        case 'price_desc':
-          filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
-          break;
-        case 'rating_desc':
-          filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
-          break;
-        case 'newest':
-          filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-          break;
-      }
-      filteredProducts = filtered;
-      displayProducts(filtered);
     }
+  }
+
+  // Filtre par prix - CORRIGÉ
+  const maxPrice = parseInt(document.getElementById('priceRange').value);
+  filtered = filtered.filter(p => {
+    const price = extractPrice(p.price);
+    return price <= maxPrice;
+  });
+
+  // Tri
+  const sortBy = document.getElementById('sortBy').value;
+  switch(sortBy) {
+    case 'price_asc':
+      filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+      break;
+    case 'price_desc':
+      filtered.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+      break;
+    case 'rating_desc':
+      filtered.sort((a, b) => (b.user_rating || 0) - (a.user_rating || 0));
+      break;
+    case 'newest':
+      filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      break;
+  }
+
+  filteredProducts = filtered;
+  displayProducts(filtered);
+}
     // Fonction pour réinitialiser les filtres
     function clearAllFilters() {
       document.getElementById('sourceFilter').value = '';
