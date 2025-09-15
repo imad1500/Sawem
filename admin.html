@@ -25,7 +25,6 @@
     <button onclick="window.location.href='/'">Retour au site</button>
   </div>
   <main id="adminMain" class="admin-main" style="display:none;">
-
     <!-- Navigation -->
     <nav class="admin-nav">
       <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
@@ -124,10 +123,19 @@
         <button id="nextPage">Suivant →</button>
       </div>
     </section>
+    <!-- Users Section -->
+    <section id="users" class="admin-section">
+      <h2>👥 Gestion des utilisateurs</h2>
+      <div id="usersContent">⏳ Chargement...</div>
+    </section>
+    <!-- Reviews Section -->
+    <section id="reviews" class="admin-section">
+      <h2>💬 Gestion des avis</h2>
+      <div id="reviewsContent">⏳ Chargement...</div>
+    </section>
     <!-- Settings Section -->
     <section id="settings" class="admin-section">
       <h2>⚙️ Paramètres du site</h2>
-
       <div class="settings-grid">
         <div class="setting-card">
           <h3>🗄️ Base de données</h3>
@@ -159,10 +167,8 @@
         <h3 id="modalTitle">Ajouter un produit</h3>
         <button id="closeModal" class="close-btn">×</button>
       </div>
-
       <form id="productForm" class="product-form">
         <input type="hidden" id="productId">
-
         <div class="form-group">
           <label for="productTitle">Titre *</label>
           <input type="text" id="productTitle" required>
@@ -172,7 +178,6 @@
             <label for="productPrice">Prix *</label>
             <input type="text" id="productPrice" required placeholder="ex: 29.99€">
           </div>
-
           <div class="form-group">
             <label for="productSource">Source *</label>
             <select id="productSource" required>
@@ -233,12 +238,10 @@
   let products = [];
   let currentPage = 1;
   const perPage = 10;
-
   // Fonctions d'authentification
   function getToken() {
     return localStorage.getItem('sawem_auth_token');
   }
-
   function getAuthHeaders() {
     const token = getToken();
     return token ? {
@@ -248,18 +251,15 @@
       'Content-Type': 'application/json'
     };
   }
-
   async function checkAuth() {
     try {
       const token = getToken();
       if (!token) throw new Error('No token');
-
       const res = await fetch(`${BACKEND_URL}/verify-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
       });
-
       const data = await res.json();
       if (data.success && data.user && data.user.role === 'admin') {
         currentUser = data.user;
@@ -273,74 +273,394 @@
       document.getElementById('accessDenied').style.display = 'block';
     }
   }
+  // CORRECTION 1: Activité récente
+  async function loadRecentActivity() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/recent-activity`, {
+        headers: getAuthHeaders()
+      });
 
-  // Charger les produits
+      if (!res.ok) throw new Error('Failed to load activity');
+
+      const activities = await res.json();
+      const container = document.getElementById('recentActivity');
+
+      if (activities.length === 0) {
+        container.innerHTML = '<p>Aucune activité récente</p>';
+        return;
+      }
+
+      container.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+          <div class="activity-icon">${getActivityIcon(activity.type)}</div>
+          <div class="activity-text">${activity.description}</div>
+          <div class="activity-time">${new Date(activity.created_at).toLocaleDateString()}</div>
+        </div>
+      `).join('');
+    } catch (error) {
+      console.error('Load activity error:', error);
+      document.getElementById('recentActivity').innerHTML = '⚠️ Erreur lors du chargement';
+    }
+  }
+  function getActivityIcon(type) {
+    switch(type) {
+      case 'user_registered': return '👤';
+      case 'review_posted': return '💬';
+      case 'vote_cast': return '⭐';
+      default: return '📝';
+    }
+  }
+  // CORRECTION 2: Charger les produits avec pagination corrigée
   async function loadProducts() {
     const search = document.getElementById("productSearch").value;
     const status = document.getElementById("statusFilter").value;
     const source = document.getElementById("sourceFilter").value;
     const category = document.getElementById("categoryFilter").value;
+
     try {
       let url = `${BACKEND_URL}/admin/products?page=${currentPage}&limit=${perPage}`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
       if (status) url += `&status=${status}`;
       if (source) url += `&source=${source}`;
       if (category) url += `&category=${category}`;
-
       const res = await fetch(url, {
         headers: getAuthHeaders()
       });
-
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
       const data = await res.json();
       products = data.products || [];
       displayProducts(products);
-
-      // Mettre à jour la pagination
-      document.getElementById('pageInfo').textContent = `Page ${data.page} sur ${data.totalPages}`;
-      document.getElementById('prevPage').disabled = data.page <= 1;
-      document.getElementById('nextPage').disabled = data.page >= data.totalPages;
+      // CORRECTION: Pagination
+      updateProductsPagination(data);
     } catch (err) {
       console.error("Erreur chargement produits:", err);
-      productsTable.innerHTML = "<tr><td colspan='10'>⚠️ Erreur lors du chargement</td></tr>";
+      const tbody = document.querySelector("#productsTable tbody");
+      tbody.innerHTML = "<tr><td colspan='10'>⚠️ Erreur lors du chargement</td></tr>";
     }
   }
-
-  // Afficher les produits
+  // CORRECTION 3: Pagination des produits
+  function updateProductsPagination(data) {
+    document.getElementById('pageInfo').textContent = `Page ${data.page || 1} sur ${data.totalPages || 1}`;
+    document.getElementById('prevPage').disabled = (data.page || 1) <= 1;
+    document.getElementById('nextPage').disabled = (data.page || 1) >= (data.totalPages || 1);
+  }
+  // CORRECTION 4: Afficher les produits avec style amélioré
   function displayProducts(list) {
     const productsTable = document.querySelector("#productsTable tbody");
     if (!list.length) {
-      productsTable.innerHTML = "<tr><td colspan='10'>Aucun produit trouvé</td></tr>";
+      productsTable.innerHTML = "<tr><td colspan='10' class='text-center'>Aucun produit trouvé</td></tr>";
       return;
     }
+
     productsTable.innerHTML = list.map(p => `
       <tr>
-        <td>${p.id}</td>
-        <td><img src="${p.image}" alt="img" width="50"></td>
-        <td>${p.title}</td>
-        <td>${p.price}</td>
-        <td>${p.source}</td>
-        <td>${p.category || "autres"}</td>
-        <td>${p.rating || "-"}</td>
-        <td>${p.status}</td>
-        <td>${new Date(p.created_at).toLocaleDateString()}</td>
+        <td><strong>#${p.id}</strong></td>
         <td>
-          <button class="edit-btn" data-id="${p.id}">✏️</button>
-          <button class="delete-btn" data-id="${p.id}">🗑️</button>
+          <img src="${p.image}" alt="img" class="product-thumb"
+               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNSAzNUMzMC41MjI4IDM1IDM1IDMwLjUyMjggMzUgMjVDMzUgMTkuNDc3MiAzMC41MjI4IDE1IDI1IDE1QzE5LjQ3NzIgMTUgMTUgMTkuNDc3MiAxNSAyNUMxNSAzMC41MjI4IDE5LjQ3NzIgMzUgMjUgMzUiIGZpbGw9IiM2Qzc1N0QiLz4KPC9zdmc+'" />
+        </td>
+        <td>
+          <div class="product-title" title="${p.title}">${p.title}</div>
+        </td>
+        <td><strong style="color: #0d6efd;">${p.price}</strong></td>
+        <td>
+          <span class="source-badge source-${p.source && p.source.toLowerCase().includes('aliexpress') ? 'aliexpress' :  p.source && p.source.toLowerCase().includes('amazon') ? 'amazon' : 'other'}">
+            ${p.source && p.source.toLowerCase().includes('aliexpress') ? 'AliExpress' : p.source && p.source.toLowerCase().includes('amazon') ? 'Amazon' : 'Autre'}
+          </span>
+        </td>
+        <td>
+          <span style="background: #e9ecef; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">
+            ${p.category || "autres"}
+          </span>
+        </td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            ${renderAdminStars(p.user_rating || 0)}
+            <span style="font-size: 0.8rem; color: #6c757d;">${(p.user_rating || 0).toFixed(1)}</span>
+          </div>
+        </td>
+        <td>
+          <span class="status-badge status-${p.status || 'active'}">${p.status || 'active'}</span>
+        </td>
+        <td style="font-size: 0.8rem; color: #6c757d;">
+          ${new Date(p.created_at).toLocaleDateString()}
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn-edit" data-id="${p.id}">✏️ Modifier</button>
+            <button class="btn-delete" data-id="${p.id}">🗑️ Supprimer</button>
+          </div>
         </td>
       </tr>
     `).join("");
-
-    // activer les boutons édition et suppression
-    document.querySelectorAll(".edit-btn").forEach(btn => {
+    // Activer les boutons édition et suppression
+    document.querySelectorAll(".btn-edit").forEach(btn => {
       btn.addEventListener("click", () => openEditModal(btn.dataset.id));
     });
-    document.querySelectorAll(".delete-btn").forEach(btn => {
+    document.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
     });
   }
+  // Fonction pour afficher les étoiles dans l'admin
+  function renderAdminStars(rating) {
+    const numRating = Number(rating) || 0;
+    const fullStars = Math.floor(numRating);
+    let starsHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      starsHTML += `<span style="color: ${i <= fullStars ? '#ffc107' : '#dee2e6'};">★</span>`;
+    }
+    return starsHTML;
+  }
+  // CORRECTION 5: Charger les utilisateurs
+  async function loadUsers() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/users`, {
+        headers: getAuthHeaders()
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const users = await res.json();
+      displayUsers(users);
+    } catch (error) {
+      console.error('Load users error:', error);
+      // Créer la table utilisateurs si elle n'existe pas
+      const usersSection = document.getElementById('users');
+      if (usersSection && !usersSection.innerHTML.trim()) {
+        usersSection.innerHTML = `
+          <h2>👥 Gestion des utilisateurs</h2>
+          <div class="users-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Avatar</th>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Rôle</th>
+                  <th>Inscription</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="7">⚠️ Erreur lors du chargement</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+    }
+  }
+  function displayUsers(users) {
+    // Créer la section utilisateurs si elle n'existe pas
+    let usersSection = document.getElementById('users');
+    if (!usersSection.innerHTML.includes('users-table-container')) {
+      usersSection.innerHTML = `
+        <h2>👥 Gestion des utilisateurs</h2>
+        <div class="filters">
+          <input type="text" id="userSearch" placeholder="Rechercher un utilisateur...">
+          <select id="roleFilter">
+            <option value="">Tous les rôles</option>
+            <option value="admin">Administrateur</option>
+            <option value="user">Utilisateur</option>
+          </select>
+        </div>
+        <div class="users-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Avatar</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Inscription</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      `;
+    }
+    const tbody = usersSection.querySelector('tbody');
+    if (!users.length) {
+      tbody.innerHTML = "<tr><td colspan='7' class='text-center'>Aucun utilisateur trouvé</td></tr>";
+      return;
+    }
+    tbody.innerHTML = users.map(user => `
+      <tr>
+        <td><strong>#${user.id}</strong></td>
+        <td>
+          <img src="${user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=40`}" alt="Avatar" class="user-thumb" />
+        </td>
+        <td><strong>${user.name || 'N/A'}</strong></td>
+        <td>${user.email}</td>
+        <td>
+          <span class="role-badge role-${user.role || 'user'}">${user.role || 'user'}</span>
+        </td>
+        <td style="font-size: 0.8rem; color: #6c757d;">
+          ${new Date(user.created_at).toLocaleDateString()}
+        </td>
+        <td>
+          <select onchange="changeUserRole(${user.id}, this.value)" ${user.role === 'admin' && user.id === currentUser.id ? 'disabled' : ''}>
+            <option value="user" ${user.role === 'user' ? 'selected' : ''}>Utilisateur</option>
+            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+          </select>
+        </td>
+      </tr>
+    `).join('');
+  }
+  // CORRECTION 6: Charger les avis
+  async function loadReviews() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/reviews`, {
+        headers: getAuthHeaders()
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const reviews = await res.json();
+      displayReviews(reviews);
+    } catch (error) {
+      console.error('Load reviews error:', error);
+    }
+  }
+  function displayReviews(reviews) {
+    // Créer la section avis si elle n'existe pas
+    let reviewsSection = document.getElementById('reviews');
+    if (!reviewsSection.innerHTML.includes('reviews-list')) {
+      reviewsSection.innerHTML = `
+        <h2>💬 Gestion des avis</h2>
+        <div class="filters">
+          <input type="text" id="reviewSearch" placeholder="Rechercher dans les avis...">
+          <input type="number" id="productIdFilter" placeholder="ID du produit">
+        </div>
+        <div class="reviews-list"></div>
+      `;
+    }
+    const container = reviewsSection.querySelector('.reviews-list');
+    if (!reviews.length) {
+      container.innerHTML = '<p class="text-center">Aucun avis trouvé</p>';
+      return;
+    }
+    container.innerHTML = reviews.map(review => `
+      <div class="review-card">
+        <div class="review-header">
+          <strong>${review.user_name}</strong>
+          <span class="review-product">Produit: ${review.product_title || `#${review.product_id}`}</span>
+          <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+        </div>
+        <div class="review-content">${review.comment}</div>
+        <div class="review-actions">
+          <button class="btn-delete" onclick="deleteReview(${review.id})">🗑️ Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  // CORRECTION 7: Event listeners pour la pagination
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      loadProducts();
+    }
+  });
+  document.getElementById('nextPage').addEventListener('click', () => {
+    currentPage++;
+    loadProducts();
+  });
+  // CORRECTION 8: Validation d'image avec support des chemins relatifs
+  document.getElementById('productImage').addEventListener('input', function() {
+    const imageUrl = this.value;
+    const preview = document.getElementById('imagePreview');
 
+    if (imageUrl) {
+      // Support des chemins relatifs et URLs absolues
+      let fullImageUrl = imageUrl;
+      if (imageUrl.startsWith('Images/') || imageUrl.startsWith('./Images/')) {
+        // Pour un chemin relatif, construire l'URL complète
+        fullImageUrl = window.location.origin + '/' + imageUrl.replace('./', '');
+      }
+
+      preview.innerHTML = `
+        <img src="${fullImageUrl}" alt="Aperçu" style="max-width: 200px; max-height: 200px;"
+             onerror="this.parentNode.innerHTML='❌ Image non valide'" />
+        <p style="font-size: 0.8rem; color: #6c757d; margin-top: 0.5rem;">
+          ${imageUrl.startsWith('Images/') ? 'Chemin relatif détecté' : 'URL absolue'}
+        </p>
+      `;
+    } else {
+      preview.innerHTML = '';
+    }
+  });
+  // Fonctions utilitaires
+  async function changeUserRole(userId, newRole) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ role: newRole })
+      });
+      if (res.ok) {
+        showNotification('Rôle modifié avec succès', 'success');
+        loadUsers();
+      } else {
+        showNotification('Erreur lors de la modification du rôle', 'error');
+      }
+    } catch (error) {
+      console.error('Change role error:', error);
+      showNotification('Erreur serveur', 'error');
+    }
+  }
+  async function deleteReview(reviewId) {
+    if (!confirm('Supprimer cet avis ?')) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        showNotification('Avis supprimé', 'success');
+        loadReviews();
+      } else {
+        showNotification('Erreur lors de la suppression', 'error');
+      }
+    } catch (error) {
+      console.error('Delete review error:', error);
+    }
+  }
+  function showNotification(message, type) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type} show`;
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 3000);
+  }
+  // CORRECTION 9: Navigation améliorée
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.section).classList.add('active');
+      // Charger les données selon la section
+      switch(btn.dataset.section) {
+        case 'dashboard':
+          loadDashboard();
+          loadRecentActivity();
+          break;
+        case 'products':
+          currentPage = 1;
+          loadProducts();
+          break;
+        case 'users':
+          loadUsers();
+          break;
+        case 'reviews':
+          loadReviews();
+          break;
+      }
+    });
+  });
+  // Reste du code existant (fonctions non modifiées)...
   // Ouvrir modal en édition
   function openEditModal(id) {
     const p = products.find(x => x.id == id);
@@ -355,7 +675,6 @@
     document.getElementById("productCategory").value = p.category || "";
     document.getElementById("productModal").style.display = "block";
   }
-
   // Supprimer produit
   async function deleteProduct(id) {
     if (!confirm("Supprimer ce produit ?")) return;
@@ -373,7 +692,6 @@
       console.error("Erreur suppression:", err);
     }
   }
-
   // Soumission produit
   document.getElementById("productForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -390,7 +708,6 @@
     try {
       const url = id ? `${BACKEND_URL}/admin/products/${id}` : `${BACKEND_URL}/admin/products`;
       const method = id ? "PUT" : "POST";
-
       const res = await fetch(url, {
         method,
         headers: getAuthHeaders(),
@@ -406,7 +723,6 @@
       console.error("Erreur submit produit:", err);
     }
   });
-
   // Migration des données
   document.getElementById("migrateBtn").addEventListener("click", async () => {
     const migrateStatus = document.getElementById("migrateStatus");
@@ -427,7 +743,6 @@
       console.error("Erreur migration:", err);
     }
   });
-
   // Gestion du modal
   document.getElementById("addProductBtn").addEventListener("click", () => {
     document.getElementById("productForm").reset();
@@ -440,13 +755,11 @@
   document.getElementById("cancelBtn").addEventListener("click", () => {
     document.getElementById("productModal").style.display = "none";
   });
-
   // Filtres
   document.getElementById("productSearch").addEventListener("input", loadProducts);
   document.getElementById("statusFilter").addEventListener("change", loadProducts);
   document.getElementById("sourceFilter").addEventListener("change", loadProducts);
   document.getElementById("categoryFilter").addEventListener("change", loadProducts);
-
   // Charger le tableau de bord
   async function loadDashboard() {
     try {
@@ -454,7 +767,6 @@
         headers: getAuthHeaders()
       });
       const stats = await res.json();
-
       document.getElementById('activeProducts').textContent = stats.active_products;
       document.getElementById('totalUsers').textContent = stats.total_users;
       document.getElementById('totalRatings').textContent = stats.total_ratings;
@@ -463,31 +775,11 @@
       console.error('Load dashboard error:', error);
     }
   }
-
   // Logout
   document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('sawem_auth_token');
     window.location.href = '/';
   });
-
-  // Navigation entre sections
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Retirer active de tous
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-
-      // Activer le bouton et section cliqués
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.section).classList.add('active');
-
-      // Charger les données si nécessaire
-      if (btn.dataset.section === 'products') {
-        loadProducts();
-      }
-    });
-  });
-
   // Initialisation
   checkAuth();
 </script>
