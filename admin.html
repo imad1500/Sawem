@@ -12,7 +12,7 @@
     <div class="header-content">
       <h1>🛒 Administration Sawem.shop</h1>
       <div class="header-right">
-        <span id="adminInfo" class="admin-info">⏳ Vérification...</span>
+        <span id="adminInfo" class="admin-info">Connecté: Imad Belkacem</span>
         <button id="backToSiteBtn" class="back-btn" onclick="window.location.href='/'">Retour au site</button>
         <button id="logoutBtn" class="logout-btn">Déconnexion</button>
       </div>
@@ -337,7 +337,6 @@
 
       products = data.products || [];
       displayProducts(products);
-      // CORRECTION: Pagination
       updateProductsPagination(data);
     } catch (err) {
       console.error("Erreur chargement produits:", err);
@@ -366,7 +365,7 @@
         <td><strong>#${p.id}</strong></td>
         <td>
           <img src="${p.image}" alt="img" class="product-thumb"
-               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNSAzNUMzMC41MjI4IDM1IDM1IDMwLjUyMjggMzUgMjVDMzUgMTkuNDc3MiAzMC41MjI4IDE1IDI1IDE1QzE5LjQ3NzIgMTUgMTUgMTkuNDc3MiAxNSAyNUMxNSAzMC41MjI4IDE5LjQ3NzIgMzUgMjUgMzUiIGZpbGw9IiM2Qzc1N0QiLz4KPC9zdmc+'" />
+               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNSAzNUMzMC41MjI4IDM1IDM1IDMwLjUyMjggMzUgMjVDMTkuNDc3MiAxNSAxNSAxOS40NzcyIDE1IDI1QzE1IDMwLjUyMjggMTkuNDc3MiAzNSAyNSAzNSIgZmlsbD0iIzZDNzU3RCIvPgo8L3N2Zz4='" />
         </td>
         <td>
           <div class="product-title" title="${p.title}">${p.title}</div>
@@ -385,7 +384,7 @@
         <td>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             ${renderAdminStars(p.user_rating || 0)}
-            <span style="font-size: 0.8rem; color: #6c757d;">${(p.user_rating || 0).toFixed(1)}</span>
+            <span style="font-size: 0.8rem; color: #6c757d;">${Number(p.user_rating || 0).toFixed(1)}</span>
           </div>
         </td>
         <td>
@@ -580,84 +579,229 @@
     const preview = document.getElementById('imagePreview');
 
     if (imageUrl) {
-      // Support des chemins relatifs et URLs absolues
       let fullImageUrl = imageUrl;
-      if (imageUrl.startsWith('Images/') || imageUrl.startsWith('./Images/')) {
-        // Pour un chemin relatif, construire l'URL complète
-        fullImageUrl = window.location.origin + '/' + imageUrl.replace('./', '');
+      if (imageUrl.startsWith('Images/')) {
+        fullImageUrl = `${BACKEND_URL}/${imageUrl}`;
       }
-
-      preview.innerHTML = `
-        <img src="${fullImageUrl}" alt="Aperçu" style="max-width: 200px; max-height: 200px;"
-             onerror="this.parentNode.innerHTML='❌ Image non valide'" />
-        <p style="font-size: 0.8rem; color: #6c757d; margin-top: 0.5rem;">
-          ${imageUrl.startsWith('Images/') ? 'Chemin relatif détecté' : 'URL absolue'}
-        </p>
-      `;
+      preview.innerHTML = `<img src="${fullImageUrl}" alt="Preview" onerror="this.parentNode.innerHTML='<p>Image non disponible</p>'">`;
     } else {
-      preview.innerHTML = '';
+      preview.innerHTML = '<p>Aucune image sélectionnée</p>';
     }
   });
-  // Fonctions utilitaires
+  // Fonction pour gérer la soumission du formulaire produit
+  document.getElementById('productForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const productId = document.getElementById('productId').value;
+    const productTitle = document.getElementById('productTitle').value;
+    const productPrice = document.getElementById('productPrice').value;
+    const productSource = document.getElementById('productSource').value;
+    const productLink = document.getElementById('productLink').value;
+    const productImage = document.getElementById('productImage').value;
+    const productStatus = document.getElementById('productStatus').value;
+    const productCategory = document.getElementById('productCategory').value;
+
+    const productData = {
+      title: productTitle,
+      price: productPrice,
+      source: productSource,
+      link: productLink,
+      image: productImage,
+      status: productStatus,
+      category: productCategory
+    };
+
+    try {
+      let url = `${BACKEND_URL}/admin/products`;
+      let method = 'POST';
+      if (productId) {
+        url += `/${productId}`;
+        method = 'PUT';
+      }
+
+      const response = await fetch(url, {
+        method: method,
+        headers: getAuthHeaders(),
+        body: JSON.stringify(productData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        showNotification('Produit enregistré avec succès!');
+        closeProductModal();
+        loadProducts();
+      } else {
+        showNotification('Erreur lors de l\'enregistrement du produit.', true);
+      }
+    } catch (error) {
+      console.error('Error saving product:', error);
+      showNotification('Erreur lors de l\'enregistrement du produit.', true);
+    }
+  });
+  // Afficher une notification
+  function showNotification(message, isError = false) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${isError ? 'error' : ''}`;
+    notification.style.display = 'block';
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 5000);
+  }
+  // Fonction pour ouvrir le modal produit
+  function openProductModal(product = null) {
+    const modal = document.getElementById('productModal');
+    const form = document.getElementById('productForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitText = document.getElementById('submitText');
+
+    // Réinitialiser le formulaire
+    form.reset();
+    document.getElementById('productId').value = '';
+    document.getElementById('imagePreview').innerHTML = '<p>Aucune image sélectionnée</p>';
+
+    if (product) {
+      // Mode édition
+      modalTitle.textContent = 'Modifier un produit';
+      submitText.textContent = 'Enregistrer';
+      document.getElementById('productId').value = product.id;
+      document.getElementById('productTitle').value = product.title;
+      document.getElementById('productPrice').value = product.price;
+      document.getElementById('productSource').value = product.source;
+      document.getElementById('productLink').value = product.link;
+      document.getElementById('productImage').value = product.image;
+      document.getElementById('productStatus').value = product.status;
+      document.getElementById('productCategory').value = product.category || 'autres';
+
+      // Afficher l'image de prévisualisation si elle existe
+      if (product.image) {
+        const preview = document.getElementById('imagePreview');
+        let fullImageUrl = product.image;
+        if (product.image.startsWith('Images/')) {
+          fullImageUrl = `${BACKEND_URL}/${product.image}`;
+        }
+        preview.innerHTML = `<img src="${fullImageUrl}" alt="Preview" onerror="this.parentNode.innerHTML='<p>Image non disponible</p>'">`;
+      }
+    } else {
+      // Mode ajout
+      modalTitle.textContent = 'Ajouter un produit';
+      submitText.textContent = 'Ajouter';
+    }
+
+    // Afficher le modal
+    modal.style.display = 'flex';
+  }
+  // Fonction pour fermer le modal produit
+  function closeProductModal() {
+    document.getElementById('productModal').style.display = 'none';
+  }
+  // Gestionnaire pour le bouton "Ajouter un produit"
+  document.getElementById('addProductBtn').addEventListener('click', () => {
+    openProductModal();
+  });
+  // Gestionnaire pour le bouton de fermeture du modal
+  document.getElementById('closeModal').addEventListener('click', closeProductModal);
+  // Gestionnaire pour le bouton d'annulation du modal
+  document.getElementById('cancelBtn').addEventListener('click', closeProductModal);
+  // Fonction pour ouvrir le modal en mode édition
+  function openEditModal(productId) {
+    // Rechercher le produit dans la liste des produits
+    const product = products.find(p => p.id == productId);
+    if (product) {
+      openProductModal(product);
+    } else {
+      showNotification('Produit non trouvé.', true);
+    }
+  }
+  // Fonction pour supprimer un produit
+  async function deleteProduct(productId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce produit?')) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/admin/products/${productId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          showNotification('Produit supprimé avec succès!');
+          loadProducts();
+        } else {
+          showNotification('Erreur lors de la suppression du produit.', true);
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        showNotification('Erreur lors de la suppression du produit.', true);
+      }
+    }
+  }
+  // Fonction pour changer le rôle d'un utilisateur
   async function changeUserRole(userId, newRole) {
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/users/${userId}/role`, {
+      const response = await fetch(`${BACKEND_URL}/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({ role: newRole })
       });
-      if (res.ok) {
-        showNotification('Rôle modifié avec succès', 'success');
-        loadUsers();
-      } else {
-        showNotification('Erreur lors de la modification du rôle', 'error');
-      }
-    } catch (error) {
-      console.error('Change role error:', error);
-      showNotification('Erreur serveur', 'error');
-    }
-  }
-  async function deleteReview(reviewId) {
-    if (!confirm('Supprimer cet avis ?')) return;
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/admin/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-      if (res.ok) {
-        showNotification('Avis supprimé', 'success');
-        loadReviews();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        showNotification('Rôle utilisateur mis à jour avec succès!');
       } else {
-        showNotification('Erreur lors de la suppression', 'error');
+        showNotification('Erreur lors de la mise à jour du rôle.', true);
       }
     } catch (error) {
-      console.error('Delete review error:', error);
+      console.error('Error updating user role:', error);
+      showNotification('Erreur lors de la mise à jour du rôle.', true);
     }
   }
-  function showNotification(message, type) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.className = `notification ${type} show`;
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, 3000);
+  // Fonction pour supprimer un avis
+  async function deleteReview(reviewId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet avis?')) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/admin/reviews/${reviewId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          showNotification('Avis supprimé avec succès!');
+          loadReviews();
+        } else {
+          showNotification('Erreur lors de la suppression de l\'avis.', true);
+        }
+      } catch (error) {
+        console.error('Error deleting review:', error);
+        showNotification('Erreur lors de la suppression de l\'avis.', true);
+      }
+    }
   }
-  // CORRECTION 9: Navigation améliorée
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.section).classList.add('active');
-      // Charger les données selon la section
-      switch(btn.dataset.section) {
+  // Charger le contenu de la section active
+  function loadSectionContent() {
+    const activeSection = document.querySelector('.admin-section.active');
+    if (activeSection) {
+      const sectionId = activeSection.id;
+      switch (sectionId) {
         case 'dashboard':
           loadDashboard();
-          loadRecentActivity();
           break;
         case 'products':
-          currentPage = 1;
           loadProducts();
           break;
         case 'users':
@@ -667,130 +811,75 @@
           loadReviews();
           break;
       }
-    });
-  });
-  // Reste du code existant (fonctions non modifiées)...
-  // Ouvrir modal en édition
-  function openEditModal(id) {
-    const p = products.find(x => x.id == id);
-    if (!p) return;
-    document.getElementById("productId").value = p.id;
-    document.getElementById("productTitle").value = p.title;
-    document.getElementById("productPrice").value = p.price;
-    document.getElementById("productSource").value = p.source;
-    document.getElementById("productLink").value = p.link || "";
-    document.getElementById("productImage").value = p.image || "";
-    document.getElementById("productStatus").value = p.status;
-    document.getElementById("productCategory").value = p.category || "";
-    document.getElementById("productModal").style.display = "block";
-  }
-  // Supprimer produit
-  async function deleteProduct(id) {
-    if (!confirm("Supprimer ce produit ?")) return;
-    try {
-      const res = await fetch(`${BACKEND_URL}/admin/products/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      });
-      if (res.ok) {
-        loadProducts();
-      } else {
-        alert("❌ Erreur suppression");
-      }
-    } catch (err) {
-      console.error("Erreur suppression:", err);
     }
   }
-  // Soumission produit
-  document.getElementById("productForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const id = document.getElementById("productId").value;
-    const payload = {
-      title: document.getElementById("productTitle").value,
-      price: document.getElementById("productPrice").value,
-      source: document.getElementById("productSource").value,
-      link: document.getElementById("productLink").value,
-      image: document.getElementById("productImage").value,
-      status: document.getElementById("productStatus").value,
-      category: document.getElementById("productCategory").value
-    };
-    try {
-      const url = id ? `${BACKEND_URL}/admin/products/${id}` : `${BACKEND_URL}/admin/products`;
-      const method = id ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: getAuthHeaders(),
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        document.getElementById("productModal").style.display = "none";
-        loadProducts();
-      } else {
-        alert("❌ Erreur lors de l'enregistrement");
-      }
-    } catch (err) {
-      console.error("Erreur submit produit:", err);
-    }
-  });
-  // Migration des données
-  document.getElementById("migrateBtn").addEventListener("click", async () => {
-    const migrateStatus = document.getElementById("migrateStatus");
-    migrateStatus.innerText = "⏳ Migration en cours...";
-    try {
-      const res = await fetch(`${BACKEND_URL}/admin/migrate`, {
-        method: "POST",
-        headers: getAuthHeaders()
-      });
-      if (res.ok) {
-        migrateStatus.innerText = "✅ Migration terminée";
-        loadProducts();
-      } else {
-        migrateStatus.innerText = "❌ Erreur migration";
-      }
-    } catch (err) {
-      migrateStatus.innerText = "⚠️ Erreur serveur";
-      console.error("Erreur migration:", err);
-    }
-  });
-  // Gestion du modal
-  document.getElementById("addProductBtn").addEventListener("click", () => {
-    document.getElementById("productForm").reset();
-    document.getElementById("productId").value = "";
-    document.getElementById("productModal").style.display = "block";
-  });
-  document.getElementById("closeModal").addEventListener("click", () => {
-    document.getElementById("productModal").style.display = "none";
-  });
-  document.getElementById("cancelBtn").addEventListener("click", () => {
-    document.getElementById("productModal").style.display = "none";
-  });
-  // Filtres
-  document.getElementById("productSearch").addEventListener("input", loadProducts);
-  document.getElementById("statusFilter").addEventListener("change", loadProducts);
-  document.getElementById("sourceFilter").addEventListener("change", loadProducts);
-  document.getElementById("categoryFilter").addEventListener("change", loadProducts);
-  // Charger le tableau de bord
+  // Charger les données du tableau de bord
   async function loadDashboard() {
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/stats`, {
+      // Charger les statistiques
+      const statsResponse = await fetch(`${BACKEND_URL}/admin/stats`, {
         headers: getAuthHeaders()
       });
-      const stats = await res.json();
-      document.getElementById('activeProducts').textContent = stats.active_products;
-      document.getElementById('totalUsers').textContent = stats.total_users;
-      document.getElementById('totalRatings').textContent = stats.total_ratings;
-      document.getElementById('totalReviews').textContent = stats.total_reviews;
+
+      if (!statsResponse.ok) throw new Error('Failed to load stats');
+
+      const stats = await statsResponse.json();
+
+      document.getElementById('activeProducts').textContent = stats.activeProducts || 0;
+      document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+      document.getElementById('totalRatings').textContent = stats.totalRatings || 0;
+      document.getElementById('totalReviews').textContent = stats.totalReviews || 0;
+
+      // Charger l'activité récente
+      loadRecentActivity();
     } catch (error) {
       console.error('Load dashboard error:', error);
     }
   }
-  // Logout
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('sawem_auth_token');
-    window.location.href = '/';
+  // Gestionnaire pour la navigation
+  document.querySelectorAll('.nav-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const sectionId = this.getAttribute('data-section');
+      // Masquer toutes les sections
+      document.querySelectorAll('.admin-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      // Désactiver tous les boutons
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // Activer la section et le bouton cliqués
+      document.getElementById(sectionId).classList.add('active');
+      this.classList.add('active');
+      // Charger le contenu de la nouvelle section active
+      loadSectionContent();
+    });
   });
-  // Initialisation
-  checkAuth();
+  // Gestionnaire pour les filtres de produits
+  document.querySelectorAll('#productSearch, #statusFilter, #sourceFilter, #categoryFilter').forEach(element => {
+    element.addEventListener('change', loadProducts);
+    element.addEventListener('keyup', function() {
+      if (this.id === 'productSearch') {
+        loadProducts();
+      }
+    });
+  });
+  // Gestionnaire pour le bouton de déconnexion
+  document.getElementById('logoutBtn').addEventListener('click', function() {
+    localStorage.removeItem('sawem_auth_token');
+    window.location.href = '/login.html';
+  });
+  // Au chargement de la page
+  window.onload = function() {
+    checkAuth();
+    // Ajouter des gestionnaires d'événements supplémentaires si nécessaire
+    // Par exemple pour les boutons de sauvegarde, migration, etc.
+    document.getElementById('backupBtn').addEventListener('click', () => alert('Fonctionnalité de sauvegarde à implémenter'));
+    document.getElementById('cacheBtn').addEventListener('click', () => alert('Fonctionnalité de vidage du cache à implémenter'));
+    document.getElementById('reindexBtn').addEventListener('click', () => alert('Fonctionnalité de réindexation à implémenter'));
+    document.getElementById('exportStatsBtn').addEventListener('click', () => alert('Fonctionnalité d\'exportation des stats à implémenter'));
+    document.getElementById('migrateBtn').addEventListener('click', () => alert('Fonctionnalité de migration à implémenter'));
+  };
 </script>
 </body>
 </html>
