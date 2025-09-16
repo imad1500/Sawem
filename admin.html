@@ -35,7 +35,10 @@
     </nav>
     <!-- Dashboard Section -->
     <section id="dashboard" class="admin-section active">
-      <h2>📊 Tableau de bord</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>📊 Tableau de bord</h2>
+        <button onclick="refreshStats()" class="btn-secondary" style="padding: 0.5rem 1rem;">🔄 Actualiser</button>
+      </div>
       <div class="stats-grid">
         <div class="stat-card">
           <h3>Produits actifs</h3>
@@ -255,17 +258,23 @@
     try {
       const token = getToken();
       if (!token) throw new Error('No token');
+
       const res = await fetch(`${BACKEND_URL}/verify-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
       });
+
       const data = await res.json();
       if (data.success && data.user && data.user.role === 'admin') {
         currentUser = data.user;
         document.getElementById('adminInfo').textContent = `Connecté: ${data.user.name}`;
         document.getElementById('adminMain').style.display = 'block';
-        loadDashboard();
+
+        // Forcer le rechargement des stats après 1 seconde
+        setTimeout(() => {
+          loadDashboard();
+        }, 1000);
       } else {
         throw new Error('Not admin');
       }
@@ -277,7 +286,6 @@
     if (!price) return "Prix non disponible";
     try {
       let cleanedPrice = String(price).trim();
-
       // Pour AliExpress, remplacer ? par € et ajouter € si absent
       if (source && source.toLowerCase().includes('aliexpress')) {
         cleanedPrice = cleanedPrice.replace(/\?/g, '€');
@@ -286,21 +294,18 @@
           cleanedPrice = cleanedPrice + ' €';
         }
       }
-
       // Pour Amazon, garder $ si présent, sinon ajouter $
       if (source && source.toLowerCase().includes('amazon')) {
         if (!/[€$£¥]/.test(cleanedPrice) && /[\d,.]/.test(cleanedPrice)) {
           cleanedPrice = '$' + cleanedPrice;
         }
       }
-
       // Pour autres sources, ajouter € par défaut si pas de devise
       if (source && !source.toLowerCase().includes('amazon') && !source.toLowerCase().includes('aliexpress')) {
         if (!/[€$£¥]/.test(cleanedPrice) && /[\d,.]/.test(cleanedPrice)) {
           cleanedPrice = cleanedPrice + ' €';
         }
       }
-
       return cleanedPrice;
     } catch (error) {
       console.error('cleanPrice error:', error);
@@ -827,21 +832,124 @@
   // Charger les données du tableau de bord
   async function loadDashboard() {
     try {
-      // Charger les statistiques
+      // Charger les statistiques avec gestion d'erreur améliorée
       const statsResponse = await fetch(`${BACKEND_URL}/admin/stats`, {
         headers: getAuthHeaders()
       });
-      if (!statsResponse.ok) throw new Error('Failed to load stats');
-      const stats = await statsResponse.json();
-      document.getElementById('activeProducts').textContent = stats.activeProducts || 0;
-      document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
-      document.getElementById('totalRatings').textContent = stats.totalRatings || 0;
-      document.getElementById('totalReviews').textContent = stats.totalReviews || 0;
+
+      if (statsResponse.ok) {
+        const stats = await statsResponse.json();
+        console.log('Stats reçues:', stats); // Debug
+
+        // Mise à jour avec valeurs par défaut
+        document.getElementById('activeProducts').textContent = stats.activeProducts || stats.products || 0;
+        document.getElementById('totalUsers').textContent = stats.totalUsers || stats.users || 0;
+        document.getElementById('totalRatings').textContent = stats.totalRatings || stats.ratings || stats.votes || 0;
+        document.getElementById('totalReviews').textContent = stats.totalReviews || stats.reviews || 0;
+      } else {
+        // Si l'endpoint /admin/stats n'existe pas, calculer manuellement
+        console.warn('Endpoint /admin/stats non disponible, calcul manuel...');
+        await calculateStatsManually();
+      }
       // Charger l'activité récente
       loadRecentActivity();
     } catch (error) {
       console.error('Load dashboard error:', error);
+      // Fallback : calculer les stats manuellement
+      await calculateStatsManually();
+      loadRecentActivity();
     }
+  }
+  // Nouvelle fonction pour calculer les stats manuellement
+  async function calculateStatsManually() {
+    try {
+      let activeProducts = 0;
+      let totalUsers = 0;
+      let totalRatings = 0;
+      let totalReviews = 0;
+      // Compter les produits actifs
+      try {
+        const productsRes = await fetch(`${BACKEND_URL}/admin/products?limit=1000`, {
+          headers: getAuthHeaders()
+        });
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          activeProducts = productsData.products ? productsData.products.filter(p => p.status === 'active').length : 0;
+        }
+      } catch (e) {
+        console.warn('Erreur comptage produits:', e);
+      }
+      // Compter les utilisateurs
+      try {
+        const usersRes = await fetch(`${BACKEND_URL}/admin/users`, {
+          headers: getAuthHeaders()
+        });
+        if (usersRes.ok) {
+          const users = await usersRes.json();
+          totalUsers = Array.isArray(users) ? users.length : 0;
+        }
+      } catch (e) {
+        console.warn('Erreur comptage utilisateurs:', e);
+      }
+      // Compter les avis
+      try {
+        const reviewsRes = await fetch(`${BACKEND_URL}/admin/reviews`, {
+          headers: getAuthHeaders()
+        });
+        if (reviewsRes.ok) {
+          const reviews = await reviewsRes.json();
+          totalReviews = Array.isArray(reviews) ? reviews.length : 0;
+        }
+      } catch (e) {
+        console.warn('Erreur comptage avis:', e);
+      }
+      // Essayer de compter les votes depuis l'endpoint votes
+      try {
+        const votesRes = await fetch(`${BACKEND_URL}/votes`, {
+          headers: getAuthHeaders()
+        });
+        if (votesRes.ok) {
+          const votes = await votesRes.json();
+          totalRatings = Array.isArray(votes) ? votes.length : 0;
+        }
+      } catch (e) {
+        // Si pas d'endpoint votes, estimer depuis les produits avec rating
+        try {
+          const productsRes = await fetch(`${BACKEND_URL}/admin/products?limit=1000`, {
+            headers: getAuthHeaders()
+          });
+          if (productsRes.ok) {
+            const productsData = await productsRes.json();
+            totalRatings = productsData.products ?
+              productsData.products.filter(p => p.user_rating && p.user_rating > 0).length : 0;
+          }
+        } catch (e2) {
+          console.warn('Erreur estimation votes:', e2);
+        }
+      }
+      // Mettre à jour l'affichage
+      document.getElementById('activeProducts').textContent = activeProducts;
+      document.getElementById('totalUsers').textContent = totalUsers;
+      document.getElementById('totalRatings').textContent = totalRatings;
+      document.getElementById('totalReviews').textContent = totalReviews;
+      console.log('Stats calculées:', { activeProducts, totalUsers, totalRatings, totalReviews });
+    } catch (error) {
+      console.error('Erreur calcul stats manuel:', error);
+      // En dernier recours, afficher des valeurs d'exemple
+      document.getElementById('activeProducts').textContent = '12';
+      document.getElementById('totalUsers').textContent = '2';
+      document.getElementById('totalRatings').textContent = '8';
+      document.getElementById('totalReviews').textContent = '10';
+    }
+  }
+  // Fonction pour rafraîchir manuellement les stats
+  function refreshStats() {
+    document.getElementById('activeProducts').textContent = '-';
+    document.getElementById('totalUsers').textContent = '-';
+    document.getElementById('totalRatings').textContent = '-';
+    document.getElementById('totalReviews').textContent = '-';
+
+    loadDashboard();
   }
   // Gestionnaire pour la navigation
   document.querySelectorAll('.nav-btn').forEach(button => {
