@@ -37,7 +37,10 @@
     <section id="dashboard" class="admin-section active">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h2>📊 Tableau de bord</h2>
-        <button onclick="refreshStats()" class="btn-secondary" style="padding: 0.5rem 1rem;">🔄 Actualiser</button>
+        <div>
+          <button onclick="debugAuth()" class="btn-secondary" style="padding: 0.5rem 1rem; margin-right: 0.5rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">🔍 Debug Auth</button>
+          <button onclick="refreshStats()" class="btn-secondary" style="padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 Actualiser</button>
+        </div>
       </div>
       <div class="stats-grid">
         <div class="stat-card">
@@ -255,30 +258,51 @@
     };
   }
   async function checkAuth() {
+    console.log('=== DEBUG AUTHENTIFICATION ===');
+
     try {
       const token = getToken();
-      if (!token) throw new Error('No token');
+      console.log('1. Token récupéré du localStorage:', token ? 'Présent (' + token.length + ' chars)' : 'ABSENT');
 
+      if (!token) {
+        console.error('❌ ERREUR: Aucun token trouvé dans localStorage');
+        console.log('Redirection vers login...');
+        document.getElementById('accessDenied').style.display = 'block';
+        return;
+      }
+      console.log('2. Headers d\'auth générés:', getAuthHeaders());
+
+      console.log('3. Test de vérification du token...');
       const res = await fetch(`${BACKEND_URL}/verify-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
       });
 
+      console.log('4. Réponse verify-token - Status:', res.status);
+
       const data = await res.json();
+      console.log('5. Données utilisateur reçues:', data);
       if (data.success && data.user && data.user.role === 'admin') {
         currentUser = data.user;
         document.getElementById('adminInfo').textContent = `Connecté: ${data.user.name}`;
         document.getElementById('adminMain').style.display = 'block';
 
-        // Forcer le rechargement des stats après 1 seconde
+        console.log('✅ Authentification réussie, utilisateur admin confirmé');
+
+        // Test immédiat des endpoints admin
+        await testAdminEndpoints();
+
+        // Charger le dashboard après les tests
         setTimeout(() => {
           loadDashboard();
-        }, 1000);
+        }, 2000);
       } else {
+        console.error('❌ Échec authentification:', data);
         throw new Error('Not admin');
       }
     } catch (error) {
+      console.error('❌ Erreur dans checkAuth:', error);
       document.getElementById('accessDenied').style.display = 'block';
     }
   }
@@ -831,116 +855,116 @@
   }
   // Charger les données du tableau de bord
   async function loadDashboard() {
+    console.log('\n📊 Chargement dashboard...');
+
+    // Vérifier que l'auth est OK
+    const token = getToken();
+    if (!token) {
+      console.error('❌ Pas de token pour loadDashboard');
+      return;
+    }
+
+    // Indicateurs de chargement
+    document.getElementById('activeProducts').textContent = '...';
+    document.getElementById('totalUsers').textContent = '...';
+    document.getElementById('totalRatings').textContent = '...';
+    document.getElementById('totalReviews').textContent = '...';
+
     try {
-      // Charger les statistiques avec gestion d'erreur améliorée
+      console.log('Tentative récupération /admin/stats...');
+
       const statsResponse = await fetch(`${BACKEND_URL}/admin/stats`, {
         headers: getAuthHeaders()
       });
 
+      console.log('Réponse stats - Status:', statsResponse.status);
+
       if (statsResponse.ok) {
         const stats = await statsResponse.json();
-        console.log('Stats reçues:', stats); // Debug
+        console.log('✅ Stats reçues:', stats);
 
-        // Mise à jour avec valeurs par défaut
-        document.getElementById('activeProducts').textContent = stats.activeProducts || stats.products || 0;
-        document.getElementById('totalUsers').textContent = stats.totalUsers || stats.users || 0;
-        document.getElementById('totalRatings').textContent = stats.totalRatings || stats.ratings || stats.votes || 0;
-        document.getElementById('totalReviews').textContent = stats.totalReviews || stats.reviews || 0;
+        // Mise à jour interface
+        document.getElementById('activeProducts').textContent = stats.activeProducts || 0;
+        document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+        document.getElementById('totalRatings').textContent = stats.totalRatings || 0;
+        document.getElementById('totalReviews').textContent = stats.totalReviews || 0;
+
       } else {
-        // Si l'endpoint /admin/stats n'existe pas, calculer manuellement
-        console.warn('Endpoint /admin/stats non disponible, calcul manuel...');
-        await calculateStatsManually();
+        const errorText = await statsResponse.text();
+        console.error('❌ Erreur récupération stats:', errorText);
+
+        // Afficher l'erreur sur l'interface
+        document.getElementById('activeProducts').textContent = 'ERR';
+        document.getElementById('totalUsers').textContent = 'ERR';
+        document.getElementById('totalRatings').textContent = 'ERR';
+        document.getElementById('totalReviews').textContent = 'ERR';
       }
-      // Charger l'activité récente
+
+      // Charger activité récente
       loadRecentActivity();
+
     } catch (error) {
-      console.error('Load dashboard error:', error);
-      // Fallback : calculer les stats manuellement
-      await calculateStatsManually();
-      loadRecentActivity();
+      console.error('💥 Exception loadDashboard:', error);
+
+      document.getElementById('activeProducts').textContent = 'ERR';
+      document.getElementById('totalUsers').textContent = 'ERR';
+      document.getElementById('totalRatings').textContent = 'ERR';
+      document.getElementById('totalReviews').textContent = 'ERR';
     }
   }
-  // Nouvelle fonction pour calculer les stats manuellement
-  async function calculateStatsManually() {
-    try {
-      let activeProducts = 0;
-      let totalUsers = 0;
-      let totalRatings = 0;
-      let totalReviews = 0;
-      // Compter les produits actifs
+  // AJOUTER cette nouvelle fonction de test des endpoints
+  async function testAdminEndpoints() {
+    console.log('\n=== TEST ENDPOINTS ADMIN ===');
+
+    const token = getToken();
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    console.log('Headers utilisés pour les tests:', headers);
+
+    const endpoints = [
+      '/admin/stats',
+      '/admin/users',
+      '/admin/products?limit=5',
+      '/admin/reviews'
+    ];
+
+    for (const endpoint of endpoints) {
       try {
-        const productsRes = await fetch(`${BACKEND_URL}/admin/products?limit=1000`, {
-          headers: getAuthHeaders()
+        console.log(`\n--- Test ${endpoint} ---`);
+
+        const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+          method: 'GET',
+          headers: headers
         });
-        if (productsRes.ok) {
-          const productsData = await productsRes.json();
-          activeProducts = productsData.products ? productsData.products.filter(p => p.status === 'active').length : 0;
-        }
-      } catch (e) {
-        console.warn('Erreur comptage produits:', e);
-      }
-      // Compter les utilisateurs
-      try {
-        const usersRes = await fetch(`${BACKEND_URL}/admin/users`, {
-          headers: getAuthHeaders()
-        });
-        if (usersRes.ok) {
-          const users = await usersRes.json();
-          totalUsers = Array.isArray(users) ? users.length : 0;
-        }
-      } catch (e) {
-        console.warn('Erreur comptage utilisateurs:', e);
-      }
-      // Compter les avis
-      try {
-        const reviewsRes = await fetch(`${BACKEND_URL}/admin/reviews`, {
-          headers: getAuthHeaders()
-        });
-        if (reviewsRes.ok) {
-          const reviews = await reviewsRes.json();
-          totalReviews = Array.isArray(reviews) ? reviews.length : 0;
-        }
-      } catch (e) {
-        console.warn('Erreur comptage avis:', e);
-      }
-      // Essayer de compter les votes depuis l'endpoint votes
-      try {
-        const votesRes = await fetch(`${BACKEND_URL}/votes`, {
-          headers: getAuthHeaders()
-        });
-        if (votesRes.ok) {
-          const votes = await votesRes.json();
-          totalRatings = Array.isArray(votes) ? votes.length : 0;
-        }
-      } catch (e) {
-        // Si pas d'endpoint votes, estimer depuis les produits avec rating
-        try {
-          const productsRes = await fetch(`${BACKEND_URL}/admin/products?limit=1000`, {
-            headers: getAuthHeaders()
-          });
-          if (productsRes.ok) {
-            const productsData = await productsRes.json();
-            totalRatings = productsData.products ?
-              productsData.products.filter(p => p.user_rating && p.user_rating > 0).length : 0;
+
+        console.log(`Status: ${response.status} ${response.statusText}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Réponse:', data);
+
+          // Cas spécial pour /admin/stats
+          if (endpoint === '/admin/stats') {
+            console.log('📊 Stats détaillées:');
+            console.log('  - Produits actifs:', data.activeProducts || 0);
+            console.log('  - Utilisateurs:', data.totalUsers || 0);
+            console.log('  - Notes:', data.totalRatings || 0);
+            console.log('  - Avis:', data.totalReviews || 0);
           }
-        } catch (e2) {
-          console.warn('Erreur estimation votes:', e2);
+        } else {
+          const errorText = await response.text();
+          console.error(`❌ Erreur ${response.status}:`, errorText);
         }
+
+      } catch (error) {
+        console.error(`💥 Exception sur ${endpoint}:`, error);
       }
-      // Mettre à jour l'affichage
-      document.getElementById('activeProducts').textContent = activeProducts;
-      document.getElementById('totalUsers').textContent = totalUsers;
-      document.getElementById('totalRatings').textContent = totalRatings;
-      document.getElementById('totalReviews').textContent = totalReviews;
-      console.log('Stats calculées:', { activeProducts, totalUsers, totalRatings, totalReviews });
-    } catch (error) {
-      console.error('Erreur calcul stats manuel:', error);
-      // En dernier recours, afficher des valeurs d'exemple
-      document.getElementById('activeProducts').textContent = '12';
-      document.getElementById('totalUsers').textContent = '2';
-      document.getElementById('totalRatings').textContent = '8';
-      document.getElementById('totalReviews').textContent = '10';
     }
+
+    console.log('\n=== FIN TESTS ===');
   }
   // Fonction pour rafraîchir manuellement les stats
   function refreshStats() {
@@ -950,6 +974,38 @@
     document.getElementById('totalReviews').textContent = '-';
 
     loadDashboard();
+  }
+  // AJOUTER fonction de debug manuel
+  function debugAuth() {
+    console.log('\n=== DEBUG MANUEL ===');
+
+    const token = localStorage.getItem('sawem_auth_token');
+    console.log('Token localStorage:', token);
+
+    if (token) {
+      console.log('Longueur token:', token.length);
+      console.log('Début token:', token.substring(0, 20) + '...');
+
+      // Test direct endpoint stats
+      fetch(`${BACKEND_URL}/admin/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        console.log('Test direct stats - Status:', response.status);
+        return response.json();
+      })
+      .then(data => {
+        console.log('Test direct stats - Data:', data);
+      })
+      .catch(err => {
+        console.error('Test direct stats - Error:', err);
+      });
+    } else {
+      console.error('❌ Aucun token trouvé !');
+    }
   }
   // Gestionnaire pour la navigation
   document.querySelectorAll('.nav-btn').forEach(button => {
