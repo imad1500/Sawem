@@ -65,6 +65,14 @@
         <div id="recentActivity" class="activity-list">⏳ Chargement...</div>
       </div>
     </section>
+    <!-- Debug Section -->
+    <section id="debug-section" class="admin-section" style="display:none;">
+      <h2>🔍 Diagnostic Authentification</h2>
+      <div id="debugResults" style="background: #f8f9fa; padding: 1rem; border-radius: 5px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
+        Cliquez sur "Debug Auth" pour lancer le diagnostic...
+      </div>
+      <button onclick="clearDebug()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 4px;">Effacer</button>
+    </section>
     <!-- Products Section -->
     <section id="products" class="admin-section">
       <div class="section-header">
@@ -912,7 +920,7 @@
       document.getElementById('totalReviews').textContent = 'ERR';
     }
   }
-  // AJOUTER cette nouvelle fonction de test des endpoints
+  // Nouvelle fonction de test des endpoints
   async function testAdminEndpoints() {
     console.log('\n=== TEST ENDPOINTS ADMIN ===');
 
@@ -968,44 +976,154 @@
   }
   // Fonction pour rafraîchir manuellement les stats
   function refreshStats() {
-    document.getElementById('activeProducts').textContent = '-';
-    document.getElementById('totalUsers').textContent = '-';
-    document.getElementById('totalRatings').textContent = '-';
-    document.getElementById('totalReviews').textContent = '-';
+    // Afficher un indicateur de chargement
+    document.getElementById('activeProducts').textContent = '...';
+    document.getElementById('totalUsers').textContent = '...';
+    document.getElementById('totalRatings').textContent = '...';
+    document.getElementById('totalReviews').textContent = '...';
 
+    // Charger les nouvelles stats
     loadDashboard();
+
+    // Message de confirmation
+    showNotification('Statistiques actualisées !');
   }
-  // AJOUTER fonction de debug manuel
+  // Fonction de diagnostic visuel
   function debugAuth() {
-    console.log('\n=== DEBUG MANUEL ===');
+    // Afficher la section debug
+    document.getElementById('debug-section').style.display = 'block';
 
+    const debugDiv = document.getElementById('debugResults');
+    debugDiv.innerHTML = '';
+
+    function log(message, type = 'info') {
+      const colors = {
+        'info': '#333',
+        'success': '#28a745',
+        'error': '#dc3545',
+        'warning': '#ffc107'
+      };
+
+      debugDiv.innerHTML += `<div style="color: ${colors[type]}; margin: 0.2rem 0;">${message}</div>`;
+      debugDiv.scrollTop = debugDiv.scrollHeight;
+    }
+
+    log('=== DIAGNOSTIC AUTHENTIFICATION ===', 'info');
+    log('');
+
+    // 1. Vérifier le token
     const token = localStorage.getItem('sawem_auth_token');
-    console.log('Token localStorage:', token);
-
     if (token) {
-      console.log('Longueur token:', token.length);
-      console.log('Début token:', token.substring(0, 20) + '...');
+      log('✓ Token trouvé dans localStorage', 'success');
+      log(`  Longueur: ${token.length} caractères`, 'info');
+      log(`  Début: ${token.substring(0, 30)}...`, 'info');
+    } else {
+      log('✗ AUCUN TOKEN dans localStorage !', 'error');
+      log('  → Vous devez vous reconnecter', 'warning');
+      return;
+    }
 
-      // Test direct endpoint stats
-      fetch(`${BACKEND_URL}/admin/stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+    log('');
+
+    // 2. Vérifier les headers
+    const headers = getAuthHeaders();
+    log('Headers générés:', 'info');
+    log(`  Authorization: ${headers.Authorization ? 'Bearer [TOKEN]' : 'ABSENT'}`, headers.Authorization ? 'success' : 'error');
+    log(`  Content-Type: ${headers['Content-Type']}`, 'info');
+
+    log('');
+    log('Test des endpoints en cours...', 'info');
+
+    // 3. Test endpoint verify-token
+    testEndpoint('/verify-token', 'POST', {token: token})
+      .then(result => {
+        log('');
+        log('--- Test verify-token ---', 'info');
+        log(`Status: ${result.status}`, result.success ? 'success' : 'error');
+        if (result.success) {
+          log(`Utilisateur: ${result.data.user?.name || 'N/A'}`, 'success');
+          log(`Rôle: ${result.data.user?.role || 'N/A'}`, result.data.user?.role === 'admin' ? 'success' : 'warning');
+        } else {
+          log(`Erreur: ${result.error}`, 'error');
+        }
+
+        // 4. Test admin/stats
+        return testEndpoint('/admin/stats', 'GET');
+      })
+      .then(result => {
+        log('');
+        log('--- Test admin/stats ---', 'info');
+        log(`Status: ${result.status}`, result.success ? 'success' : 'error');
+        if (result.success) {
+          log(`Produits actifs: ${result.data.activeProducts || 0}`, 'success');
+          log(`Utilisateurs: ${result.data.totalUsers || 0}`, 'success');
+          log(`Notes: ${result.data.totalRatings || 0}`, 'success');
+          log(`Avis: ${result.data.totalReviews || 0}`, 'success');
+        } else {
+          log(`Erreur: ${result.error}`, 'error');
+        }
+
+        // 5. Test admin/users
+        return testEndpoint('/admin/users', 'GET');
+      })
+      .then(result => {
+        log('');
+        log('--- Test admin/users ---', 'info');
+        log(`Status: ${result.status}`, result.success ? 'success' : 'error');
+        if (result.success && Array.isArray(result.data)) {
+          log(`Nombre d'utilisateurs: ${result.data.length}`, 'success');
+        } else {
+          log(`Erreur: ${result.error}`, 'error');
+        }
+
+        log('');
+        log('=== FIN DIAGNOSTIC ===', 'info');
+
+        // Si tout est OK, actualiser les stats
+        if (result.success) {
+          log('');
+          log('Actualisation des statistiques...', 'info');
+          loadDashboard();
         }
       })
-      .then(response => {
-        console.log('Test direct stats - Status:', response.status);
-        return response.json();
-      })
-      .then(data => {
-        console.log('Test direct stats - Data:', data);
-      })
       .catch(err => {
-        console.error('Test direct stats - Error:', err);
+        log('');
+        log(`ERREUR GÉNÉRALE: ${err.message}`, 'error');
       });
-    } else {
-      console.error('❌ Aucun token trouvé !');
+  }
+  // Fonction utilitaire pour tester les endpoints
+  async function testEndpoint(endpoint, method = 'GET', body = null) {
+    try {
+      const options = {
+        method: method,
+        headers: getAuthHeaders()
+      };
+
+      if (body && method !== 'GET') {
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(`${BACKEND_URL}${endpoint}`, options);
+      const data = await response.json();
+
+      return {
+        success: response.ok,
+        status: response.status,
+        data: data,
+        error: response.ok ? null : (data.error || data.message || 'Erreur inconnue')
+      };
+    } catch (error) {
+      return {
+        success: false,
+        status: 0,
+        data: null,
+        error: error.message
+      };
     }
+  }
+  // Fonction pour effacer le debug
+  function clearDebug() {
+    document.getElementById('debugResults').innerHTML = 'Diagnostic effacé. Cliquez sur "Debug Auth" pour relancer.';
   }
   // Gestionnaire pour la navigation
   document.querySelectorAll('.nav-btn').forEach(button => {
