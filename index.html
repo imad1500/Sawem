@@ -13,6 +13,38 @@
   <link rel="icon" type="image/png" href="Images/icone_Sawem.shop.png" />
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
+  <style>
+    .homepage-section {
+      margin-bottom: 2.5rem;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+    .section-label {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .see-all-btn {
+      background: none;
+      border: 1px solid #0d6efd;
+      color: #0d6efd;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    .see-all-btn:hover {
+      background: #0d6efd;
+      color: white;
+    }
+  </style>
 </head>
 <body>
   <!-- ==================== HEADER ==================== -->
@@ -112,7 +144,7 @@
         <button id="clearFiltersBtn" class="clear-filters-btn">Réinitialiser les filtres</button>
       </div>
     </section>
-    <!-- ===== STATISTIQUES (remplacé) ===== -->
+    <!-- ===== STATISTIQUES ===== -->
     <div id="searchStats" class="search-stats" style="display: none;">
       <div class="search-results-info">
         <span id="resultsCount">0 résultats</span>
@@ -148,12 +180,11 @@
     const BACKEND_URL = "https://sawem-backend.onrender.com";
     let currentUser = null;
     let authToken = null;
-    let currentProducts = []; // Déclaration déplacée ici
-    let filteredProducts = []; // Déclaration déplacée ici
+    let currentProducts = [];
+    let filteredProducts = [];
     let currentPage = 1;
-    const productsPerPage = 12; // 12 produits par page
+    const productsPerPage = 12;
 
-    // Fonction pour rendre les étoiles proportionnelles
     function renderStars(rating) {
       const numRating = Number(rating) || 0;
       const fullStars = Math.floor(numRating);
@@ -171,7 +202,6 @@
       return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${numRating.toFixed(1)}/5)</span>`;
     }
 
-    // Auth functions
     function getToken() {
       if (!authToken) authToken = localStorage.getItem('sawem_auth_token');
       return authToken;
@@ -182,7 +212,6 @@
       return token ? {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
     }
 
-    // NOUVELLES FONCTIONS AJOUTÉES
     function formatSourceName(source) {
       if (!source) return 'Autre';
       const src = source.toLowerCase();
@@ -190,11 +219,7 @@
       if (src.includes('amazon'))     return 'Amazon';
       if (src.includes('icewatch'))   return 'ICE-WATCH';
       if (src.includes('imou'))       return 'Imou';
-      // Normalisation automatique pour tout nouvel annonceur
-      return source
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
+      return source.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     }
 
     function getSourceStyle(source) {
@@ -202,7 +227,6 @@
       const src = source.toLowerCase();
       if (src.includes('aliexpress')) return { bg: '#ff6a00', name: formatSourceName(source) };
       if (src.includes('amazon'))     return { bg: '#ff9900', name: formatSourceName(source) };
-      // Couleur automatique par hash pour tout nouvel annonceur
       let hash = 0;
       for (let i = 0; i < source.length; i++) {
         hash = source.charCodeAt(i) + ((hash << 5) - hash);
@@ -211,41 +235,115 @@
       return { bg: colors[Math.abs(hash) % colors.length], name: formatSourceName(source) };
     }
 
-    // Load products function - CORRIGÉE
-    async function loadProducts() {
-      try {
-        console.log('Chargement des produits...');
-        const res = await fetch(`${BACKEND_URL}/products`, {
-          headers: getAuthHeaders()
-        });
-        console.log('Réponse reçue:', res.status);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const products = await res.json();
-        console.log('Produits reçus:', products.length);
-        if (!Array.isArray(products)) {
-          throw new Error('Format de données invalide');
-        }
-        currentProducts = products;
-        filteredProducts = products;
-        displayProducts(products);
-      } catch (err) {
-        console.error('Load products error:', err);
-        const container = document.getElementById('productsContainer');
-        container.innerHTML = `
-          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px; margin: 1rem 0;">
-            <h3>Erreur de chargement des produits</h3>
-            <p>Détails: ${err.message}</p>
-            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; margin-top: 1rem;">
-              Réessayer
-            </button>
+    function renderProductCard(product) {
+      const token = localStorage.getItem('sawem_auth_token');
+      const isLoggedIn = !!token;
+      const srcStyle = getSourceStyle(product.source);
+      const sourceInfo = `<div class="product-source" style="background:${srcStyle.bg};">${srcStyle.name}</div>`;
+
+      const reviewsHTML = (product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0)
+        ? product.reviews.map(review => `
+            <div class="review-item">
+              <strong>${review.user_name || 'Anonyme'}</strong>: ${review.comment || ''}
+              <span class="review-date">${review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
+            </div>`).join('')
+        : '<p>Aucun avis pour le moment</p>';
+
+      return `
+        <div class="product-card">
+          <img src="${product.image || ''}" alt="${product.title || ''}"
+               onerror="this.style.display='none'" />
+          ${sourceInfo}
+          <div class="product-info">
+            <h3>${product.title || 'Titre non disponible'}</h3>
+            <p class="price">${product.price || 'Prix non disponible'}</p>
+            <div class="rating">${renderStars(product.user_rating || 0)}</div>
+            <div class="product-actions">
+              <a href="${product.link || '#'}" target="_blank" class="view-btn">Voir le produit</a>
+              <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
+                Voter
+              </button>
+            </div>
+            <div class="reviews-section">
+              <div class="reviews-list">${reviewsHTML}</div>
+              ${isLoggedIn
+                ? `<div class="review-form">
+                    <textarea id="review-${product.id}" placeholder="Votre avis..." rows="2"></textarea>
+                    <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
+                   </div>`
+                : '<p class="login-prompt">Connectez-vous pour laisser un avis</p>'}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function displayHomepage(data) {
+      document.getElementById('pagination').style.display = 'none';
+      document.getElementById('searchStats').style.display = 'none';
+
+      const sections = [
+        { key: 'smartphones',  label: '📱 Smartphones',         query: 'smartphones' },
+        { key: 'tablets',      label: '📟 Tablettes',            query: 'tablettes' },
+        { key: 'computers',    label: '💻 PC & Laptops',         query: 'laptops' },
+        { key: 'icewatch',     label: '🕐 Montres ICE-WATCH',    query: 'ICE-WATCH' },
+        { key: 'imou',         label: '📷 Caméras Imou',         query: 'Imou' },
+        { key: 'aliexpress',   label: '💡 Bons plans AliExpress',query: 'aliexpress' },
+        { key: 'amazon',       label: '🛒 Sélection Amazon',     query: 'amazon' }
+      ];
+
+      const container = document.getElementById('productsContainer');
+      let html = '';
+
+      sections.forEach(section => {
+        const products = data[section.key];
+        if (!products || products.length === 0) return;
+
+        html += `
+          <div class="homepage-section">
+            <div class="section-header">
+              <h2 class="section-label">${section.label}</h2>
+              <button class="see-all-btn"
+                onclick="document.getElementById('searchInput').value='${section.query}';
+                         performTextSearch('${section.query}')">
+                Voir tout →
+              </button>
+            </div>
+            <div class="product-grid">
+              ${products.map(product => renderProductCard(product)).join('')}
+            </div>
           </div>
         `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function loadProducts() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/homepage`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const allProducts = [
+          ...data.icewatch, ...data.imou, ...data.smartphones,
+          ...data.tablets, ...data.computers,
+          ...data.aliexpress, ...data.amazon
+        ];
+        currentProducts = allProducts;
+        filteredProducts = allProducts;
+
+        displayHomepage(data);
+      } catch (err) {
+        console.error('Load homepage error:', err);
+        document.getElementById('productsContainer').innerHTML =
+          `<div style="text-align:center;padding:2rem;color:#721c24;">
+            Erreur de chargement. <button onclick="loadProducts()">Réessayer</button>
+          </div>`;
       }
     }
 
-    // Display products function - MODIFIÉE
     function displayProducts(products) {
       const container = document.getElementById('productsContainer');
       if (!products || products.length === 0) {
@@ -257,59 +355,16 @@
       const totalPages = Math.ceil(totalProducts / productsPerPage);
       const startIndex = (currentPage - 1) * productsPerPage;
       const endIndex = startIndex + productsPerPage;
-      const currentProducts = products.slice(startIndex, endIndex);
+      const currentProductsSlice = products.slice(startIndex, endIndex);
 
       let html = '';
-      currentProducts.forEach(product => {
-        const token = localStorage.getItem('sawem_auth_token');
-        const isLoggedIn = !!token;
-        
-        // NOUVEAU CODE POUR LA SOURCE
-        const srcStyle = getSourceStyle(product.source);
-        const sourceInfo = `<div class="product-source" style="background:${srcStyle.bg};">${srcStyle.name}</div>`;
-
-        const reviewsHTML = (product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0) ?
-          product.reviews.map(review => `
-            <div class="review-item">
-              <strong>${review.user_name || 'Anonyme'}</strong>: ${review.comment || ''}
-              <span class="review-date">${review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
-            </div>
-          `).join('') : '<p>Aucun avis pour le moment</p>';
-
-        html += `
-          <div class="product-card">
-            <img src="${product.image || ''}" alt="${product.title || ''}"
-                 onerror="this.style.display='none'" />
-            ${sourceInfo}
-            <div class="product-info">
-              <h3>${product.title || 'Titre non disponible'}</h3>
-              <p class="price">${product.price || 'Prix non disponible'}</p>
-              <div class="rating">${renderStars(product.user_rating || 0)}</div>
-              <div class="product-actions">
-                <a href="${product.link || '#'}" target="_blank" class="view-btn">Voir le produit</a>
-                <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
-                  Voter
-                </button>
-              </div>
-              <div class="reviews-section">
-                <div class="reviews-list">${reviewsHTML}</div>
-                ${isLoggedIn ? `
-                  <div class="review-form">
-                    <textarea id="review-${product.id}" placeholder="Votre avis..." rows="2"></textarea>
-                    <button onclick="submitReview(${product.id})" class="send-review-btn">Envoyer</button>
-                  </div>
-                ` : '<p class="login-prompt">Connectez-vous pour laisser un avis</p>'}
-              </div>
-            </div>
-          </div>
-        `;
+      currentProductsSlice.forEach(product => {
+        html += renderProductCard(product);
       });
       container.innerHTML = `<div class="product-grid">${html}</div>`;
-      // Mettre à jour les contrôles de pagination
       updatePagination(currentPage, totalPages, totalProducts);
     }
 
-    // Nouvelle fonction pour mettre à jour la pagination
     function updatePagination(page, totalPages, totalProducts) {
       const pagination = document.getElementById('pagination');
       const pageInfo = document.getElementById('pageInfo');
@@ -325,7 +380,6 @@
       nextBtn.disabled = page >= totalPages;
     }
 
-    // Fonctions de navigation
     function goToPreviousPage() {
       if (currentPage > 1) {
         currentPage--;
@@ -341,64 +395,9 @@
       }
     }
 
-    // Modifier le DOMContentLoaded pour ajouter les event listeners de pagination
-    document.addEventListener('DOMContentLoaded', () => {
-      checkUser();
-      loadProducts();
-      initPriceSliders();
-
-      const sourceFilter = document.getElementById('sourceFilter');
-      const sortBy = document.getElementById('sortBy');
-      const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-      if (sourceFilter) sourceFilter.addEventListener('change', applyFilters);
-      if (sortBy) sortBy.addEventListener('change', applyFilters);
-      if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
-
-      const textSearchBtn = document.getElementById('textSearchBtn');
-      const aiSearchBtn = document.getElementById('aiSearchBtn');
-      const searchInput = document.getElementById('searchInput');
-      if (textSearchBtn && searchInput) {
-        textSearchBtn.addEventListener('click', () => {
-          const query = searchInput.value.trim();
-          performTextSearch(query);
-        });
-      }
-      if (aiSearchBtn && searchInput) {
-        aiSearchBtn.addEventListener('click', () => {
-          const query = searchInput.value.trim();
-          performAISearch(query);
-        });
-      }
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const query = btn.dataset.search;
-          if (searchInput && query) {
-            searchInput.value = query;
-            performTextSearch(query);
-          }
-        });
-      });
-      if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            const query = searchInput.value.trim();
-            performTextSearch(query);
-          }
-        });
-      }
-
-      // Ajouter les event listeners pour la pagination
-      const prevBtn = document.getElementById('prevPageBtn');
-      const nextBtn = document.getElementById('nextPageBtn');
-
-      if (prevBtn) prevBtn.addEventListener('click', goToPreviousPage);
-      if (nextBtn) nextBtn.addEventListener('click', goToNextPage);
-    });
-
-    // Fonction pour appliquer tous les filtres
     function applyFilters() {
       if (!currentProducts.length) return;
-      currentPage = 1; // Remettre à la page 1 lors du filtrage
+      currentPage = 1;
 
       let filtered = [...currentProducts];
       const sourceFilter = document.getElementById('sourceFilter').value;
@@ -438,27 +437,22 @@
       displayProducts(filtered);
     }
 
-    // Fonction pour réinitialiser les filtres
     function clearAllFilters() {
       document.getElementById('sourceFilter').value = '';
       document.getElementById('priceRange').value = 1000;
       document.getElementById('priceDisplay').textContent = '1000€+';
       document.getElementById('sortBy').value = 'relevance';
       document.getElementById('searchInput').value = '';
-      // Cacher les stats de recherche
       document.getElementById('searchStats').style.display = 'none';
-      // Recharger tous les produits
       loadProducts();
     }
 
-    // Fonction d'authentification améliorée
     async function checkUser() {
       const authStatus = document.getElementById('authStatus');
       const googleLoginBtn = document.getElementById('googleLoginBtn');
       try {
         authStatus.textContent = "⏳ Vérification...";
         authStatus.className = "auth-status loading";
-        // Vérifier le token dans l'URL
         const urlParams = new URLSearchParams(window.location.search);
         const urlToken = urlParams.get('token');
         if (urlToken) {
@@ -514,11 +508,9 @@
       if (userInfo) userInfo.style.display = "flex";
       if (welcomeUserName) welcomeUserName.textContent = user.name || "Utilisateur";
       if (welcomeMessage) welcomeMessage.style.display = "block";
-      // Afficher le lien admin si admin
       if (adminLink && user.role === 'admin') {
         adminLink.style.display = 'inline-flex';
       }
-      // Ajouter événement au bouton de déconnexion
       logoutBtn.onclick = () => {
         localStorage.removeItem('sawem_auth_token');
         window.location.reload();
@@ -543,7 +535,6 @@
       if (adminLink) adminLink.style.display = 'none';
     }
 
-    // Fonction pour voter - CORRIGÉE
     function promptVote(productId) {
       const token = localStorage.getItem('sawem_auth_token');
       if (!token) {
@@ -571,7 +562,7 @@
         })
         .then(data => {
           alert(`Vote enregistré: ${rating}/5 étoiles`);
-          loadProducts(); // Recharger les produits
+          loadProducts();
         })
         .catch(error => {
           console.error('Erreur vote:', error);
@@ -580,7 +571,6 @@
       }
     }
 
-    // Fonction pour envoyer un commentaire - CORRIGÉE
     function submitReview(productId) {
       const token = localStorage.getItem('sawem_auth_token');
       if (!token) {
@@ -613,7 +603,7 @@
       .then(data => {
         alert("Avis publié avec succès");
         textarea.value = '';
-        loadProducts(); // Recharger les produits
+        loadProducts();
       })
       .catch(error => {
         console.error('Erreur commentaire:', error);
@@ -621,17 +611,101 @@
       });
     }
 
-    // Event listeners - CORRIGÉ
+    function extractPrice(priceStr) {
+      if (!priceStr) return 0;
+      const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
+      const numbers = cleanStr.match(/[\d,\.]+/);
+      if (!numbers) return 0;
+      let price = parseFloat(numbers[0].replace(',', '.'));
+      if (priceStr.includes('$')) {
+        price = price * 0.85;
+      }
+      return price || 0;
+    }
+
+    function initPriceSliders() {
+      const priceSlider = document.getElementById('priceRange');
+      const priceDisplay = document.getElementById('priceDisplay');
+      function updatePriceDisplay() {
+        const maxVal = parseInt(priceSlider.value);
+        priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
+        applyFilters();
+      }
+      priceSlider.addEventListener('input', updatePriceDisplay);
+    }
+
+    async function performTextSearch(query) {
+      currentPage = 1;
+      if (!query) {
+        loadProducts();
+        return;
+      }
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'text' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        if (!Array.isArray(products)) {
+          throw new Error('Format de réponse invalide');
+        }
+        filteredProducts = products;
+        currentProducts = products;
+        displayProducts(products);
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "${query}"`;
+        document.getElementById('searchStats').style.display = 'block';
+      } catch (err) {
+        console.error('Text search error:', err);
+        document.getElementById('productsContainer').innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px;">
+            <p>Erreur de recherche: ${err.message}</p>
+            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
+              Retour aux produits
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    async function performAISearch(query) {
+      currentPage = 1;
+      if (!query) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/search`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ query: query.trim(), type: 'ai' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        if (!Array.isArray(products)) {
+          throw new Error('Format de réponse invalide');
+        }
+        filteredProducts = products;
+        currentProducts = products;
+        displayProducts(products);
+      } catch (err) {
+        console.error('AI search error:', err);
+        performTextSearch(query);
+      }
+    }
+
+    // UNIQUE DOMContentLoaded - avec tous les event listeners
     document.addEventListener('DOMContentLoaded', () => {
       checkUser();
       loadProducts();
       initPriceSliders();
+
       const sourceFilter = document.getElementById('sourceFilter');
       const sortBy = document.getElementById('sortBy');
       const clearFiltersBtn = document.getElementById('clearFiltersBtn');
       if (sourceFilter) sourceFilter.addEventListener('change', applyFilters);
       if (sortBy) sortBy.addEventListener('change', applyFilters);
       if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
+
       const textSearchBtn = document.getElementById('textSearchBtn');
       const aiSearchBtn = document.getElementById('aiSearchBtn');
       const searchInput = document.getElementById('searchInput');
@@ -664,98 +738,12 @@
           }
         });
       }
+
+      const prevBtn = document.getElementById('prevPageBtn');
+      const nextBtn = document.getElementById('nextPageBtn');
+      if (prevBtn) prevBtn.addEventListener('click', goToPreviousPage);
+      if (nextBtn) nextBtn.addEventListener('click', goToNextPage);
     });
-
-    // Fonction utilitaire pour extraire le prix numérique
-    function extractPrice(priceStr) {
-      if (!priceStr) return 0;
-
-      const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
-      const numbers = cleanStr.match(/[\d,\.]+/);
-
-      if (!numbers) return 0;
-
-      let price = parseFloat(numbers[0].replace(',', '.'));
-
-      // Conversion approximative Dollar vers Euro (taux ~0.85)
-      if (priceStr.includes('$')) {
-        price = price * 0.85; // Conversion approximative
-      }
-
-      return price || 0;
-    }
-
-    // Initialisation des sliders de prix
-    function initPriceSliders() {
-      const priceSlider = document.getElementById('priceRange');
-      const priceDisplay = document.getElementById('priceDisplay');
-      function updatePriceDisplay() {
-        const maxVal = parseInt(priceSlider.value);
-        priceDisplay.textContent = maxVal >= 1000 ? '1000€+' : maxVal + '€';
-        applyFilters();
-      }
-      priceSlider.addEventListener('input', updatePriceDisplay);
-    }
-
-    // Search functions - CORRIGÉES
-    async function performTextSearch(query) {
-      currentPage = 1; // Reset pagination
-      if (!query) {
-        loadProducts();
-        return;
-      }
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'text' })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const products = await res.json();
-        // Vérifier que products est un tableau
-        if (!Array.isArray(products)) {
-          throw new Error('Format de réponse invalide');
-        }
-        displayProducts(products);
-        // Update stats
-        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
-        document.getElementById('searchQuery').textContent = `pour "${query}"`;
-        document.getElementById('searchStats').style.display = 'block';
-      } catch (err) {
-        console.error('Text search error:', err);
-        document.getElementById('productsContainer').innerHTML = `
-          <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px;">
-            <p>Erreur de recherche: ${err.message}</p>
-            <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
-              Retour aux produits
-            </button>
-          </div>
-        `;
-      }
-    }
-
-    async function performAISearch(query) {
-      currentPage = 1; // Reset pagination
-      if (!query) return;
-      try {
-        const res = await fetch(`${BACKEND_URL}/search`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ query: query.trim(), type: 'ai' })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const products = await res.json();
-        // Vérifier que products est un tableau
-        if (!Array.isArray(products)) {
-          throw new Error('Format de réponse invalide');
-        }
-        displayProducts(products);
-      } catch (err) {
-        console.error('AI search error:', err);
-        // Fallback to text search
-        performTextSearch(query);
-      }
-    }
   </script>
 </body>
 </html>
