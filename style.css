@@ -1,3 +1,4 @@
+
 /* ==================== style.css: Reset / Base ==================== */
 * {
   box-sizing: border-box;
@@ -240,20 +241,11 @@ main {
   padding: 0.3rem 0.6rem;
   border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-}
-.source-aliexpress {
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
   color: white;
-}
-.source-amazon {
-  background: linear-gradient(135deg, #ff9500, #ffb84d);
-  color: white;
-}
-.source-other {
-  background: linear-gradient(135deg, #6c757d, #868e96);
-  color: white;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 .product-actions {
   display: flex;
