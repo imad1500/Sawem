@@ -308,13 +308,13 @@
       document.getElementById('searchStats').style.display = 'none';
 
       const sections = [
-        { key: 'smartphones',  label: '📱 Smartphones',         query: 'smartphones' },
-        { key: 'tablets',      label: '📟 Tablettes',            query: 'tablettes' },
-        { key: 'computers',    label: '💻 PC & Laptops',         query: 'laptops' },
-        { key: 'icewatch',     label: '🕐 Montres ICE-WATCH',    query: 'ICE-WATCH' },
-        { key: 'imou',         label: '📷 Caméras Imou',         query: 'Imou' },
-        { key: 'aliexpress',   label: '💡 Bons plans AliExpress',query: 'aliexpress' },
-        { key: 'amazon',       label: '🛒 Sélection Amazon',     query: 'amazon' }
+        { key: 'smartphones',  label: '📱 Smartphones',          type: 'search',  query: 'smartphone' },
+        { key: 'tablets',      label: '📟 Tablettes',             type: 'search',  query: 'tablette' },
+        { key: 'computers',    label: '💻 PC & Laptops',          type: 'search',  query: 'laptop' },
+        { key: 'icewatch',     label: '🕐 Montres ICE-WATCH',     type: 'source',  query: 'icewatch',    sourceLabel: 'ICE-WATCH' },
+        { key: 'imou',         label: '📷 Caméras Imou',          type: 'source',  query: 'imou',        sourceLabel: 'Imou' },
+        { key: 'aliexpress',   label: '💡 Bons plans AliExpress', type: 'source',  query: 'aliexpress',  sourceLabel: 'AliExpress' },
+        { key: 'amazon',       label: '🛒 Sélection Amazon',      type: 'source',  query: 'amazon',      sourceLabel: 'Amazon' }
       ];
 
       const container = document.getElementById('productsContainer');
@@ -324,14 +324,15 @@
         const products = data[section.key];
         if (!products || products.length === 0) return;
 
+        const btnAction = section.type === 'source'
+          ? `data-type="source" data-query="${escapeHtml(section.query)}" data-label="${escapeHtml(section.sourceLabel)}"`
+          : `data-type="search" data-query="${escapeHtml(section.query)}"`;
+
         html += `
           <div class="homepage-section">
             <div class="section-header">
               <h2 class="section-label">${escapeHtml(section.label)}</h2>
-              <button class="see-all-btn"
-                data-query="${escapeHtml(section.query)}">
-                Voir tout →
-              </button>
+              <button class="see-all-btn" ${btnAction}>Voir tout →</button>
             </div>
             <div class="product-grid">
               ${products.map(product => renderProductCard(product)).join('')}
@@ -341,13 +342,20 @@
       });
 
       container.innerHTML = html;
-      
-      // Ajouter les gestionnaires d'événements pour les boutons "Voir tout"
+
+      // Gestionnaires "Voir tout"
       document.querySelectorAll('.see-all-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          const type = btn.dataset.type;
           const query = btn.dataset.query;
-          document.getElementById('searchInput').value = query;
-          performTextSearch(query);
+          const label = btn.dataset.label || query;
+          document.getElementById('searchInput').value = '';
+          if (type === 'source') {
+            performSourceSearch(query, label);
+          } else {
+            document.getElementById('searchInput').value = query;
+            performTextSearch(query);
+          }
         });
       });
     }
@@ -664,6 +672,29 @@
       priceSlider.addEventListener('input', updatePriceDisplay);
     }
 
+    async function performSourceSearch(source, label) {
+      currentPage = 1;
+      try {
+        const res = await fetch(`${BACKEND_URL}/search-by-source`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ source })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        if (!Array.isArray(products)) throw new Error('Format invalide');
+
+        filteredProducts = products;
+        currentProducts = products;
+        displayProducts(products);
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "${escapeHtml(label)}"`;
+        document.getElementById('searchStats').style.display = 'block';
+      } catch (err) {
+        console.error('Source search error:', err);
+      }
+    }
+
     async function performTextSearch(query) {
       currentPage = 1;
       if (!query) {
@@ -796,31 +827,29 @@
         });
       }
       
-      // Catégories avec synonymes multilingues
-      const CATEGORY_SYNONYMS = {
-        'smartphones':       'smartphone iphone samsung galaxy xiaomi pixel',
-        'laptops':           'laptop macbook thinkpad notebook ordinateur portable',
-        'casques audio':     'casque headphone écouteur airpods audio bluetooth',
-        'montres connectées':'montre smartwatch watch fitness tracker',
-        'tablettes':         'tablet tablette ipad samsung tab',
-        'appareils photo':   'camera appareil photo canon nikon reflex',
-        'gaming':            'gaming console playstation xbox nintendo switch gamer',
-        'drones':            'drone dji quadcopter',
-        'enceintes':         'enceinte speaker haut-parleur jbl bose',
-        'claviers':          'clavier keyboard mécanique',
-        'souris':            'souris mouse gaming optique',
-        'écrans':            'écran moniteur monitor display 4k curved'
+      // Catégories avec mapping exact vers la BDD
+      const CATEGORY_MAP = {
+        'smartphones':        { type: 'category', value: 'smartphones' },
+        'laptops':            { type: 'category', value: 'laptops' },
+        'casques audio':      { type: 'category', value: 'casques' },
+        'montres connectées': { type: 'category', value: 'montres' },
+        'tablettes':          { type: 'category', value: 'tablettes' },
+        'appareils photo':    { type: 'category', value: 'appareils_photo' },
+        'gaming':             { type: 'category', value: 'gaming' },
+        'drones':             { type: 'category', value: 'drones' },
+        'enceintes':          { type: 'category', value: 'enceintes' },
+        'claviers':           { type: 'category', value: 'claviers' },
+        'souris':             { type: 'category', value: 'souris' },
+        'écrans':             { type: 'category', value: 'ecrans' }
       };
       
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const label = btn.dataset.search;
-          const synonyms = CATEGORY_SYNONYMS[label] || label;
-          // On cherche avec le premier mot-clé le plus pertinent
-          const primaryQuery = synonyms.split(' ')[0];
-          if (searchInput) {
-            searchInput.value = primaryQuery;
-            performTextSearch(primaryQuery);
+          const mapping = CATEGORY_MAP[label];
+          if (mapping) {
+            searchInput.value = mapping.value;
+            performTextSearch(mapping.value);
           }
         });
       });
