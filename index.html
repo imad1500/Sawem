@@ -177,6 +177,7 @@
   </footer>
   <!-- ==================== SCRIPTS ==================== -->
   <script>
+    // ==================== CONFIGURATION ====================
     const BACKEND_URL = "https://sawem-backend.onrender.com";
     let currentUser = null;
     let authToken = null;
@@ -185,6 +186,7 @@
     let currentPage = 1;
     const productsPerPage = 12;
 
+    // ==================== FONCTIONS UTILITAIRES ====================
     function renderStars(rating) {
       const numRating = Number(rating) || 0;
       const fullStars = Math.floor(numRating);
@@ -235,6 +237,19 @@
       return { bg: colors[Math.abs(hash) % colors.length], name: formatSourceName(source) };
     }
 
+    function extractPrice(priceStr) {
+      if (!priceStr) return 0;
+      const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
+      const numbers = cleanStr.match(/[\d,\.]+/);
+      if (!numbers) return 0;
+      let price = parseFloat(numbers[0].replace(',', '.'));
+      if (priceStr.includes('$')) {
+        price = price * 0.85;
+      }
+      return price || 0;
+    }
+
+    // ==================== RENDU DES PRODUITS ====================
     function renderProductCard(product) {
       const token = localStorage.getItem('sawem_auth_token');
       const isLoggedIn = !!token;
@@ -244,22 +259,22 @@
       const reviewsHTML = (product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0)
         ? product.reviews.map(review => `
             <div class="review-item">
-              <strong>${review.user_name || 'Anonyme'}</strong>: ${review.comment || ''}
+              <strong>${escapeHtml(review.user_name || 'Anonyme')}</strong>: ${escapeHtml(review.comment || '')}
               <span class="review-date">${review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
             </div>`).join('')
         : '<p>Aucun avis pour le moment</p>';
 
       return `
         <div class="product-card">
-          <img src="${product.image || ''}" alt="${product.title || ''}"
-               onerror="this.style.display='none'" />
+          <img src="${escapeHtml(product.image || '')}" alt="${escapeHtml(product.title || '')}"
+               onerror="this.style.display='none'" loading="lazy" />
           ${sourceInfo}
           <div class="product-info">
-            <h3>${product.title || 'Titre non disponible'}</h3>
-            <p class="price">${product.price || 'Prix non disponible'}</p>
+            <h3>${escapeHtml(product.title || 'Titre non disponible')}</h3>
+            <p class="price">${escapeHtml(product.price || 'Prix non disponible')}</p>
             <div class="rating">${renderStars(product.user_rating || 0)}</div>
             <div class="product-actions">
-              <a href="${product.link || '#'}" target="_blank" class="view-btn">Voir le produit</a>
+              <a href="${escapeHtml(product.link || '#')}" target="_blank" rel="noopener noreferrer" class="view-btn">Voir le produit</a>
               <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
                 Voter
               </button>
@@ -277,6 +292,17 @@
         </div>`;
     }
 
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ==================== AFFICHAGE HOMEPAGE ====================
     function displayHomepage(data) {
       document.getElementById('pagination').style.display = 'none';
       document.getElementById('searchStats').style.display = 'none';
@@ -301,10 +327,10 @@
         html += `
           <div class="homepage-section">
             <div class="section-header">
-              <h2 class="section-label">${section.label}</h2>
+              <h2 class="section-label">${escapeHtml(section.label)}</h2>
               <button class="see-all-btn"
-                onclick="document.getElementById('searchInput').value='${section.query}';
-                         performTextSearch('${section.query}')">
+                onclick="document.getElementById('searchInput').value='${escapeHtml(section.query)}';
+                         performTextSearch('${escapeHtml(section.query)}')">
                 Voir tout →
               </button>
             </div>
@@ -344,6 +370,7 @@
       }
     }
 
+    // ==================== PAGINATION ====================
     function displayProducts(products) {
       const container = document.getElementById('productsContainer');
       if (!products || products.length === 0) {
@@ -395,6 +422,7 @@
       }
     }
 
+    // ==================== FILTRES ====================
     function applyFilters() {
       if (!currentProducts.length) return;
       currentPage = 1;
@@ -432,6 +460,9 @@
         case 'newest':
           filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
           break;
+        default:
+          // relevance - garder l'ordre original
+          break;
       }
       filteredProducts = filtered;
       displayProducts(filtered);
@@ -447,6 +478,7 @@
       loadProducts();
     }
 
+    // ==================== AUTHENTIFICATION ====================
     async function checkUser() {
       const authStatus = document.getElementById('authStatus');
       const googleLoginBtn = document.getElementById('googleLoginBtn');
@@ -535,6 +567,7 @@
       if (adminLink) adminLink.style.display = 'none';
     }
 
+    // ==================== VOTES ET AVIS ====================
     function promptVote(productId) {
       const token = localStorage.getItem('sawem_auth_token');
       if (!token) {
@@ -611,18 +644,7 @@
       });
     }
 
-    function extractPrice(priceStr) {
-      if (!priceStr) return 0;
-      const cleanStr = priceStr.replace(/[^\d,.\$€]/g, '');
-      const numbers = cleanStr.match(/[\d,\.]+/);
-      if (!numbers) return 0;
-      let price = parseFloat(numbers[0].replace(',', '.'));
-      if (priceStr.includes('$')) {
-        price = price * 0.85;
-      }
-      return price || 0;
-    }
-
+    // ==================== RECHERCHES ====================
     function initPriceSliders() {
       const priceSlider = document.getElementById('priceRange');
       const priceDisplay = document.getElementById('priceDisplay');
@@ -655,13 +677,13 @@
         currentProducts = products;
         displayProducts(products);
         document.getElementById('resultsCount').textContent = `${products.length} résultats`;
-        document.getElementById('searchQuery').textContent = `pour "${query}"`;
+        document.getElementById('searchQuery').textContent = `pour "${escapeHtml(query)}"`;
         document.getElementById('searchStats').style.display = 'block';
       } catch (err) {
         console.error('Text search error:', err);
         document.getElementById('productsContainer').innerHTML = `
           <div style="text-align: center; padding: 2rem; background: #f8d7da; color: #721c24; border-radius: 8px;">
-            <p>Erreur de recherche: ${err.message}</p>
+            <p>Erreur de recherche: ${escapeHtml(err.message)}</p>
             <button onclick="loadProducts()" style="background: #0d6efd; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
               Retour aux produits
             </button>
@@ -687,28 +709,38 @@
         filteredProducts = products;
         currentProducts = products;
         displayProducts(products);
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "${escapeHtml(query)}" (IA)`;
+        document.getElementById('searchStats').style.display = 'block';
       } catch (err) {
         console.error('AI search error:', err);
         performTextSearch(query);
       }
     }
 
-    // UNIQUE DOMContentLoaded - avec tous les event listeners
+    // ==================== INITIALISATION UNIQUE ====================
     document.addEventListener('DOMContentLoaded', () => {
+      // Auth
       checkUser();
+      
+      // Chargement initial
       loadProducts();
+      
+      // Filtres
       initPriceSliders();
-
+      
       const sourceFilter = document.getElementById('sourceFilter');
       const sortBy = document.getElementById('sortBy');
       const clearFiltersBtn = document.getElementById('clearFiltersBtn');
       if (sourceFilter) sourceFilter.addEventListener('change', applyFilters);
       if (sortBy) sortBy.addEventListener('change', applyFilters);
       if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
-
+      
+      // Recherches
       const textSearchBtn = document.getElementById('textSearchBtn');
       const aiSearchBtn = document.getElementById('aiSearchBtn');
       const searchInput = document.getElementById('searchInput');
+      
       if (textSearchBtn && searchInput) {
         textSearchBtn.addEventListener('click', () => {
           const query = searchInput.value.trim();
@@ -721,6 +753,8 @@
           performAISearch(query);
         });
       }
+      
+      // Catégories
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const query = btn.dataset.search;
@@ -730,6 +764,8 @@
           }
         });
       });
+      
+      // Recherche par Entrée
       if (searchInput) {
         searchInput.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
@@ -738,7 +774,8 @@
           }
         });
       }
-
+      
+      // Pagination
       const prevBtn = document.getElementById('prevPageBtn');
       const nextBtn = document.getElementById('nextPageBtn');
       if (prevBtn) prevBtn.addEventListener('click', goToPreviousPage);
