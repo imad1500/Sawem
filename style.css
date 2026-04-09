@@ -1,5 +1,4 @@
-
-/* ==================== style.css: Reset / Base ==================== */
+/* ==================== style.css: Version modernisée ==================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,8 +9,7 @@ html, body {
   height: 100%;
 }
 body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  background-attachment: fixed;
+  background: #f0f2f5;  /* Fond plat moderne, plus de gradient */
   color: #333;
   line-height: 1.6;
   display: flex;
@@ -88,13 +86,13 @@ header h1 {
   border-radius: 12px;
   padding: 1.5rem;
   margin: 1.5rem 0;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .search-container {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 .search-container input {
   padding: 0.8rem 1.2rem;
@@ -133,7 +131,7 @@ header h1 {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
-/* ==================== Filtres basiques ==================== */
+/* ==================== Filtres ==================== */
 .filters-container {
   display: flex;
   flex-wrap: wrap;
@@ -141,7 +139,7 @@ header h1 {
   margin: 1rem 0;
   padding: 0.8rem;
   background: #f8f9fa;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .filter-group {
   display: flex;
@@ -165,35 +163,6 @@ header h1 {
   height: auto;
   line-height: 1.2;
 }
-/* ==================== Catégories grid ==================== */
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 0.6rem;
-  margin: 1rem 0;
-}
-.categories-section h2 {
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  color: #495057;
-  font-weight: 500;
-}
-.category-btn {
-  background: #f8f9fa;
-  color: #495057;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 0.7rem 0.8rem;
-  font-weight: 400;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-}
-.category-btn:hover {
-  background: #e9ecef;
-  border-color: #0d6efd;
-  color: #0d6efd;
-}
 /* ==================== Main / Produits ==================== */
 main {
   padding: 2rem;
@@ -201,90 +170,87 @@ main {
 }
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
-/* ==================== Produits avec fond blanc ==================== */
+/* ==================== Carte produit modernisée ==================== */
 .product-card {
   background: white;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
 }
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 .product-card img {
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain;  /* Changé de cover à contain */
+  background: #f8f9fa;  /* Fond gris clair pour les images */
+  padding: 1rem;
 }
 .product-info {
   padding: 1rem;
 }
 .product-info h3 {
-  font-size: 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.8em;
 }
 .product-info .price {
-  color: #0d6efd;
-  font-weight: bold;
+  color: #e63946;  /* Rouge pour le prix - plus visible */
+  font-weight: 700;
+  font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
 .product-source {
   position: absolute;
   top: 8px;
   right: 8px;
-  padding: 0.3rem 0.6rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 12px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   color: white;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  letter-spacing: 0.03em;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.7);
 }
 .product-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem 0;
-}
-.view-btn, .vote-btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
+  justify-content: center;
+  margin: 0.75rem 0;
 }
 .view-btn {
-  background: #0d6efd;
+  background: #2d9e6b;  /* Vert plus naturel */
   color: white;
-}
-.vote-btn {
-  background: #ffc107;
-  color: #333;
-  padding: 0.4rem 0.8rem;
+  padding: 0.6rem 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
   text-align: center;
-  font-size: 0.9rem;
-  margin-left: auto;
+  width: 100%;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
-.vote-btn:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
+.view-btn:hover {
+  background: #248a5d;
+  transform: translateY(-1px);
 }
-/* ==================== Stars ==================== */
+/* ==================== Étoiles et votes ==================== */
 .stars {
   display: flex;
   gap: 2px;
@@ -306,28 +272,56 @@ main {
 }
 .rating-text {
   margin-left: 0.3rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #6c757d;
 }
-/* ==================== Reviews ==================== */
-.review-section {
-  margin-top: 1rem;
+.rating-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0.5rem 0;
+  flex-wrap: wrap;
 }
-.review-section textarea {
-  width: 100%;
-  height: 60px;
-  margin-bottom: 0.5rem;
+.vote-count {
+  font-size: 0.7rem;
+  color: #6c757d;
 }
-.send-review-btn {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
+/* Étoiles cliquables */
+.vote-section {
+  margin: 0.5rem 0;
+  text-align: center;
+}
+.star-rating {
+  display: inline-flex;
+  gap: 6px;
   cursor: pointer;
+  justify-content: center;
 }
+.star-rating .star {
+  font-size: 1.2rem;
+  transition: transform 0.1s ease;
+}
+.star-rating .star:hover {
+  transform: scale(1.15);
+}
+.star-rating .star.empty {
+  color: #ddd;
+}
+.star-rating .star.full {
+  color: #ffc107;
+}
+.login-prompt-vote {
+  font-style: italic;
+  color: #6c757d;
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 0.25rem 0;
+}
+/* ==================== Reviews ==================== */
 .reviews-section {
   margin-top: 1rem;
+  border-top: 1px solid #eee;
+  padding-top: 0.75rem;
 }
 .reviews-list {
   max-height: 150px;
@@ -337,15 +331,15 @@ main {
 .review-item {
   background: #f8f9fa;
   padding: 0.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 .review-item strong {
   color: #0d6efd;
 }
 .review-date {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #6c757d;
   float: right;
 }
@@ -357,11 +351,25 @@ main {
 .review-form textarea {
   resize: vertical;
   min-height: 50px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.send-review-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
 }
 .login-prompt {
   font-style: italic;
   color: #6c757d;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  text-align: center;
 }
 /* ==================== Auth Status ==================== */
 .auth-status {
@@ -469,8 +477,7 @@ main {
 .notification.show {
   transform: translateX(0);
 }
-/* ==================== PAGINATION SIMPLIFIÉE ==================== */
-/* Container principal de la pagination - plus fin */
+/* ==================== PAGINATION ==================== */
 .pagination {
   display: flex;
   justify-content: center;
@@ -480,10 +487,9 @@ main {
   padding: 0.8rem;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   border: 1px solid rgba(13, 110, 253, 0.1);
 }
-/* Boutons de navigation - plus compacts */
 .page-btn {
   background: #0d6efd;
   color: white;
@@ -494,7 +500,7 @@ main {
   font-weight: 500;
   font-size: 0.9rem;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.2);
 }
 .page-btn:hover {
   background: #0b5ed7;
@@ -507,7 +513,6 @@ main {
   opacity: 0.6;
   transform: none;
 }
-/* Informations de page - plus compact */
 .page-info {
   background: #f8f9fa;
   color: #495057;
@@ -549,22 +554,10 @@ footer {
   padding: 1rem;
   margin-top: auto;
 }
-/* ==================== Optimisations Performance ==================== */
-.product-grid {
-  contain: layout style paint;
-}
-.product-card {
-  will-change: transform;
-  contain: layout style paint;
-}
-.product-card img {
-  content-visibility: auto;
-  contain-intrinsic-size: 250px 200px;
-}
-/* Skeleton plus léger */
+/* Skeleton */
 .skeleton-card {
   background: #f0f0f0;
-  border-radius: 10px;
+  border-radius: 12px;
   height: 400px;
   animation: pulse 1.5s ease-in-out infinite alternate;
 }
@@ -572,23 +565,7 @@ footer {
   0% { opacity: 1; }
   100% { opacity: 0.7; }
 }
-.skeleton-image {
-  height: 200px;
-  background: #e0e0e0;
-  border-radius: 10px 10px 0 0;
-}
-.skeleton-content {
-  padding: 1rem;
-}
-.skeleton-line {
-  height: 20px;
-  background: #e0e0e0;
-  margin-bottom: 10px;
-  border-radius: 4px;
-}
-.skeleton-line.short { width: 60%; }
-.skeleton-line.medium { width: 80%; }
-/* ================ Admin Button ================ */
+/* Admin Button */
 .admin-link {
   display: inline-flex;
   align-items: center;
@@ -613,7 +590,7 @@ footer {
   text-decoration: none;
   color: white;
 }
-/* Prix - un seul slider */
+/* Prix slider */
 .price-range-container {
   display: flex;
   flex-direction: column;
@@ -626,10 +603,8 @@ footer {
   font-size: 0.9rem;
   color: #6c757d;
 }
-/* ==================== RESPONSIVE FIXES ==================== */
-/* TABLET - garder sur la même ligne */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-  /* Header fix */
   header {
     padding: 0.8rem 1rem;
   }
@@ -643,7 +618,6 @@ footer {
     gap: 0.5rem;
     flex-shrink: 0;
   }
-  /* Recherche fix */
   .search-container {
     flex-direction: column;
     align-items: center;
@@ -657,7 +631,6 @@ footer {
     justify-content: center;
     flex-wrap: wrap;
   }
-  /* Pagination - reste sur la même ligne */
   .pagination {
     gap: 0.3rem;
     padding: 0.6rem;
@@ -673,9 +646,7 @@ footer {
     min-width: 70px;
   }
 }
-/* SMARTPHONE - organisation spéciale */
 @media (max-width: 480px) {
-  /* Header - tout sur la même ligne mais optimisé */
   header {
     padding: 0.5rem 0.8rem;
     min-height: 60px;
@@ -694,7 +665,7 @@ footer {
     font-size: 0.75rem;
   }
   .user-email {
-    display: none; /* Cache l'email sur mobile */
+    display: none;
   }
   .logout-btn {
     padding: 0.2rem 0.4rem;
@@ -708,7 +679,6 @@ footer {
     padding: 0.2rem 0.4rem;
     font-size: 0.7rem;
   }
-  /* Zone de recherche - réorganisation complète */
   .search-section {
     margin: 1rem 0.5rem;
     padding: 1rem;
@@ -731,7 +701,6 @@ footer {
     padding: 0.6rem;
     font-size: 0.85rem;
   }
-  /* Filtres - plus compacts */
   .filters-container {
     gap: 0.5rem;
     padding: 0.6rem;
@@ -745,7 +714,6 @@ footer {
     padding: 0.3rem 0.6rem;
     font-size: 0.8rem;
   }
-  /* Pagination - très compacte mais sur une ligne */
   .pagination {
     gap: 0.2rem;
     padding: 0.4rem;
@@ -761,17 +729,14 @@ footer {
     font-size: 0.8rem;
     min-width: 60px;
   }
-  /* Main content */
   main {
     padding: 1rem 0.8rem;
   }
-  /* Grille produits */
   .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1rem;
   }
 }
-/* ==================== EXTRA SMALL SCREENS ==================== */
 @media (max-width: 360px) {
   .header-left h1 {
     font-size: 1rem;
@@ -779,16 +744,7 @@ footer {
   .user-info {
     max-width: 120px;
   }
-  .pagination {
-    gap: 0.1rem;
-  }
-  .page-btn {
-    padding: 0.25rem 0.4rem;
-    font-size: 0.75rem;
-  }
-  .page-info {
-    padding: 0.25rem 0.4rem;
-    font-size: 0.75rem;
-    min-width: 50px;
+  .product-grid {
+    grid-template-columns: 1fr;
   }
 }
