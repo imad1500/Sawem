@@ -176,6 +176,11 @@
           <button class="category-btn" data-search="claviers">⌨️ Claviers</button>
           <button class="category-btn" data-search="souris">🖱️ Souris</button>
           <button class="category-btn" data-search="écrans">🖥️ Écrans</button>
+          <!-- NOUVELLES CATÉGORIES -->
+          <button class="category-btn" data-search="cameras">📷 Caméras</button>
+          <button class="category-btn" data-search="energie solaire">☀️ Énergie Solaire</button>
+          <button class="category-btn" data-search="power bank">🔋 Power Banks</button>
+          <button class="category-btn" data-search="electromenager">🏠 Électroménager</button>
         </div>
       </div>
       <!-- Filtres avancés -->
@@ -184,8 +189,10 @@
           <label for="sourceFilter">Source :</label>
           <select id="sourceFilter" class="filter-select">
             <option value="">Toutes les sources</option>
+            <option value="icewatch">ICE-WATCH</option>
             <option value="aliexpress">AliExpress</option>
             <option value="amazon">Amazon</option>
+            <option value="allpowers">ALLPOWERS</option>
             <option value="other">Autres</option>
           </select>
         </div>
@@ -300,6 +307,7 @@
       if (src.includes('amazon'))     return 'Amazon';
       if (src.includes('icewatch'))   return 'ICE-WATCH';
       if (src.includes('imou'))       return 'Imou';
+      if (src.includes('allpowers'))  return 'ALLPOWERS';
       return source.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     }
 
@@ -308,6 +316,7 @@
       const src = source.toLowerCase();
       if (src.includes('aliexpress')) return { bg: '#ff6a00', name: formatSourceName(source) };
       if (src.includes('amazon'))     return { bg: '#ff9900', name: formatSourceName(source) };
+      if (src.includes('allpowers'))  return { bg: '#00a86b', name: formatSourceName(source) };
       let hash = 0;
       for (let i = 0; i < source.length; i++) {
         hash = source.charCodeAt(i) + ((hash << 5) - hash);
@@ -393,14 +402,15 @@
       document.getElementById('searchStats').style.display = 'none';
 
       const sections = [
-        { key: 'nouveautes',    label: '🆕 Nouveautés',              type: 'new' },
-        { key: 'smartphones',  label: '📱 Smartphones',          type: 'search',  query: 'smartphone' },
-        { key: 'tablets',      label: '📟 Tablettes',             type: 'search',  query: 'tablette' },
-        { key: 'computers',    label: '💻 PC & Laptops',          type: 'search',  query: 'laptop' },
-        { key: 'icewatch',     label: '🕐 Montres ICE-WATCH',     type: 'source',  query: 'icewatch',    sourceLabel: 'ICE-WATCH' },
-        { key: 'imou',         label: '📷 Caméras Imou',          type: 'source',  query: 'imou',        sourceLabel: 'Imou' },
-        { key: 'aliexpress',   label: '💡 Bons plans AliExpress', type: 'source',  query: 'aliexpress',  sourceLabel: 'AliExpress' },
-        { key: 'amazon',       label: '🛒 Sélection Amazon',      type: 'source',  query: 'amazon',      sourceLabel: 'Amazon' }
+        { key: 'nouveautes',  label: '🆕 Nouveautés',              type: 'new' },
+        { key: 'cameras',     label: '📷 Caméras de surveillance',  type: 'search', query: 'camera' },
+        { key: 'smartphones', label: '📱 Smartphones',              type: 'search', query: 'smartphone' },
+        { key: 'tablets',     label: '📟 Tablettes',                type: 'search', query: 'tablette' },
+        { key: 'computers',   label: '💻 PC & Laptops',             type: 'search', query: 'laptop' },
+        { key: 'energie',     label: '☀️ Énergie & Power Banks',    type: 'search', query: 'solaire' },
+        { key: 'icewatch',    label: '🕐 Montres ICE-WATCH',        type: 'source', query: 'icewatch', sourceLabel: 'ICE-WATCH' },
+        { key: 'aliexpress',  label: '💡 Bons plans AliExpress',    type: 'source', query: 'aliexpress', sourceLabel: 'AliExpress' },
+        { key: 'amazon',      label: '🛒 Sélection Amazon',         type: 'source', query: 'amazon', sourceLabel: 'Amazon' }
       ];
 
       const container = document.getElementById('productsContainer');
@@ -553,9 +563,10 @@
         const data = await res.json();
 
         const allProducts = [
-          ...data.icewatch, ...data.imou, ...data.smartphones,
-          ...data.tablets, ...data.computers,
-          ...data.aliexpress, ...data.amazon, ...(data.nouveautes || [])
+          ...(data.icewatch || []), ...(data.imou || []), ...(data.smartphones || []),
+          ...(data.tablets || []), ...(data.computers || []), ...(data.cameras || []),
+          ...(data.energie || []), ...(data.aliexpress || []), ...(data.amazon || []), 
+          ...(data.nouveautes || [])
         ];
         currentProducts = allProducts;
         filteredProducts = allProducts;
@@ -638,10 +649,14 @@
           filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('aliexpress'));
         } else if (sourceFilter === 'amazon') {
           filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('amazon'));
+        } else if (sourceFilter === 'icewatch') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('icewatch'));
+        } else if (sourceFilter === 'allpowers') {
+          filtered = filtered.filter(p => (p.source || '').toLowerCase().includes('allpowers'));
         } else if (sourceFilter === 'other') {
           filtered = filtered.filter(p => {
             const source = (p.source || '').toLowerCase();
-            return !source.includes('aliexpress') && !source.includes('amazon');
+            return !source.includes('aliexpress') && !source.includes('amazon') && !source.includes('icewatch') && !source.includes('allpowers');
           });
         }
       }
@@ -873,6 +888,10 @@
             'drones': ['drone','dji'],
             'enceintes': ['enceinte','speaker','jbl','bose'],
             'écrans': ['écran','moniteur','monitor'],
+            'cameras': ['camera','caméra','surveillance','webcam'],
+            'energie solaire': ['solaire','panneau solaire','énergie','power bank'],
+            'power bank': ['powerbank','batterie externe','chargeur portable'],
+            'electromenager': ['friteuse','cuiseur','robot cuisine','appareil électroménager']
           };
           for (const [cat, synonyms] of Object.entries(synonymMap)) {
             if (cat.includes(query.toLowerCase()) || query.toLowerCase().includes(cat.split(' ')[0])) {
@@ -978,18 +997,22 @@
       
       // Catégories
       const CATEGORY_MAP = {
-        'smartphones':        { type: 'category', value: 'smartphones' },
-        'laptops':            { type: 'category', value: 'laptops' },
-        'casques audio':      { type: 'category', value: 'casques' },
-        'montres connectées': { type: 'category', value: 'montres' },
-        'tablettes':          { type: 'category', value: 'tablettes' },
-        'appareils photo':    { type: 'category', value: 'appareils_photo' },
-        'gaming':             { type: 'category', value: 'gaming' },
-        'drones':             { type: 'category', value: 'drones' },
-        'enceintes':          { type: 'category', value: 'enceintes' },
-        'claviers':           { type: 'category', value: 'claviers' },
-        'souris':             { type: 'category', value: 'souris' },
-        'écrans':             { type: 'category', value: 'ecrans' }
+        'smartphones':        { type: 'search', value: 'smartphones' },
+        'laptops':            { type: 'search', value: 'laptops' },
+        'casques audio':      { type: 'search', value: 'casques' },
+        'montres connectées': { type: 'search', value: 'montres' },
+        'tablettes':          { type: 'search', value: 'tablettes' },
+        'appareils photo':    { type: 'search', value: 'appareils_photo' },
+        'gaming':             { type: 'search', value: 'gaming' },
+        'drones':             { type: 'search', value: 'drones' },
+        'enceintes':          { type: 'search', value: 'enceintes' },
+        'claviers':           { type: 'search', value: 'claviers' },
+        'souris':             { type: 'search', value: 'souris' },
+        'écrans':             { type: 'search', value: 'ecrans' },
+        'cameras':            { type: 'search', value: 'camera' },
+        'energie solaire':    { type: 'search', value: 'solaire' },
+        'power bank':         { type: 'search', value: 'power bank' },
+        'electromenager':     { type: 'search', value: 'friteuse' }
       };
       
       document.querySelectorAll('.category-btn').forEach(btn => {
