@@ -192,6 +192,10 @@ main {
   object-fit: contain;  /* Changé de cover à contain */
   background: #f8f9fa;  /* Fond gris clair pour les images */
   padding: 1rem;
+  transition: transform 0.3s ease;  /* Animation hover */
+}
+.product-card:hover img {
+  transform: scale(1.05);  /* Zoom sur l'image au hover */
 }
 .product-info {
   padding: 1rem;
@@ -213,6 +217,7 @@ main {
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
+/* Badge source - NE PAS mettre background ici (vient du style inline JS) */
 .product-source {
   position: absolute;
   top: 8px;
@@ -225,7 +230,6 @@ main {
   color: white;
   letter-spacing: 0.03em;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  background: rgba(0,0,0,0.7);
 }
 .product-actions {
   display: flex;
@@ -546,14 +550,6 @@ button:disabled:hover {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-/* ==================== Footer ==================== */
-footer {
-  background-color: #0d6efd;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  margin-top: auto;
-}
 /* Skeleton */
 .skeleton-card {
   background: #f0f0f0;
@@ -565,7 +561,22 @@ footer {
   0% { opacity: 1; }
   100% { opacity: 0.7; }
 }
-/* Admin Button */
+/* Skeleton loader en grille */
+.loading-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+/* ==================== Styles pour les catégories ==================== */
+.categories-section h2,
+.categories-section h3,
+.categories-title {
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  color: #495057;
+  font-weight: 500;
+}
+/* ==================== Admin Button ==================== */
 .admin-link {
   display: inline-flex;
   align-items: center;
@@ -590,7 +601,7 @@ footer {
   text-decoration: none;
   color: white;
 }
-/* Prix slider */
+/* ==================== Prix slider ==================== */
 .price-range-container {
   display: flex;
   flex-direction: column;
@@ -602,6 +613,14 @@ footer {
 .price-display {
   font-size: 0.9rem;
   color: #6c757d;
+}
+/* ==================== Footer ==================== */
+footer {
+  background-color: #0d6efd;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
 }
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
@@ -644,6 +663,11 @@ footer {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
     min-width: 70px;
+  }
+  /* Skeleton loader responsive */
+  .loading-skeleton {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
   }
 }
 @media (max-width: 480px) {
@@ -736,6 +760,11 @@ footer {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1rem;
   }
+  /* Skeleton loader responsive */
+  .loading-skeleton {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 @media (max-width: 360px) {
   .header-left h1 {
@@ -745,6 +774,9 @@ footer {
     max-width: 120px;
   }
   .product-grid {
+    grid-template-columns: 1fr;
+  }
+  .loading-skeleton {
     grid-template-columns: 1fr;
   }
 }
