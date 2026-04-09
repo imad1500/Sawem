@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sawem Shop</title>
+  <title>Sawem Shop - Produits Tech & Électronique</title>
   <meta name="description" content="Sawem Shop - Produits tech et électroniques">
   <meta name="verify-admitad" content="5ae23ad5f3" />
   <!-- Preconnect -->
@@ -43,6 +43,74 @@
     .see-all-btn:hover {
       background: #0d6efd;
       color: white;
+    }
+    /* Styles pour le vote par étoiles inline */
+    .star-rating {
+      display: inline-flex;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .star-rating .star {
+      font-size: 1.1rem;
+      transition: transform 0.1s ease;
+    }
+    .star-rating .star:hover {
+      transform: scale(1.1);
+    }
+    .star-rating .star.empty {
+      color: #ddd;
+    }
+    .star-rating .star.full {
+      color: #ffc107;
+    }
+    .rating-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0.5rem 0;
+    }
+    .vote-count {
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+    /* Catégories scrollable horizontal sur mobile */
+    .categories-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      margin: 1rem 0;
+    }
+    .categories-grid {
+      display: flex;
+      gap: 0.6rem;
+      min-width: min-content;
+    }
+    @media (min-width: 768px) {
+      .categories-wrapper {
+        overflow-x: visible;
+      }
+      .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+    }
+    .category-btn {
+      flex-shrink: 0;
+      background: #f8f9fa;
+      color: #495057;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 0.7rem 0.8rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    .category-btn:hover {
+      background: #e9ecef;
+      border-color: #0d6efd;
+      color: #0d6efd;
     }
   </style>
 </head>
@@ -93,9 +161,8 @@
           </button>
         </div>
       </div>
-      <!-- Catégories -->
-      <div class="categories-section">
-        <h2>🔍 Recherche par catégorie</h2>
+      <!-- Catégories - scrollable horizontal sur mobile -->
+      <div class="categories-wrapper">
         <div class="categories-grid">
           <button class="category-btn" data-search="smartphones">📱 Smartphones</button>
           <button class="category-btn" data-search="laptops">💻 Laptops</button>
@@ -187,7 +254,7 @@
     const productsPerPage = 12;
 
     // ==================== FONCTIONS UTILITAIRES ====================
-    function renderStars(rating) {
+    function renderStars(rating, voteCount = 0) {
       const numRating = Number(rating) || 0;
       const fullStars = Math.floor(numRating);
       const hasHalfStar = (numRating - fullStars) >= 0.5;
@@ -201,7 +268,19 @@
           starsHTML += '<span class="star empty">☆</span>';
         }
       }
-      return `<div class="stars">${starsHTML}</div><span class="rating-text"> (${numRating.toFixed(1)}/5)</span>`;
+      const voteText = voteCount > 0 ? ` (${voteCount} avis)` : '';
+      return `<div class="rating-info"><div class="stars">${starsHTML}</div><span class="rating-text">${numRating.toFixed(1)}/5</span><span class="vote-count">${voteText}</span></div>`;
+    }
+
+    // Fonction pour rendre les étoiles cliquables pour le vote
+    function renderClickableStars(productId, currentRating = 0) {
+      let starsHTML = '<div class="star-rating" data-product-id="' + productId + '">';
+      for (let i = 1; i <= 5; i++) {
+        const filled = i <= currentRating;
+        starsHTML += `<span class="star ${filled ? 'full' : 'empty'}" data-value="${i}">★</span>`;
+      }
+      starsHTML += '</div>';
+      return starsHTML;
     }
 
     function getToken() {
@@ -256,6 +335,9 @@
       const srcStyle = getSourceStyle(product.source);
       const sourceInfo = `<div class="product-source" style="background:${srcStyle.bg};">${srcStyle.name}</div>`;
 
+      // Récupérer le nombre de votes
+      const voteCount = product.vote_count || 0;
+
       const reviewsHTML = (product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0)
         ? product.reviews.map(review => `
             <div class="review-item">
@@ -263,6 +345,9 @@
               <span class="review-date">${review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
             </div>`).join('')
         : '<p>Aucun avis pour le moment</p>';
+
+      // Étoiles cliquables pour le vote (remplace le bouton Voter)
+      const clickableStars = isLoggedIn ? renderClickableStars(product.id, 0) : '<p class="login-prompt-vote">Connectez-vous pour voter</p>';
 
       return `
         <div class="product-card">
@@ -272,12 +357,12 @@
           <div class="product-info">
             <h3>${escapeHtml(product.title || 'Titre non disponible')}</h3>
             <p class="price">${escapeHtml(product.price || 'Prix non disponible')}</p>
-            <div class="rating">${renderStars(product.user_rating || 0)}</div>
+            <div class="rating">${renderStars(product.user_rating || 0, voteCount)}</div>
             <div class="product-actions">
               <a href="${escapeHtml(product.link || '#')}" target="_blank" rel="noopener noreferrer" class="view-btn">Voir le produit</a>
-              <button onclick="promptVote(${product.id})" class="vote-btn" ${!isLoggedIn ? 'disabled' : ''}>
-                Voter
-              </button>
+            </div>
+            <div class="vote-section">
+              ${clickableStars}
             </div>
             <div class="reviews-section">
               <div class="reviews-list">${reviewsHTML}</div>
@@ -308,6 +393,7 @@
       document.getElementById('searchStats').style.display = 'none';
 
       const sections = [
+        { key: 'nouveautes',    label: '🆕 Nouveautés',              type: 'new' },
         { key: 'smartphones',  label: '📱 Smartphones',          type: 'search',  query: 'smartphone' },
         { key: 'tablets',      label: '📟 Tablettes',             type: 'search',  query: 'tablette' },
         { key: 'computers',    label: '💻 PC & Laptops',          type: 'search',  query: 'laptop' },
@@ -324,9 +410,14 @@
         const products = data[section.key];
         if (!products || products.length === 0) return;
 
-        const btnAction = section.type === 'source'
-          ? `data-type="source" data-query="${escapeHtml(section.query)}" data-label="${escapeHtml(section.sourceLabel)}"`
-          : `data-type="search" data-query="${escapeHtml(section.query)}"`;
+        let btnAction = '';
+        if (section.type === 'source') {
+          btnAction = `data-type="source" data-query="${escapeHtml(section.query)}" data-label="${escapeHtml(section.sourceLabel)}"`;
+        } else if (section.type === 'search') {
+          btnAction = `data-type="search" data-query="${escapeHtml(section.query)}"`;
+        } else if (section.type === 'new') {
+          btnAction = `data-type="new" data-query="nouveautes"`;
+        }
 
         html += `
           <div class="homepage-section">
@@ -343,6 +434,9 @@
 
       container.innerHTML = html;
 
+      // Attacher les événements de vote aux étoiles cliquables
+      attachStarVoteEvents();
+
       // Gestionnaires "Voir tout"
       document.querySelectorAll('.see-all-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -352,12 +446,102 @@
           document.getElementById('searchInput').value = '';
           if (type === 'source') {
             performSourceSearch(query, label);
+          } else if (type === 'new') {
+            performNewProductsSearch();
           } else {
             document.getElementById('searchInput').value = query;
             performTextSearch(query);
           }
         });
       });
+    }
+
+    // Fonction pour rechercher les nouveautés
+    async function performNewProductsSearch() {
+      currentPage = 1;
+      try {
+        const res = await fetch(`${BACKEND_URL}/new-products`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+        if (!Array.isArray(products)) throw new Error('Format invalide');
+
+        filteredProducts = products;
+        currentProducts = products;
+        displayProducts(products);
+        document.getElementById('resultsCount').textContent = `${products.length} résultats`;
+        document.getElementById('searchQuery').textContent = `pour "Nouveautés"`;
+        document.getElementById('searchStats').style.display = 'block';
+      } catch (err) {
+        console.error('New products search error:', err);
+      }
+    }
+
+    // Attacher les événements de vote par étoiles
+    function attachStarVoteEvents() {
+      document.querySelectorAll('.star-rating').forEach(container => {
+        const productId = parseInt(container.dataset.productId);
+        const stars = container.querySelectorAll('.star');
+        
+        stars.forEach(star => {
+          star.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const ratingValue = parseInt(star.dataset.value);
+            const token = localStorage.getItem('sawem_auth_token');
+            if (!token) {
+              alert("Veuillez vous connecter pour voter");
+              return;
+            }
+            
+            try {
+              const response = await fetch(`${BACKEND_URL}/vote`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  product_id: productId,
+                  stars: ratingValue
+                })
+              });
+              
+              if (!response.ok) throw new Error('Erreur réseau');
+              
+              const data = await response.json();
+              showNotification(`Vote enregistré: ${ratingValue}/5 étoiles`, 'success');
+              
+              // Mettre à jour l'affichage des étoiles dans la carte
+              stars.forEach(s => {
+                const val = parseInt(s.dataset.value);
+                if (val <= ratingValue) {
+                  s.classList.add('full');
+                  s.classList.remove('empty');
+                } else {
+                  s.classList.add('empty');
+                  s.classList.remove('full');
+                }
+              });
+              
+              // Recharger les produits pour mettre à jour la moyenne
+              setTimeout(() => loadProducts(), 500);
+            } catch (error) {
+              console.error('Erreur vote:', error);
+              showNotification("Erreur lors du vote", 'error');
+            }
+          });
+        });
+      });
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
     }
 
     async function loadProducts() {
@@ -371,7 +555,7 @@
         const allProducts = [
           ...data.icewatch, ...data.imou, ...data.smartphones,
           ...data.tablets, ...data.computers,
-          ...data.aliexpress, ...data.amazon
+          ...data.aliexpress, ...data.amazon, ...(data.nouveautes || [])
         ];
         currentProducts = allProducts;
         filteredProducts = allProducts;
@@ -405,6 +589,10 @@
         html += renderProductCard(product);
       });
       container.innerHTML = `<div class="product-grid">${html}</div>`;
+      
+      // Réattacher les événements de vote
+      attachStarVoteEvents();
+      
       updatePagination(currentPage, totalPages, totalProducts);
     }
 
@@ -477,7 +665,6 @@
           filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
           break;
         default:
-          // relevance - garder l'ordre original
           break;
       }
       filteredProducts = filtered;
@@ -583,43 +770,7 @@
       if (adminLink) adminLink.style.display = 'none';
     }
 
-    // ==================== VOTES ET AVIS ====================
-    function promptVote(productId) {
-      const token = localStorage.getItem('sawem_auth_token');
-      if (!token) {
-        alert("Veuillez vous connecter pour voter");
-        return;
-      }
-      const rating = prompt("Notez ce produit de 1 à 5 étoiles:");
-      if (rating && rating >= 1 && rating <= 5) {
-        fetch(`${BACKEND_URL}/vote`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            product_id: productId,
-            stars: parseInt(rating)
-          })
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Erreur réseau');
-          }
-          return response.json();
-        })
-        .then(data => {
-          alert(`Vote enregistré: ${rating}/5 étoiles`);
-          loadProducts();
-        })
-        .catch(error => {
-          console.error('Erreur vote:', error);
-          alert("Erreur lors du vote");
-        });
-      }
-    }
-
+    // ==================== AVIS ====================
     function submitReview(productId) {
       const token = localStorage.getItem('sawem_auth_token');
       if (!token) {
@@ -650,13 +801,13 @@
         return response.json();
       })
       .then(data => {
-        alert("Avis publié avec succès");
+        showNotification("Avis publié avec succès", 'success');
         textarea.value = '';
         loadProducts();
       })
       .catch(error => {
         console.error('Erreur commentaire:', error);
-        alert("Erreur lors de l'envoi du commentaire");
+        showNotification("Erreur lors de l'envoi du commentaire", 'error');
       });
     }
 
@@ -711,9 +862,7 @@
         let products = await res.json();
         if (!Array.isArray(products)) throw new Error('Format de réponse invalide');
 
-        // Fallback : si 0 résultat, essayer avec les synonymes de catégorie
         if (products.length === 0) {
-          // Chercher si le query matche une catégorie connue
           const synonymMap = {
             'smartphones': ['smartphone','iphone','samsung galaxy','xiaomi'],
             'laptops': ['laptop','macbook','thinkpad','notebook'],
@@ -827,7 +976,7 @@
         });
       }
       
-      // Catégories avec mapping exact vers la BDD
+      // Catégories
       const CATEGORY_MAP = {
         'smartphones':        { type: 'category', value: 'smartphones' },
         'laptops':            { type: 'category', value: 'laptops' },
