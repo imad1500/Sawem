@@ -9,8 +9,7 @@ html, body {
   height: 100%;
 }
 body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  background-attachment: fixed;
+  background: #f0f2f5;
   color: #333;
   line-height: 1.6;
   display: flex;
@@ -260,7 +259,7 @@ main {
   min-height: 2.8em;
 }
 .product-info .price {
-  color: #0d6efd;
+  color: #e63946;
   font-weight: bold;
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
@@ -284,7 +283,7 @@ main {
   margin: 0.75rem 0;
 }
 .view-btn {
-  background: #0d6efd;
+  background: #2d9e6b;
   color: white;
   padding: 0.6rem 1rem;
   border: none;
@@ -298,7 +297,7 @@ main {
   transition: all 0.2s ease;
 }
 .view-btn:hover {
-  background: #0b5ed7;
+  background: #248a5d;
   transform: translateY(-1px);
 }
 /* ==================== Étoiles et votes ==================== */
